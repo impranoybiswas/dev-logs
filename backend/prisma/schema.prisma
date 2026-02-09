@@ -60,3 +60,13 @@ enum FriendshipStatus {
   REJECTED
 }
 
+model JobApplication {
+  id        String   @id @default(uuid())
+  userId    String
+  company   String
+  role      String
+  status    String
+  appliedAt DateTime
+  notes     String?
+  user      User     @relation(fields: [userId], references: [id])
+}
