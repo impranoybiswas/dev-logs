@@ -2,29 +2,38 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from '../src/app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { ExpressAdapter } from '@nestjs/platform-express';
-import express from 'express';
+import express, { Express, Request, Response } from 'express';
 
 const server = express();
 
-export const createServer = async (expressInstance: express.Express) => {
-  const app = await NestFactory.create(
-    AppModule,
-    new ExpressAdapter(expressInstance),
-  );
+let cachedServer: Express;
 
-  app.useGlobalPipes(
-    new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }),
-  );
+export const bootstrap = async (): Promise<Express> => {
+  if (!cachedServer) {
+    const app = await NestFactory.create(AppModule, new ExpressAdapter(server));
 
-  app.enableCors({
-    origin: true,
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    credentials: true,
-  });
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        transform: true,
+      }),
+    );
 
-  await app.init();
+    app.enableCors({
+      origin: true,
+      methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+      credentials: true,
+    });
+
+    await app.init();
+    cachedServer = server;
+  }
+  return cachedServer;
 };
 
-createServer(server);
-
-export default server;
+// Vercel Handler
+export default async (req: Request, res: Response) => {
+  const app = await bootstrap();
+  app(req, res);
+};
