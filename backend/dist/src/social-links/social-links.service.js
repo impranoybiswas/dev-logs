@@ -30,6 +30,21 @@ let SocialLinksService = class SocialLinksService {
             where: { userId },
         });
     }
+    async update(userId, id, updateData) {
+        const socialLink = await this.prisma.socialLink.findUnique({
+            where: { id },
+        });
+        if (!socialLink) {
+            throw new common_1.NotFoundException('Social link not found');
+        }
+        if (socialLink.userId !== userId) {
+            throw new common_1.ForbiddenException('You do not have permission to update this social link');
+        }
+        return this.prisma.socialLink.update({
+            where: { id },
+            data: updateData,
+        });
+    }
     async remove(userId, id) {
         const socialLink = await this.prisma.socialLink.findUnique({
             where: { id },

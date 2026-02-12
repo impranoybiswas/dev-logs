@@ -28,6 +28,9 @@ let SocialLinksController = class SocialLinksController {
     findAll(req) {
         return this.socialLinksService.findAll(req.user.userId);
     }
+    update(req, id, updateSocialLinkDto) {
+        return this.socialLinksService.update(req.user.userId, id, updateSocialLinkDto);
+    }
     remove(req, id) {
         return this.socialLinksService.remove(req.user.userId, id);
     }
@@ -48,6 +51,15 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], SocialLinksController.prototype, "findAll", null);
+__decorate([
+    (0, common_1.Patch)(':id'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id')),
+    __param(2, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, Object]),
+    __metadata("design:returntype", void 0)
+], SocialLinksController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(':id'),
     __param(0, (0, common_1.Request)()),

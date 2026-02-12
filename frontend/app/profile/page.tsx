@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { useRouter } from 'next/navigation';
 import { AxiosError } from 'axios';
+import SocialLinks from '@/components/SocialLinks';
 
 const { Title } = Typography;
 
@@ -19,7 +20,7 @@ export default function ProfilePage() {
             return response.data;
         },
         // Don't retry automatically on 401
-        retry: (failureCount, error : AxiosError) => {
+        retry: (failureCount, error: AxiosError) => {
             if (error.response?.status === 401) return false;
             return failureCount < 3;
         },
@@ -107,6 +108,7 @@ export default function ProfilePage() {
                         </div>
                     )}
                 </Card>
+                <SocialLinks />
             </div>
         </div>
     );

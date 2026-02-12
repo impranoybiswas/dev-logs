@@ -7,6 +7,7 @@ import {
   Delete,
   UseGuards,
   Request,
+  Patch,
 } from '@nestjs/common';
 import { SocialLinksService } from './social-links.service';
 import { CreateSocialLinkDto } from './dto/create-social-link.dto';
@@ -35,6 +36,19 @@ export class SocialLinksController {
   @Get()
   findAll(@Request() req: AuthenticatedRequest) {
     return this.socialLinksService.findAll(req.user.userId);
+  }
+
+  @Patch(':id')
+  update(
+    @Request() req: AuthenticatedRequest,
+    @Param('id') id: string,
+    @Body() updateSocialLinkDto: Partial<CreateSocialLinkDto>,
+  ) {
+    return this.socialLinksService.update(
+      req.user.userId,
+      id,
+      updateSocialLinkDto,
+    );
   }
 
   @Delete(':id')

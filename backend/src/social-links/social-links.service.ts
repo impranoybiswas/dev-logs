@@ -25,6 +25,31 @@ export class SocialLinksService {
     });
   }
 
+  async update(
+    userId: string,
+    id: string,
+    updateData: Partial<CreateSocialLinkDto>,
+  ) {
+    const socialLink = await this.prisma.socialLink.findUnique({
+      where: { id },
+    });
+
+    if (!socialLink) {
+      throw new NotFoundException('Social link not found');
+    }
+
+    if (socialLink.userId !== userId) {
+      throw new ForbiddenException(
+        'You do not have permission to update this social link',
+      );
+    }
+
+    return this.prisma.socialLink.update({
+      where: { id },
+      data: updateData,
+    });
+  }
+
   async remove(userId: string, id: string) {
     const socialLink = await this.prisma.socialLink.findUnique({
       where: { id },
