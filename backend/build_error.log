@@ -1,0 +1,15 @@
+
+> backend@0.0.1 build
+> nest build
+
+[96msrc/app.module.ts[0m:[93m7[0m:[93m28[0m - [91merror[0m[90m TS2307: [0mCannot find module './auth/auth.module' or its corresponding type declarations.
+
+[7m7[0m import { AuthModule } from './auth/auth.module';
+[7m [0m [91m                           ~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/auth/auth.controller.ts[0m:[93m2[0m:[93m29[0m - [91merror[0m[90m TS2307: [0mCannot find module './auth.service' or its corresponding type declarations.
+
+[7m2[0m import { AuthService } from './auth.service';
+[7m [0m [91m                            ~~~~~~~~~~~~~~~~[0m
+
+Found 2 error(s).
+
