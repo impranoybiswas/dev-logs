@@ -37,6 +37,7 @@ const platforms = [
 
 export default function SocialLinks() {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isManageModalOpen, setIsManageModalOpen] = useState(false);
     const [editingLink, setEditingLink] = useState<SocialLink | null>(null);
     const [form] = Form.useForm();
     const queryClient = useQueryClient();
@@ -158,33 +159,74 @@ export default function SocialLinks() {
 
     return (
         <Card
-            title={<Title level={4} className="m-0">Social Links</Title>}
+            title={<Title level={4} className="m-0">Social Media</Title>}
             extra={
                 <Button
-                    type="primary"
+                    type="text"
+                    icon={<EditOutlined />}
+                    onClick={() => setIsManageModalOpen(true)}
+                >
+                    Manage
+                </Button>
+            }
+            className="mt-6 shadow-sm border-0"
+            styles={{ body: { padding: '24px' } }}
+        >
+            <div className="flex flex-wrap gap-3 items-center">
+                {links?.map((link) => (
+                    <Button
+                        key={link.id}
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        icon={platformIcons[link.name.toLowerCase()] || <GlobalOutlined />}
+                        className="flex items-center rounded-full px-5 py-2 h-auto text-sm font-medium hover:scale-105 transition-transform"
+                        style={{ border: '1px solid #f0f0f0' }}
+                    >
+                        {link.name}
+                    </Button>
+                ))}
+
+                <Button
+                    type="dashed"
                     icon={<PlusOutlined />}
                     onClick={handleAdd}
+                    className="flex items-center rounded-full px-5 py-2 h-auto text-sm font-medium text-blue-500 border-blue-200 hover:border-blue-400"
                 >
                     Add Link
                 </Button>
-            }
-            className="mt-6"
-        >
-            <Table
-                columns={columns}
-                dataSource={links}
-                rowKey="id"
-                loading={isLoading}
-                pagination={false}
-                locale={{ emptyText: 'No social links added yet.' }}
-            />
+            </div>
+
+            {/* Manage Links Modal */}
+            <Modal
+                title="Manage Social Links"
+                open={isManageModalOpen}
+                onCancel={() => setIsManageModalOpen(false)}
+                footer={null}
+                width={700}
+                destroyOnHidden
+            >
+                <Table
+                    columns={columns}
+                    dataSource={links}
+                    rowKey="id"
+                    loading={isLoading}
+                    pagination={false}
+                    locale={{ emptyText: 'No social links added yet.' }}
+                />
+                <div className="mt-4 text-right">
+                    <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
+                        Add New Link
+                    </Button>
+                </div>
+            </Modal>
 
             <Modal
                 title={editingLink ? "Edit Social Link" : "Add Social Link"}
                 open={isModalOpen}
                 onCancel={() => setIsModalOpen(false)}
                 footer={null}
-                destroyOnClose
+                destroyOnHidden
             >
                 <Form
                     form={form}
