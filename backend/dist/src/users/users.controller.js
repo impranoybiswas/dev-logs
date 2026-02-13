@@ -43,8 +43,11 @@ let UsersController = class UsersController {
     async getReceivedRequests(req) {
         return await this.usersService.getFriendships(req.user.userId, 'RECEIVED');
     }
-    async cancelFriendRequest(req, friendshipId) {
-        return await this.usersService.cancelFriendRequest(req.user.userId, friendshipId);
+    async getFriends(req) {
+        return await this.usersService.getFriendships(req.user.userId, 'ACCEPTED');
+    }
+    async unfriend(req, friendshipId) {
+        return await this.usersService.unfriend(req.user.userId, friendshipId);
     }
 };
 exports.UsersController = UsersController;
@@ -110,13 +113,21 @@ __decorate([
 ], UsersController.prototype, "getReceivedRequests", null);
 __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
-    (0, common_1.Patch)('friend-request/:id/cancel'),
+    (0, common_1.Get)('friendships/accepted'),
+    __param(0, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "getFriends", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Patch)('friend-request/:id/unfriend'),
     __param(0, (0, common_1.Request)()),
     __param(1, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
-], UsersController.prototype, "cancelFriendRequest", null);
+], UsersController.prototype, "unfriend", null);
 exports.UsersController = UsersController = __decorate([
     (0, common_1.Controller)('users'),
     __metadata("design:paramtypes", [users_service_1.UsersService])

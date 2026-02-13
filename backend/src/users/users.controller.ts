@@ -89,14 +89,17 @@ export class UsersController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Patch('friend-request/:id/cancel')
-  async cancelFriendRequest(
+  @Get('friendships/accepted')
+  async getFriends(@Request() req: AuthenticatedRequest) {
+    return await this.usersService.getFriendships(req.user.userId, 'ACCEPTED');
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('friend-request/:id/unfriend')
+  async unfriend(
     @Request() req: AuthenticatedRequest,
     @Param('id') friendshipId: string,
   ) {
-    return await this.usersService.cancelFriendRequest(
-      req.user.userId,
-      friendshipId,
-    );
+    return await this.usersService.unfriend(req.user.userId, friendshipId);
   }
 }

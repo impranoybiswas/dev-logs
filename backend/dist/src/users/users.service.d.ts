@@ -54,8 +54,11 @@ export declare class UsersService {
     } | {
         message: string;
     }>;
-    getFriendships(userId: string, type: 'SENT' | 'RECEIVED'): Promise<FriendshipWithUser[]>;
+    getFriendships(userId: string, type: 'SENT' | 'RECEIVED' | 'ACCEPTED'): Promise<FriendshipWithUser[]>;
     cancelFriendRequest(userId: string, friendshipId: string): Promise<{
+        message: string;
+    }>;
+    unfriend(userId: string, friendshipId: string): Promise<{
         message: string;
     }>;
 }

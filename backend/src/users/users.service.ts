@@ -286,13 +286,18 @@ export class UsersService {
 
   async getFriendships(
     userId: string,
-    type: 'SENT' | 'RECEIVED',
+    type: 'SENT' | 'RECEIVED' | 'ACCEPTED',
   ): Promise<FriendshipWithUser[]> {
     const friendships = await this.prisma.friendship.findMany({
       where:
         type === 'SENT'
           ? { requesterId: userId, status: 'PENDING' }
-          : { receiverId: userId, status: 'PENDING' },
+          : type === 'RECEIVED'
+            ? { receiverId: userId, status: 'PENDING' }
+            : {
+                status: 'ACCEPTED',
+                OR: [{ requesterId: userId }, { receiverId: userId }],
+              },
       include: {
         requester: {
           select: {
@@ -320,12 +325,24 @@ export class UsersService {
       orderBy: { createdAt: 'desc' },
     });
 
-    return friendships.map((f) => ({
-      id: f.id,
-      status: f.status as any,
-      createdAt: f.createdAt,
-      user: (type === 'SENT' ? f.receiver : f.requester) as SafeUser,
-    }));
+    return friendships.map((f) => {
+      let friend;
+      if (type === 'SENT') {
+        friend = f.receiver;
+      } else if (type === 'RECEIVED') {
+        friend = f.requester;
+      } else {
+        // For ACCEPTED, the friend is the one who ISN'T the current user
+        friend = f.requesterId === userId ? f.receiver : f.requester;
+      }
+
+      return {
+        id: f.id,
+        status: f.status as any,
+        createdAt: f.createdAt,
+        user: friend as SafeUser,
+      };
+    });
   }
 
   async cancelFriendRequest(userId: string, friendshipId: string) {
@@ -359,5 +376,29 @@ export class UsersService {
     });
 
     return { message: 'Friend request cancelled' };
+  }
+
+  async unfriend(userId: string, friendshipId: string) {
+    const friendship = await this.prisma.friendship.findUnique({
+      where: { id: friendshipId },
+    });
+
+    if (!friendship) {
+      throw new NotFoundException('Friendship not found');
+    }
+
+    if (friendship.requesterId !== userId && friendship.receiverId !== userId) {
+      throw new ConflictException('You can only remove your own friendships');
+    }
+
+    if (friendship.status !== 'ACCEPTED') {
+      throw new ConflictException('Can only unfriend accepted connections');
+    }
+
+    await this.prisma.friendship.delete({
+      where: { id: friendshipId },
+    });
+
+    return { message: 'Friend removed' };
   }
 }

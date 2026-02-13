@@ -56,3 +56,15 @@ export const cancelFriendRequest = async (friendshipId: string) => {
   );
   return response.data;
 };
+
+export const getFriends = async (): Promise<FriendshipRequest[]> => {
+  const response = await api.get("/users/friendships/accepted");
+  return response.data;
+};
+
+export const unfriend = async (friendshipId: string) => {
+  const response = await api.patch(
+    `/users/friend-request/${friendshipId}/unfriend`,
+  );
+  return response.data;
+};

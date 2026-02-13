@@ -26,8 +26,10 @@ import {
 import {
     getSentRequests,
     getReceivedRequests,
+    getFriends,
     respondToFriendRequest,
     cancelFriendRequest,
+    unfriend,
     FriendshipRequest
 } from '@/lib/user';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -36,8 +38,8 @@ const { Title, Text } = Typography;
 
 interface RequestListProps {
     requests: FriendshipRequest[];
-    type: 'sent' | 'received';
-    onAction: (id: string, action: 'ACCEPT' | 'REJECT' | 'CANCEL') => Promise<void>;
+    type: 'sent' | 'received' | 'friends';
+    onAction: (id: string, action: 'ACCEPT' | 'REJECT' | 'CANCEL' | 'UNFRIEND') => Promise<void>;
 }
 
 const RequestList = ({ requests, type, onAction }: RequestListProps) => (
@@ -73,7 +75,7 @@ const RequestList = ({ requests, type, onAction }: RequestListProps) => (
                                     Reject
                                 </Button>
                             </div>
-                        ) : (
+                        ) : type === 'sent' ? (
                             <Button
                                 key="cancel"
                                 danger
@@ -93,6 +95,26 @@ const RequestList = ({ requests, type, onAction }: RequestListProps) => (
                             >
                                 Cancel
                             </Button>
+                        ) : (
+                            <Button
+                                key="unfriend"
+                                danger
+                                icon={<CloseOutlined />}
+                                onClick={() => {
+                                    Modal.confirm({
+                                        title: 'Unfriend User',
+                                        icon: <QuestionCircleOutlined style={{ color: '#ff4d4f' }} />,
+                                        content: `Are you sure you want to remove ${item.user.name} from your friends?`,
+                                        okText: 'Yes, Unfriend',
+                                        okType: 'danger',
+                                        cancelText: 'No',
+                                        onOk: () => onAction(item.id, 'UNFRIEND'),
+                                    });
+                                }}
+                                className="rounded-xl"
+                            >
+                                Unfriend
+                            </Button>
                         )
                     ]}
                 >
@@ -110,8 +132,8 @@ const RequestList = ({ requests, type, onAction }: RequestListProps) => (
                         title={
                             <div className="flex items-center gap-2 mb-1">
                                 <Text strong className="text-lg">{item.user.name}</Text>
-                                <Tag color={type === 'sent' ? 'blue' : 'orange'} className="rounded-full border-none px-3">
-                                    {type === 'sent' ? 'Sent' : 'Received'}
+                                <Tag color={type === 'sent' ? 'blue' : type === 'received' ? 'orange' : 'green'} className="rounded-full border-none px-3">
+                                    {type === 'sent' ? 'Sent' : type === 'received' ? 'Received' : 'Friend'}
                                 </Tag>
                             </div>
                         }
@@ -133,7 +155,12 @@ const RequestList = ({ requests, type, onAction }: RequestListProps) => (
 
 export default function FriendsPage() {
     const queryClient = useQueryClient();
-    const [activeTab, setActiveTab] = useState('received');
+    const [activeTab, setActiveTab] = useState('friends');
+
+    const { data: friends = [], isLoading: loadingFriends } = useQuery({
+        queryKey: ['friendships', 'accepted'],
+        queryFn: getFriends,
+    });
 
     const { data: receivedRequests = [], isLoading: loadingReceived } = useQuery({
         queryKey: ['friendships', 'received'],
@@ -145,11 +172,14 @@ export default function FriendsPage() {
         queryFn: getSentRequests,
     });
 
-    const handleAction = async (id: string, action: 'ACCEPT' | 'REJECT' | 'CANCEL') => {
+    const handleAction = async (id: string, action: 'ACCEPT' | 'REJECT' | 'CANCEL' | 'UNFRIEND') => {
         try {
             if (action === 'CANCEL') {
                 await cancelFriendRequest(id);
                 message.success('Request cancelled');
+            } else if (action === 'UNFRIEND') {
+                await unfriend(id);
+                message.success('Friend removed');
             } else {
                 await respondToFriendRequest(id, action);
                 message.success(`Request ${action === 'ACCEPT' ? 'accepted' : 'rejected'}`);
@@ -159,7 +189,7 @@ export default function FriendsPage() {
             queryClient.invalidateQueries({ queryKey: ['users'] });
             queryClient.invalidateQueries({ queryKey: ['profile'] });
         } catch (error) {
-            message.error('Failed to perform action');
+            message.error(`Failed to ${action.toLowerCase()} request`);
             console.error(error);
         }
     };
@@ -188,6 +218,27 @@ export default function FriendsPage() {
                         centered
                         className="custom-tabs"
                         items={[
+                            {
+                                key: 'friends',
+                                label: (
+                                    <Badge count={friends.length} offset={[10, 0]} size="small" color="#52c41a">
+                                        <span className="px-4">Friends</span>
+                                    </Badge>
+                                ),
+                                children: (
+                                    <div className="py-6 min-h-[400px]">
+                                        {loadingFriends ? (
+                                            <div className="flex justify-center py-20">
+                                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+                                            </div>
+                                        ) : (
+                                            <AnimatePresence mode="wait">
+                                                <RequestList requests={friends} type="friends" onAction={handleAction} />
+                                            </AnimatePresence>
+                                        )}
+                                    </div>
+                                ),
+                            },
                             {
                                 key: 'received',
                                 label: (
