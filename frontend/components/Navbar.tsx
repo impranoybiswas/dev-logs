@@ -9,23 +9,39 @@ import {
     MoonOutlined,
     BellOutlined,
     CheckCircleOutlined,
-    UserOutlined
+    UserOutlined,
+    LogoutOutlined
 } from '@ant-design/icons';
 import { useTheme } from 'next-themes';
 import { Badge, Popover, List, Button, Empty, Avatar, message } from 'antd';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getNotifications, markAsRead, markAllAsRead, Notification } from '@/lib/notification';
 import { respondToFriendRequest } from '@/lib/user';
+import api from '@/lib/api';
+import { useRouter } from 'next/navigation';
 
 export default function Navbar() {
+    const router = useRouter();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const { theme, setTheme } = useTheme();
     const queryClient = useQueryClient();
+
+    const { data: user } = useQuery({
+        queryKey: ['profile'],
+        queryFn: async () => {
+            const response = await api.get('/users/profile');
+            return response.data;
+        },
+        retry: false,
+    });
+
+    const isLoggedIn = !!user;
 
     const { data: notifications = [] } = useQuery({
         queryKey: ['notifications'],
         queryFn: getNotifications,
         refetchInterval: 30000, // Poll every 30 seconds
+        enabled: isLoggedIn, // Only fetch if logged in
     });
 
     const unreadCount = notifications.filter(n => !n.read).length;
@@ -34,6 +50,7 @@ export default function Navbar() {
         { href: '/', label: 'Home' },
         { href: '/jobs', label: 'Jobs' },
         { href: '/users', label: 'Users' },
+        { href: '/friends', label: 'Friends' },
         { href: '/profile', label: 'Profile' },
     ];
 
@@ -68,6 +85,14 @@ export default function Navbar() {
             message.error(`Failed to ${action.toLowerCase()} request`);
             console.error(error);
         }
+    };
+
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        queryClient.setQueryData(['profile'], null);
+        queryClient.invalidateQueries({ queryKey: ['notifications'] });
+        message.success('Logged out successfully');
+        router.push('/auth/login');
     };
 
     const notificationContent = (
@@ -189,12 +214,31 @@ export default function Navbar() {
                             )}
                         </button>
 
-                        <Link
-                            href="/auth/login"
-                            className="px-6 py-2 rounded-lg bg-primary hover:bg-primary-hover text-primary-foreground font-medium transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105"
-                        >
-                            Get Started
-                        </Link>
+                        {isLoggedIn ? (
+                            <Button
+                                danger
+                                icon={<LogoutOutlined />}
+                                onClick={handleLogout}
+                                className="px-6 py-5 rounded-lg font-medium transition-all duration-200 border-none shadow-md hover:shadow-lg"
+                            >
+                                Logout
+                            </Button>
+                        ) : (
+                            <div className="flex items-center space-x-4">
+                                <Link
+                                    href="/auth/login"
+                                    className="text-foreground/80 hover:text-primary transition-colors duration-200 font-medium"
+                                >
+                                    Log In
+                                </Link>
+                                <Link
+                                    href="/auth/register"
+                                    className="px-6 py-2 rounded-lg bg-primary hover:bg-primary-hover text-primary-foreground font-medium transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105"
+                                >
+                                    Get Started
+                                </Link>
+                            </div>
+                        )}
                     </div>
 
                     {/* Mobile Menu Button */}
@@ -235,13 +279,37 @@ export default function Navbar() {
                                 {link.label}
                             </Link>
                         ))}
-                        <Link
-                            href="/auth/login"
-                            onClick={() => setIsMobileMenuOpen(false)}
-                            className="block w-full px-4 py-2 rounded-lg bg-primary hover:bg-primary-hover text-primary-foreground text-center font-medium transition-all"
-                        >
-                            Get Started
-                        </Link>
+                        {isLoggedIn ? (
+                            <Button
+                                danger
+                                block
+                                icon={<LogoutOutlined />}
+                                onClick={() => {
+                                    handleLogout();
+                                    setIsMobileMenuOpen(false);
+                                }}
+                                className="h-10 rounded-lg font-medium border-none"
+                            >
+                                Logout
+                            </Button>
+                        ) : (
+                            <>
+                                <Link
+                                    href="/auth/login"
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                    className="block px-4 py-2 rounded-lg text-foreground/80 hover:text-primary hover:bg-muted transition-colors text-center font-medium"
+                                >
+                                    Log In
+                                </Link>
+                                <Link
+                                    href="/auth/register"
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                    className="block w-full px-4 py-2 rounded-lg bg-primary hover:bg-primary-hover text-primary-foreground text-center font-medium transition-all"
+                                >
+                                    Get Started
+                                </Link>
+                            </>
+                        )}
                     </div>
                 </div>
             )}

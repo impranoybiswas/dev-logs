@@ -1,59 +1,93 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     UserAddOutlined,
     SearchOutlined,
     GlobalOutlined,
     LoadingOutlined,
-    CheckCircleFilled
+    CheckCircleFilled,
+    CheckOutlined,
+    CloseOutlined
 } from '@ant-design/icons';
 import { message, Input, Empty, Button, Avatar } from 'antd';
-import { User, getUsers, sendFriendRequest } from '@/lib/user';
+import { getUsers, sendFriendRequest, respondToFriendRequest, cancelFriendRequest, getSentRequests } from '@/lib/user';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 
 
 export default function UsersPage() {
-    const [users, setUsers] = useState<User[]>([]);
-    const [loading, setLoading] = useState(true);
+    const queryClient = useQueryClient();
     const [searchQuery, setSearchQuery] = useState('');
-    const [requestingIds, setRequestingIds] = useState<Set<string>>(new Set());
-    const [sentRequests, setSentRequests] = useState<Set<string>>(new Set());
+    const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
 
-    const loadUsers = async () => {
-        try {
-            setLoading(true);
-            const data = await getUsers();
-            setUsers(data);
-        } catch (error) {
-            message.error('Failed to load users');
-            console.error(error);
-        } finally {
-            setLoading(false);
-        }
-    };
+    const { data: users = [], isLoading: loading } = useQuery({
+        queryKey: ['users'],
+        queryFn: getUsers,
+    });
 
-    useEffect(() => {
-        loadUsers();
-    }, []);
+    const { data: sentRequests = [] } = useQuery({
+        queryKey: ['friendships', 'sent'],
+        queryFn: getSentRequests,
+    });
 
     const handleAddFriend = async (userId: string) => {
-        setRequestingIds((prev) => new Set(Array.from(prev).concat(userId)));
+        setActionLoadingId(userId);
         try {
             await sendFriendRequest(userId);
             message.success('Friend request sent!');
-            setSentRequests((prev) => new Set(Array.from(prev).concat(userId)));
+            queryClient.invalidateQueries({ queryKey: ['users'] });
+            queryClient.invalidateQueries({ queryKey: ['friendships'] });
+            queryClient.invalidateQueries({ queryKey: ['notifications'] });
         } catch (error: unknown) {
             const axiosError = error as AxiosError<{ message: string }>;
-
             message.error(axiosError.response?.data?.message || 'Failed to send friend request');
         } finally {
-            setRequestingIds((prev) => {
-                const next = new Set(prev);
-                next.delete(userId);
-                return next;
-            });
+            setActionLoadingId(null);
+        }
+    };
+
+    const handleCancelRequest = async (userId: string) => {
+        const sentReq = sentRequests.find(r => r.user.id === userId);
+        if (!sentReq) return;
+
+        setActionLoadingId(userId);
+        try {
+            await cancelFriendRequest(sentReq.id);
+            message.success('Request cancelled');
+            queryClient.invalidateQueries({ queryKey: ['users'] });
+            queryClient.invalidateQueries({ queryKey: ['friendships'] });
+            queryClient.invalidateQueries({ queryKey: ['notifications'] });
+        } catch {
+            message.error('Failed to cancel request');
+        } finally {
+            setActionLoadingId(null);
+        }
+    };
+
+    const handleRespond = async (userId: string, action: 'ACCEPT' | 'REJECT') => {
+        // We'd need the received friendship ID here, but our current User DTO only gives status.
+        // For simplicity in the users list, let's redirect them to the friends page or just show "Respond in Friends Tab"
+        // Better: let's fetch received requests and find the ID.
+        const receivedData = await queryClient.fetchQuery({
+            queryKey: ['friendships', 'received'],
+            queryFn: () => import('@/lib/user').then(m => m.getReceivedRequests())
+        });
+        const req = receivedData.find(r => r.user.id === userId);
+        if (!req) return;
+
+        setActionLoadingId(userId);
+        try {
+            await respondToFriendRequest(req.id, action);
+            message.success(`Request ${action.toLowerCase()}ed`);
+            queryClient.invalidateQueries({ queryKey: ['users'] });
+            queryClient.invalidateQueries({ queryKey: ['friendships'] });
+            queryClient.invalidateQueries({ queryKey: ['notifications'] });
+        } catch {
+            message.error('Failed to respond');
+        } finally {
+            setActionLoadingId(null);
         }
     };
 
@@ -148,25 +182,66 @@ export default function UsersPage() {
                                         </div>
 
                                         {/* Action Button */}
-                                        <Button
-                                            type={user.friendshipStatus !== 'NONE' || sentRequests.has(user.id) ? 'default' : 'primary'}
-                                            size="large"
-                                            block
-                                            icon={(user.friendshipStatus !== 'NONE' || sentRequests.has(user.id)) ? <CheckCircleFilled className="text-success" /> : <UserAddOutlined />}
-                                            loading={requestingIds.has(user.id)}
-                                            onClick={() => handleAddFriend(user.id)}
-                                            disabled={user.friendshipStatus !== 'NONE' || sentRequests.has(user.id)}
-                                            className={`rounded-2xl font-bold h-12 transition-all duration-300 ${(user.friendshipStatus !== 'NONE' || sentRequests.has(user.id))
-                                                ? 'bg-success/10 border-success/20 text-success'
-                                                : 'shadow-[0_4px_14px_0_rgba(124,58,237,0.39)] hover:shadow-[0_6px_20px_rgba(124,58,237,0.23)]'
-                                                }`}
-                                        >
-                                            {sentRequests.has(user.id) || user.friendshipStatus === 'PENDING'
-                                                ? 'Request Sent'
-                                                : user.friendshipStatus === 'ACCEPTED'
-                                                    ? 'Friends'
-                                                    : 'Add Friend'}
-                                        </Button>
+                                        <div className="w-full mt-auto">
+                                            {user.friendshipStatus === 'ACCEPTED' ? (
+                                                <Button
+                                                    size="large"
+                                                    block
+                                                    disabled
+                                                    icon={<CheckCircleFilled className="text-success" />}
+                                                    className="rounded-2xl font-bold h-12 bg-success/10 border-success/20 text-success"
+                                                >
+                                                    Friends
+                                                </Button>
+                                            ) : user.friendshipStatus === 'PENDING' && user.isRequester ? (
+                                                <Button
+                                                    size="large"
+                                                    block
+                                                    danger
+                                                    loading={actionLoadingId === user.id}
+                                                    icon={<CloseOutlined />}
+                                                    onClick={() => handleCancelRequest(user.id)}
+                                                    className="rounded-2xl font-bold h-12"
+                                                >
+                                                    Cancel Request
+                                                </Button>
+                                            ) : user.friendshipStatus === 'PENDING' && !user.isRequester ? (
+                                                <div className="flex gap-2">
+                                                    <Button
+                                                        type="primary"
+                                                        size="large"
+                                                        loading={actionLoadingId === user.id}
+                                                        icon={<CheckOutlined />}
+                                                        onClick={() => handleRespond(user.id, 'ACCEPT')}
+                                                        className="rounded-2xl font-bold h-12 grow"
+                                                    >
+                                                        Accept
+                                                    </Button>
+                                                    <Button
+                                                        danger
+                                                        size="large"
+                                                        loading={actionLoadingId === user.id}
+                                                        icon={<CloseOutlined />}
+                                                        onClick={() => handleRespond(user.id, 'REJECT')}
+                                                        className="rounded-2xl font-bold h-12 grow"
+                                                    >
+                                                        Reject
+                                                    </Button>
+                                                </div>
+                                            ) : (
+                                                <Button
+                                                    type="primary"
+                                                    size="large"
+                                                    block
+                                                    icon={<UserAddOutlined />}
+                                                    loading={actionLoadingId === user.id}
+                                                    onClick={() => handleAddFriend(user.id)}
+                                                    className="rounded-2xl font-bold h-12 shadow-[0_4px_14px_0_rgba(124,58,237,0.39)] hover:shadow-[0_6px_20px_rgba(124,58,237,0.23)]"
+                                                >
+                                                    Add Friend
+                                                </Button>
+                                            )}
+                                        </div>
 
                                     </div>
                                 </motion.div>

@@ -28,5 +28,10 @@ export declare class UsersController {
     } | {
         message: string;
     }>;
+    getSentRequests(req: AuthenticatedRequest): Promise<import("./users.service").FriendshipWithUser[]>;
+    getReceivedRequests(req: AuthenticatedRequest): Promise<import("./users.service").FriendshipWithUser[]>;
+    cancelFriendRequest(req: AuthenticatedRequest, friendshipId: string): Promise<{
+        message: string;
+    }>;
 }
 export {};

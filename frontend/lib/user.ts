@@ -9,6 +9,14 @@ export interface User {
   birthDate: string | null;
   createdAt: string;
   friendshipStatus?: "PENDING" | "ACCEPTED" | "REJECTED" | "NONE";
+  isRequester?: boolean;
+}
+
+export interface FriendshipRequest {
+  id: string;
+  status: "PENDING" | "ACCEPTED" | "REJECTED";
+  createdAt: string;
+  user: User;
 }
 
 export const getUsers = async (): Promise<User[]> => {
@@ -28,6 +36,23 @@ export const respondToFriendRequest = async (
   const response = await api.patch(
     `/users/friend-request/${friendshipId}/respond`,
     { action },
+  );
+  return response.data;
+};
+
+export const getSentRequests = async (): Promise<FriendshipRequest[]> => {
+  const response = await api.get("/users/friendships/sent");
+  return response.data;
+};
+
+export const getReceivedRequests = async (): Promise<FriendshipRequest[]> => {
+  const response = await api.get("/users/friendships/received");
+  return response.data;
+};
+
+export const cancelFriendRequest = async (friendshipId: string) => {
+  const response = await api.patch(
+    `/users/friend-request/${friendshipId}/cancel`,
   );
   return response.data;
 };

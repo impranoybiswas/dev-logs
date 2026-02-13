@@ -144,9 +144,16 @@ let UsersService = class UsersService {
         });
         return users.map((user) => {
             const friendship = friendships.find((f) => f.requesterId === user.id || f.receiverId === user.id);
+            let status = 'NONE';
+            if (friendship) {
+                status = friendship.status;
+            }
             return {
                 ...user,
-                friendshipStatus: friendship ? friendship.status : 'NONE',
+                friendshipStatus: status,
+                isRequester: friendship
+                    ? friendship.requesterId === excludeUserId
+                    : false,
             };
         });
     }
@@ -192,16 +199,14 @@ let UsersService = class UsersService {
         });
         return friendship;
     }
-    async respondToFriendRequest(userId, requesterId, action) {
-        const friendship = await this.prisma.friendship.findFirst({
-            where: {
-                requesterId,
-                receiverId: userId,
-                status: 'PENDING',
-            },
+    async respondToFriendRequest(userId, friendshipId, action) {
+        const friendship = await this.prisma.friendship.findUnique({
+            where: { id: friendshipId },
             include: { receiver: true, requester: true },
         });
-        if (!friendship) {
+        if (!friendship ||
+            friendship.receiverId !== userId ||
+            friendship.status !== 'PENDING') {
             throw new common_1.NotFoundException('Friend request not found');
         }
         if (action === 'REJECT') {
@@ -212,7 +217,7 @@ let UsersService = class UsersService {
             await this.prisma.notification.updateMany({
                 where: {
                     userId,
-                    requesterId,
+                    requesterId: friendship.requesterId,
                     type: 'FRIEND_REQUEST',
                     read: false,
                 },
@@ -227,7 +232,7 @@ let UsersService = class UsersService {
         await this.prisma.notification.updateMany({
             where: {
                 userId,
-                requesterId,
+                requesterId: friendship.requesterId,
                 type: 'FRIEND_REQUEST',
                 read: false,
             },
@@ -242,6 +247,69 @@ let UsersService = class UsersService {
             },
         });
         return updatedFriendship;
+    }
+    async getFriendships(userId, type) {
+        const friendships = await this.prisma.friendship.findMany({
+            where: type === 'SENT'
+                ? { requesterId: userId, status: 'PENDING' }
+                : { receiverId: userId, status: 'PENDING' },
+            include: {
+                requester: {
+                    select: {
+                        id: true,
+                        name: true,
+                        email: true,
+                        profilePhoto: true,
+                        gender: true,
+                        birthDate: true,
+                        createdAt: true,
+                    },
+                },
+                receiver: {
+                    select: {
+                        id: true,
+                        name: true,
+                        email: true,
+                        profilePhoto: true,
+                        gender: true,
+                        birthDate: true,
+                        createdAt: true,
+                    },
+                },
+            },
+            orderBy: { createdAt: 'desc' },
+        });
+        return friendships.map((f) => ({
+            id: f.id,
+            status: f.status,
+            createdAt: f.createdAt,
+            user: (type === 'SENT' ? f.receiver : f.requester),
+        }));
+    }
+    async cancelFriendRequest(userId, friendshipId) {
+        const friendship = await this.prisma.friendship.findUnique({
+            where: { id: friendshipId },
+        });
+        if (!friendship) {
+            throw new common_1.NotFoundException('Friend request not found');
+        }
+        if (friendship.requesterId !== userId) {
+            throw new common_1.ConflictException('You can only cancel requests you sent');
+        }
+        if (friendship.status !== 'PENDING') {
+            throw new common_1.ConflictException('Can only cancel pending requests');
+        }
+        await this.prisma.friendship.delete({
+            where: { id: friendshipId },
+        });
+        await this.prisma.notification.deleteMany({
+            where: {
+                userId: friendship.receiverId,
+                requesterId: userId,
+                type: 'FRIEND_REQUEST',
+            },
+        });
+        return { message: 'Friend request cancelled' };
     }
 };
 exports.UsersService = UsersService;

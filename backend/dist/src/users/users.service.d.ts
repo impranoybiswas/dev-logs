@@ -15,6 +15,12 @@ export interface UserWithRelations extends SafeUser {
     socialLinks: any[];
     jobApplications: any[];
 }
+export interface FriendshipWithUser {
+    id: string;
+    status: 'PENDING' | 'ACCEPTED' | 'REJECTED';
+    createdAt: Date;
+    user: SafeUser;
+}
 export declare class UsersService {
     private prisma;
     constructor(prisma: PrismaService);
@@ -39,13 +45,17 @@ export declare class UsersService {
         requesterId: string;
         receiverId: string;
     }>;
-    respondToFriendRequest(userId: string, requesterId: string, action: 'ACCEPT' | 'REJECT'): Promise<{
+    respondToFriendRequest(userId: string, friendshipId: string, action: 'ACCEPT' | 'REJECT'): Promise<{
         id: string;
         createdAt: Date;
         status: import("@prisma/client").$Enums.FriendshipStatus;
         requesterId: string;
         receiverId: string;
     } | {
+        message: string;
+    }>;
+    getFriendships(userId: string, type: 'SENT' | 'RECEIVED'): Promise<FriendshipWithUser[]>;
+    cancelFriendRequest(userId: string, friendshipId: string): Promise<{
         message: string;
     }>;
 }

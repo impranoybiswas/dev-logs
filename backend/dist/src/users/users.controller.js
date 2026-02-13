@@ -23,10 +23,10 @@ let UsersController = class UsersController {
         this.usersService = usersService;
     }
     async getProfile(req) {
-        return this.usersService.findById(req.user.userId);
+        return await this.usersService.findById(req.user.userId);
     }
     async updateProfile(req, updateProfileDto) {
-        return this.usersService.updateProfile(req.user.userId, updateProfileDto);
+        return await this.usersService.updateProfile(req.user.userId, updateProfileDto);
     }
     async findAll(req) {
         return await this.usersService.findAll(req.user.userId);
@@ -36,6 +36,15 @@ let UsersController = class UsersController {
     }
     async respondToFriendRequest(req, friendshipId, action) {
         return await this.usersService.respondToFriendRequest(req.user.userId, friendshipId, action);
+    }
+    async getSentRequests(req) {
+        return await this.usersService.getFriendships(req.user.userId, 'SENT');
+    }
+    async getReceivedRequests(req) {
+        return await this.usersService.getFriendships(req.user.userId, 'RECEIVED');
+    }
+    async cancelFriendRequest(req, friendshipId) {
+        return await this.usersService.cancelFriendRequest(req.user.userId, friendshipId);
     }
 };
 exports.UsersController = UsersController;
@@ -83,6 +92,31 @@ __decorate([
     __metadata("design:paramtypes", [Object, String, String]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "respondToFriendRequest", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Get)('friendships/sent'),
+    __param(0, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "getSentRequests", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Get)('friendships/received'),
+    __param(0, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "getReceivedRequests", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Patch)('friend-request/:id/cancel'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "cancelFriendRequest", null);
 exports.UsersController = UsersController = __decorate([
     (0, common_1.Controller)('users'),
     __metadata("design:paramtypes", [users_service_1.UsersService])

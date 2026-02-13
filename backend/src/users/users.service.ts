@@ -24,6 +24,13 @@ export interface UserWithRelations extends SafeUser {
   jobApplications: any[];
 }
 
+export interface FriendshipWithUser {
+  id: string;
+  status: 'PENDING' | 'ACCEPTED' | 'REJECTED';
+  createdAt: Date;
+  user: SafeUser;
+}
+
 @Injectable()
 export class UsersService {
   constructor(private prisma: PrismaService) {}
@@ -135,9 +142,20 @@ export class UsersService {
       const friendship = friendships.find(
         (f) => f.requesterId === user.id || f.receiverId === user.id,
       );
+
+      let status: 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'NONE' = 'NONE';
+      if (friendship) {
+        status = friendship.status;
+        // If it's pending, we might want to know if WE sent it or THEY sent it
+        // But for compatibility, we'll stick to 'PENDING' and handle details in specialized endpoints
+      }
+
       return {
         ...user,
-        friendshipStatus: friendship ? friendship.status : 'NONE',
+        friendshipStatus: status,
+        isRequester: friendship
+          ? friendship.requesterId === excludeUserId
+          : false,
       };
     });
   }
@@ -181,6 +199,7 @@ export class UsersService {
     });
 
     // Get requester name for the notification message
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const requester = await this.prisma.user.findUnique({
       where: { id: requesterId },
       select: { name: true },
@@ -200,19 +219,19 @@ export class UsersService {
 
   async respondToFriendRequest(
     userId: string,
-    requesterId: string,
+    friendshipId: string,
     action: 'ACCEPT' | 'REJECT',
   ) {
-    const friendship = await this.prisma.friendship.findFirst({
-      where: {
-        requesterId,
-        receiverId: userId,
-        status: 'PENDING',
-      },
+    const friendship = await this.prisma.friendship.findUnique({
+      where: { id: friendshipId },
       include: { receiver: true, requester: true },
     });
 
-    if (!friendship) {
+    if (
+      !friendship ||
+      friendship.receiverId !== userId ||
+      friendship.status !== 'PENDING'
+    ) {
       throw new NotFoundException('Friend request not found');
     }
 
@@ -226,7 +245,7 @@ export class UsersService {
       await this.prisma.notification.updateMany({
         where: {
           userId,
-          requesterId,
+          requesterId: friendship.requesterId,
           type: 'FRIEND_REQUEST',
           read: false,
         },
@@ -245,7 +264,7 @@ export class UsersService {
     await this.prisma.notification.updateMany({
       where: {
         userId,
-        requesterId,
+        requesterId: friendship.requesterId,
         type: 'FRIEND_REQUEST',
         read: false,
       },
@@ -263,5 +282,82 @@ export class UsersService {
     });
 
     return updatedFriendship;
+  }
+
+  async getFriendships(
+    userId: string,
+    type: 'SENT' | 'RECEIVED',
+  ): Promise<FriendshipWithUser[]> {
+    const friendships = await this.prisma.friendship.findMany({
+      where:
+        type === 'SENT'
+          ? { requesterId: userId, status: 'PENDING' }
+          : { receiverId: userId, status: 'PENDING' },
+      include: {
+        requester: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            profilePhoto: true,
+            gender: true,
+            birthDate: true,
+            createdAt: true,
+          },
+        },
+        receiver: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            profilePhoto: true,
+            gender: true,
+            birthDate: true,
+            createdAt: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return friendships.map((f) => ({
+      id: f.id,
+      status: f.status as any,
+      createdAt: f.createdAt,
+      user: (type === 'SENT' ? f.receiver : f.requester) as SafeUser,
+    }));
+  }
+
+  async cancelFriendRequest(userId: string, friendshipId: string) {
+    const friendship = await this.prisma.friendship.findUnique({
+      where: { id: friendshipId },
+    });
+
+    if (!friendship) {
+      throw new NotFoundException('Friend request not found');
+    }
+
+    if (friendship.requesterId !== userId) {
+      throw new ConflictException('You can only cancel requests you sent');
+    }
+
+    if (friendship.status !== 'PENDING') {
+      throw new ConflictException('Can only cancel pending requests');
+    }
+
+    await this.prisma.friendship.delete({
+      where: { id: friendshipId },
+    });
+
+    // Also clear the notification sent to the receiver
+    await this.prisma.notification.deleteMany({
+      where: {
+        userId: friendship.receiverId,
+        requesterId: userId,
+        type: 'FRIEND_REQUEST',
+      },
+    });
+
+    return { message: 'Friend request cancelled' };
   }
 }
