@@ -1,34 +1,15 @@
 import { UsersService } from './users.service';
+import { UpdateProfileDto } from './dto/update-profile.dto';
+interface AuthenticatedRequest extends Request {
+    user: {
+        userId: string;
+        email: string;
+    };
+}
 export declare class UsersController {
     private usersService;
     constructor(usersService: UsersService);
-    getProfile(req: {
-        user: {
-            userId: string;
-            email: string;
-        };
-    }): Promise<{
-        email: string;
-        name: string;
-        gender: string | null;
-        birthDate: Date | null;
-        profilePhoto: string | null;
-        id: string;
-        createdAt: Date;
-        socialLinks: {
-            url: string;
-            name: string;
-            id: string;
-            userId: string;
-        }[];
-        jobApplications: {
-            id: string;
-            userId: string;
-            company: string;
-            role: string;
-            status: string;
-            appliedAt: Date;
-            notes: string | null;
-        }[];
-    }>;
+    getProfile(req: AuthenticatedRequest): Promise<import('./users.service').UserWithRelations>;
+    updateProfile(req: AuthenticatedRequest, updateProfileDto: UpdateProfileDto): Promise<import('./users.service').SafeUser>;
 }
+export {};

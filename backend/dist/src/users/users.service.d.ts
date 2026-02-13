@@ -1,11 +1,18 @@
 import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDto } from '../auth/dto/register.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 export interface SafeUser {
     id: string;
     name: string;
     email: string;
     profilePhoto: string | null;
+    gender: string | null;
+    birthDate: Date | null;
     createdAt: Date;
+}
+export interface UserWithRelations extends SafeUser {
+    socialLinks: any[];
+    jobApplications: any[];
 }
 export declare class UsersService {
     private prisma;
@@ -21,28 +28,6 @@ export declare class UsersService {
         id: string;
         createdAt: Date;
     } | null>;
-    findById(id: string): Promise<{
-        email: string;
-        name: string;
-        gender: string | null;
-        birthDate: Date | null;
-        profilePhoto: string | null;
-        id: string;
-        createdAt: Date;
-        socialLinks: {
-            url: string;
-            name: string;
-            id: string;
-            userId: string;
-        }[];
-        jobApplications: {
-            id: string;
-            userId: string;
-            company: string;
-            role: string;
-            status: string;
-            appliedAt: Date;
-            notes: string | null;
-        }[];
-    }>;
+    findById(id: string): Promise<UserWithRelations>;
+    updateProfile(id: string, data: UpdateProfileDto): Promise<SafeUser>;
 }

@@ -6,13 +6,21 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { RegisterDto } from '../auth/dto/register.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 export interface SafeUser {
   id: string;
   name: string;
   email: string;
   profilePhoto: string | null;
+  gender: string | null;
+  birthDate: Date | null;
   createdAt: Date;
+}
+
+export interface UserWithRelations extends SafeUser {
+  socialLinks: any[];
+  jobApplications: any[];
 }
 
 @Injectable()
@@ -40,6 +48,8 @@ export class UsersService {
         name: true,
         email: true,
         profilePhoto: true,
+        gender: true,
+        birthDate: true,
         createdAt: true,
       },
     });
@@ -51,7 +61,7 @@ export class UsersService {
     });
   }
 
-  async findById(id: string) {
+  async findById(id: string): Promise<UserWithRelations> {
     const user = await this.prisma.user.findUnique({
       where: { id },
       select: {
@@ -72,5 +82,26 @@ export class UsersService {
     }
 
     return user;
+  }
+
+  async updateProfile(id: string, data: UpdateProfileDto): Promise<SafeUser> {
+    const updateData: any = { ...data };
+    if (updateData.birthDate) {
+      updateData.birthDate = new Date(updateData.birthDate);
+    }
+
+    return await this.prisma.user.update({
+      where: { id },
+      data: updateData,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        profilePhoto: true,
+        gender: true,
+        birthDate: true,
+        createdAt: true,
+      },
+    });
   }
 }

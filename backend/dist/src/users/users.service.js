@@ -69,6 +69,8 @@ let UsersService = class UsersService {
                 name: true,
                 email: true,
                 profilePhoto: true,
+                gender: true,
+                birthDate: true,
                 createdAt: true,
             },
         });
@@ -97,6 +99,25 @@ let UsersService = class UsersService {
             throw new common_1.NotFoundException('User not found');
         }
         return user;
+    }
+    async updateProfile(id, data) {
+        const updateData = { ...data };
+        if (updateData.birthDate) {
+            updateData.birthDate = new Date(updateData.birthDate);
+        }
+        return await this.prisma.user.update({
+            where: { id },
+            data: updateData,
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                profilePhoto: true,
+                gender: true,
+                birthDate: true,
+                createdAt: true,
+            },
+        });
     }
 };
 exports.UsersService = UsersService;

@@ -16,6 +16,7 @@ exports.UsersController = void 0;
 const common_1 = require("@nestjs/common");
 const users_service_1 = require("./users.service");
 const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
+const update_profile_dto_1 = require("./dto/update-profile.dto");
 let UsersController = class UsersController {
     usersService;
     constructor(usersService) {
@@ -23,6 +24,9 @@ let UsersController = class UsersController {
     }
     async getProfile(req) {
         return this.usersService.findById(req.user.userId);
+    }
+    async updateProfile(req, updateProfileDto) {
+        return this.usersService.updateProfile(req.user.userId, updateProfileDto);
     }
 };
 exports.UsersController = UsersController;
@@ -34,6 +38,15 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "getProfile", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Patch)('profile'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, update_profile_dto_1.UpdateProfileDto]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "updateProfile", null);
 exports.UsersController = UsersController = __decorate([
     (0, common_1.Controller)('users'),
     __metadata("design:paramtypes", [users_service_1.UsersService])
