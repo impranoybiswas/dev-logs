@@ -41,7 +41,7 @@ let JobApplicationsService = class JobApplicationsService {
             throw new common_1.NotFoundException('Job application not found');
         }
         if (jobApplication.userId !== userId) {
-            throw new common_1.ForbiddenException('You do not have permission to accessz this job application');
+            throw new common_1.ForbiddenException('You do not have permission to access this job application');
         }
         return jobApplication;
     }

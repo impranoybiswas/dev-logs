@@ -43,7 +43,7 @@ export class JobApplicationsService {
 
     if (jobApplication.userId !== userId) {
       throw new ForbiddenException(
-        'You do not have permission to accessz this job application',
+        'You do not have permission to access this job application',
       );
     }
 

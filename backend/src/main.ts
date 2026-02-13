@@ -1,22 +1,51 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, INestApplication } from '@nestjs/common';
+import { ExpressAdapter } from '@nestjs/platform-express';
+import express, { Request, Response } from 'express';
 
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+let cachedApp: INestApplication;
 
-  // Global validation pipe
-  app.useGlobalPipes(
-    new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }),
-  );
+async function bootstrap(): Promise<INestApplication> {
+  if (!cachedApp) {
+    const server = express();
+    const app = await NestFactory.create(AppModule, new ExpressAdapter(server));
 
-  // Enable CORS
-  app.enableCors({
-    origin: true, // Allow any origin and mirror it in the response
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    credentials: true,
-  });
+    // Global validation pipe
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        transform: true,
+      }),
+    );
 
-  await app.listen(process.env.PORT ?? 3001);
+    // Enable CORS
+    app.enableCors({
+      origin: true,
+      methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+      credentials: true,
+    });
+
+    await app.init();
+    cachedApp = app;
+  }
+  return cachedApp;
 }
-bootstrap().catch((error) => console.error(error));
+
+// Vercel serverless handler
+export default async (req: Request, res: Response) => {
+  const app = await bootstrap();
+  const instance = app.getHttpAdapter().getInstance() as express.Application;
+  instance(req, res);
+};
+
+// Local development
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+  bootstrap()
+    .then(async (app) => {
+      await app.listen(process.env.PORT ?? 3001);
+      console.log(`Application is running on: ${await app.getUrl()}`);
+    })
+    .catch((error) => console.error(error));
+}
