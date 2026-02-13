@@ -40,25 +40,23 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
 
-    /* Darker variants for dark mode */
-    --primary: #8b5cf6;
-    --primary-hover: #7c3aed;
+  /* Darker variants for dark mode */
+  --primary: #8b5cf6;
+  --primary-hover: #7c3aed;
 
-    --secondary: #14b8a6;
-    --secondary-hover: #0d9488;
+  --secondary: #14b8a6;
+  --secondary-hover: #0d9488;
 
-    --accent: #fb923c;
-    --accent-hover: #f97316;
+  --accent: #fb923c;
+  --accent-hover: #f97316;
 
-    --muted: #1f2937;
-    --muted-foreground: #9ca3af;
-    --border: #374151;
-  }
+  --muted: #1f2937;
+  --muted-foreground: #9ca3af;
+  --border: #374151;
 }
 
 body {

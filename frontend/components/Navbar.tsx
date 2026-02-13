@@ -2,10 +2,12 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { MenuOutlined, CloseOutlined } from '@ant-design/icons';
+import { MenuOutlined, CloseOutlined, SunOutlined, MoonOutlined } from '@ant-design/icons';
+import { useTheme } from 'next-themes';
 
 export default function Navbar() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const { theme, setTheme } = useTheme();
 
     const navLinks = [
         { href: '/', label: 'Home' },
@@ -38,6 +40,20 @@ export default function Navbar() {
                                 {link.label}
                             </Link>
                         ))}
+
+                        {/* Theme Toggle */}
+                        <button
+                            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                            className="p-2 rounded-lg text-foreground hover:bg-muted transition-colors"
+                            aria-label="Toggle theme"
+                        >
+                            {theme === 'dark' ? (
+                                <SunOutlined className="text-xl" />
+                            ) : (
+                                <MoonOutlined className="text-xl" />
+                            )}
+                        </button>
+
                         <Link
                             href="/auth/login"
                             className="px-6 py-2 rounded-lg bg-primary hover:bg-primary-hover text-primary-foreground font-medium transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105"
