@@ -49,6 +49,9 @@ let UsersController = class UsersController {
     async unfriend(req, friendshipId) {
         return await this.usersService.unfriend(req.user.userId, friendshipId);
     }
+    async getPublicProfile(userId) {
+        return await this.usersService.getPublicProfile(userId);
+    }
 };
 exports.UsersController = UsersController;
 __decorate([
@@ -128,6 +131,14 @@ __decorate([
     __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "unfriend", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Get)(':id/profile'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "getPublicProfile", null);
 exports.UsersController = UsersController = __decorate([
     (0, common_1.Controller)('users'),
     __metadata("design:paramtypes", [users_service_1.UsersService])

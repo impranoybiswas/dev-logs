@@ -102,4 +102,12 @@ export class UsersController {
   ) {
     return await this.usersService.unfriend(req.user.userId, friendshipId);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Get(':id/profile')
+  async getPublicProfile(
+    @Param('id') userId: string,
+  ): Promise<import('./users.service').UserWithRelations> {
+    return await this.usersService.getPublicProfile(userId);
+  }
 }

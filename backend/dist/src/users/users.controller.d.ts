@@ -34,5 +34,6 @@ export declare class UsersController {
     unfriend(req: AuthenticatedRequest, friendshipId: string): Promise<{
         message: string;
     }>;
+    getPublicProfile(userId: string): Promise<import('./users.service').UserWithRelations>;
 }
 export {};

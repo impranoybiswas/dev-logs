@@ -21,7 +21,8 @@ import {
     CloseOutlined,
     ClockCircleOutlined,
     QuestionCircleOutlined,
-    UserAddOutlined
+    UserAddOutlined,
+    GlobalOutlined
 } from '@ant-design/icons';
 import {
     getSentRequests,
@@ -33,6 +34,7 @@ import {
     FriendshipRequest
 } from '@/lib/user';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 
 const { Title, Text } = Typography;
 
@@ -42,116 +44,120 @@ interface RequestListProps {
     onAction: (id: string, action: 'ACCEPT' | 'REJECT' | 'CANCEL' | 'UNFRIEND') => Promise<void>;
 }
 
-const RequestList = ({ requests, type, onAction }: RequestListProps) => (
-    <List
-        itemLayout="horizontal"
-        dataSource={requests}
-        locale={{ emptyText: <Empty description={`No ${type} requests`} image={Empty.PRESENTED_IMAGE_SIMPLE} /> }}
-        renderItem={(item) => (
-            <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-            >
-                <List.Item
-                    className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-6 mb-4 hover:shadow-lg transition-all duration-300"
-                    actions={[
-                        type === 'received' ? (
-                            <div key="actions" className="flex gap-2">
-                                <Button
-                                    type="primary"
-                                    icon={<CheckOutlined />}
-                                    onClick={() => onAction(item.id, 'ACCEPT')}
-                                    className="rounded-xl shadow-md"
-                                >
-                                    Accept
-                                </Button>
-                                <Button
-                                    danger
-                                    icon={<CloseOutlined />}
-                                    onClick={() => onAction(item.id, 'REJECT')}
-                                    className="rounded-xl"
-                                >
-                                    Reject
-                                </Button>
-                            </div>
-                        ) : type === 'sent' ? (
-                            <Button
-                                key="cancel"
-                                danger
-                                icon={<CloseOutlined />}
-                                onClick={() => {
-                                    Modal.confirm({
-                                        title: 'Cancel Friend Request',
-                                        icon: <QuestionCircleOutlined style={{ color: '#ff4d4f' }} />,
-                                        content: 'Are you sure you want to retract this friend request?',
-                                        okText: 'Yes, Cancel',
-                                        okType: 'danger',
-                                        cancelText: 'No',
-                                        onOk: () => onAction(item.id, 'CANCEL'),
-                                    });
-                                }}
-                                className="rounded-xl"
-                            >
-                                Cancel
-                            </Button>
-                        ) : (
-                            <Button
-                                key="unfriend"
-                                danger
-                                icon={<CloseOutlined />}
-                                onClick={() => {
-                                    Modal.confirm({
-                                        title: 'Unfriend User',
-                                        icon: <QuestionCircleOutlined style={{ color: '#ff4d4f' }} />,
-                                        content: `Are you sure you want to remove ${item.user.name} from your friends?`,
-                                        okText: 'Yes, Unfriend',
-                                        okType: 'danger',
-                                        cancelText: 'No',
-                                        onOk: () => onAction(item.id, 'UNFRIEND'),
-                                    });
-                                }}
-                                className="rounded-xl"
-                            >
-                                Unfriend
-                            </Button>
-                        )
-                    ]}
+const RequestList = ({ requests, type, onAction }: RequestListProps) => {
+    const router = useRouter();
+    return (
+        <List
+            itemLayout="horizontal"
+            dataSource={requests}
+            locale={{ emptyText: <Empty description={`No ${type} requests`} image={Empty.PRESENTED_IMAGE_SIMPLE} /> }}
+            renderItem={(item) => (
+                <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
                 >
-                    <List.Item.Meta
-                        avatar={
-                            <Badge dot={type === 'received'} status="processing">
-                                <Avatar
-                                    size={64}
-                                    src={item.user.profilePhoto}
-                                    icon={<UserOutlined />}
-                                    className="border-2 border-primary/20"
-                                />
-                            </Badge>
-                        }
-                        title={
-                            <div className="flex items-center gap-2 mb-1">
-                                <Text strong className="text-lg">{item.user.name}</Text>
-                                <Tag color={type === 'sent' ? 'blue' : type === 'received' ? 'orange' : 'green'} className="rounded-full border-none px-3">
-                                    {type === 'sent' ? 'Sent' : type === 'received' ? 'Received' : 'Friend'}
-                                </Tag>
-                            </div>
-                        }
-                        description={
-                            <div className="space-y-1">
-                                <Text type="secondary">{item.user.email}</Text>
-                                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                    <ClockCircleOutlined />
-                                    <span>{new Date(item.createdAt).toLocaleDateString()}</span>
+                    <List.Item
+                        className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-6 mb-4 hover:shadow-lg transition-all duration-300"
+                        actions={[
+                            <div key="actions" className="flex flex-col gap-2 items-end">
+                                <div className="flex gap-2">
+                                    {type === 'received' ? (
+                                        <>
+                                            <Button
+                                                type="primary"
+                                                icon={<CheckOutlined />}
+                                                onClick={() => onAction(item.id, 'ACCEPT')}
+                                                className="rounded-xl shadow-md bg-success border-success"
+                                            >
+                                                Accept
+                                            </Button>
+                                            <Button
+                                                danger
+                                                icon={<CloseOutlined />}
+                                                onClick={() => onAction(item.id, 'REJECT')}
+                                                className="rounded-xl"
+                                            >
+                                                Reject
+                                            </Button>
+                                        </>
+                                    ) : type === 'sent' ? (
+                                        <Button
+                                            danger
+                                            icon={<CloseOutlined />}
+                                            onClick={() => onAction(item.id, 'CANCEL')}
+                                            className="rounded-xl"
+                                        >
+                                            Cancel
+                                        </Button>
+                                    ) : (
+                                        <Button
+                                            danger
+                                            icon={<CloseOutlined />}
+                                            onClick={() => {
+                                                Modal.confirm({
+                                                    title: 'Unfriend User',
+                                                    icon: <QuestionCircleOutlined style={{ color: '#ff4d4f' }} />,
+                                                    content: `Are you sure you want to remove ${item.user.name} from your friends?`,
+                                                    okText: 'Yes, Unfriend',
+                                                    okType: 'danger',
+                                                    cancelText: 'No',
+                                                    onOk: () => onAction(item.id, 'UNFRIEND'),
+                                                });
+                                            }}
+                                            className="rounded-xl"
+                                        >
+                                            Unfriend
+                                        </Button>
+                                    )}
                                 </div>
+                                <Button
+                                    size="small"
+                                    type="text"
+                                    icon={<GlobalOutlined />}
+                                    onClick={() => router.push(`/users/${item.user.id}`)}
+                                    className="text-primary hover:text-primary-hover font-medium"
+                                >
+                                    View Profile
+                                </Button>
                             </div>
-                        }
-                    />
-                </List.Item>
-            </motion.div>
-        )}
-    />
-);
+                        ]}
+                    >
+                        <List.Item.Meta
+                            avatar={
+                                <Badge dot={type === 'received'} status="processing">
+                                    <Avatar
+                                        size={64}
+                                        src={item.user.profilePhoto}
+                                        icon={<UserOutlined />}
+                                        className="border-2 border-primary/20"
+                                    />
+                                </Badge>
+                            }
+                            title={
+                                <div className="flex items-center gap-2 mb-1">
+                                    <Text strong className="text-lg">{item.user.name}</Text>
+                                    <Tag color={type === 'sent' ? 'blue' : type === 'received' ? 'orange' : 'green'} className="rounded-full border-none px-3">
+                                        {type === 'sent' ? 'Sent' : type === 'received' ? 'Received' : 'Friend'}
+                                    </Tag>
+                                </div>
+                            }
+                            description={
+                                <div className="space-y-1">
+                                    <Text type="secondary">{item.user.email}</Text>
+                                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                        <ClockCircleOutlined />
+                                        <span>{new Date(item.createdAt).toLocaleDateString()}</span>
+                                    </div>
+                                </div>
+                            }
+                        />
+                    </List.Item>
+                </motion.div>
+            )}
+        />
+    );
+};
 
 export default function FriendsPage() {
     const queryClient = useQueryClient();

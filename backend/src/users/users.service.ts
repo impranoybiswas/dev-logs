@@ -401,4 +401,29 @@ export class UsersService {
 
     return { message: 'Friend removed' };
   }
+
+  async getPublicProfile(id: string): Promise<UserWithRelations> {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        gender: true,
+        birthDate: true,
+        profilePhoto: true,
+        socialLinks: true,
+        createdAt: true,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return {
+      ...user,
+      jobApplications: [], // Exclude job applications for public profile
+    };
+  }
 }

@@ -35,20 +35,28 @@ const platforms = [
     { label: 'WhatsApp', value: 'whatsapp' },
 ];
 
-export default function SocialLinks() {
+interface SocialLinksProps {
+    links?: SocialLink[];
+    editable?: boolean;
+}
+
+export default function SocialLinks({ links: propLinks, editable = true }: SocialLinksProps) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isManageModalOpen, setIsManageModalOpen] = useState(false);
     const [editingLink, setEditingLink] = useState<SocialLink | null>(null);
     const [form] = Form.useForm();
     const queryClient = useQueryClient();
 
-    const { data: links, isLoading } = useQuery<SocialLink[]>({
+    const { data: fetchedLinks, isLoading } = useQuery<SocialLink[]>({
         queryKey: ['social-links'],
         queryFn: async () => {
             const response = await api.get('/social-links');
             return response.data;
         },
+        enabled: !propLinks, // Only fetch if links weren't passed as prop
     });
+
+    const links = propLinks || fetchedLinks;
 
     const mutation = useMutation({
         mutationFn: async (values: { name: string; url: string }) => {
@@ -160,7 +168,7 @@ export default function SocialLinks() {
     return (
         <Card
             title={<Title level={4} className="m-0">Social Media</Title>}
-            extra={
+            extra={editable && (
                 <Button
                     type="text"
                     icon={<EditOutlined />}
@@ -168,7 +176,7 @@ export default function SocialLinks() {
                 >
                     Manage
                 </Button>
-            }
+            )}
             className="mt-6 shadow-sm border-0"
             styles={{ body: { padding: '24px' } }}
         >
@@ -187,14 +195,16 @@ export default function SocialLinks() {
                     </Button>
                 ))}
 
-                <Button
-                    type="dashed"
-                    icon={<PlusOutlined />}
-                    onClick={handleAdd}
-                    className="flex items-center rounded-full px-5 py-2 h-auto text-sm font-medium text-blue-500 border-blue-200 hover:border-blue-400"
-                >
-                    Add Link
-                </Button>
+                {editable && (
+                    <Button
+                        type="dashed"
+                        icon={<PlusOutlined />}
+                        onClick={handleAdd}
+                        className="flex items-center rounded-full px-5 py-2 h-auto text-sm font-medium text-blue-500 border-blue-200 hover:border-blue-400"
+                    >
+                        Add Link
+                    </Button>
+                )}
             </div>
 
             {/* Manage Links Modal */}

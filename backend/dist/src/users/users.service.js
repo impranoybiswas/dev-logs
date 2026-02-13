@@ -346,6 +346,28 @@ let UsersService = class UsersService {
         });
         return { message: 'Friend removed' };
     }
+    async getPublicProfile(id) {
+        const user = await this.prisma.user.findUnique({
+            where: { id },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                gender: true,
+                birthDate: true,
+                profilePhoto: true,
+                socialLinks: true,
+                createdAt: true,
+            },
+        });
+        if (!user) {
+            throw new common_1.NotFoundException('User not found');
+        }
+        return {
+            ...user,
+            jobApplications: [],
+        };
+    }
 };
 exports.UsersService = UsersService;
 exports.UsersService = UsersService = __decorate([

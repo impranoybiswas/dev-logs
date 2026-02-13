@@ -12,6 +12,11 @@ export interface User {
   isRequester?: boolean;
 }
 
+export interface UserWithRelations extends User {
+  socialLinks: any[];
+  jobApplications: any[];
+}
+
 export interface FriendshipRequest {
   id: string;
   status: "PENDING" | "ACCEPTED" | "REJECTED";
@@ -66,5 +71,12 @@ export const unfriend = async (friendshipId: string) => {
   const response = await api.patch(
     `/users/friend-request/${friendshipId}/unfriend`,
   );
+  return response.data;
+};
+
+export const getUserProfile = async (
+  userId: string,
+): Promise<UserWithRelations> => {
+  const response = await api.get(`/users/${userId}/profile`);
   return response.data;
 };

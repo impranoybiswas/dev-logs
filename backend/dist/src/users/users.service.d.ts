@@ -61,4 +61,5 @@ export declare class UsersService {
     unfriend(userId: string, friendshipId: string): Promise<{
         message: string;
     }>;
+    getPublicProfile(id: string): Promise<UserWithRelations>;
 }

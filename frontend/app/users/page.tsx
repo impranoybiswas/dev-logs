@@ -15,9 +15,11 @@ import { message, Input, Empty, Button, Avatar } from 'antd';
 import { getUsers, sendFriendRequest, respondToFriendRequest, cancelFriendRequest, getSentRequests } from '@/lib/user';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
+import { useRouter } from 'next/navigation';
 
 
 export default function UsersPage() {
+    const router = useRouter();
     const queryClient = useQueryClient();
     const [searchQuery, setSearchQuery] = useState('');
     const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
@@ -184,62 +186,102 @@ export default function UsersPage() {
                                         {/* Action Button */}
                                         <div className="w-full mt-auto">
                                             {user.friendshipStatus === 'ACCEPTED' ? (
-                                                <Button
-                                                    size="large"
-                                                    block
-                                                    disabled
-                                                    icon={<CheckCircleFilled className="text-success" />}
-                                                    className="rounded-2xl font-bold h-12 bg-success/10 border-success/20 text-success"
-                                                >
-                                                    Friends
-                                                </Button>
-                                            ) : user.friendshipStatus === 'PENDING' && user.isRequester ? (
-                                                <Button
-                                                    size="large"
-                                                    block
-                                                    danger
-                                                    loading={actionLoadingId === user.id}
-                                                    icon={<CloseOutlined />}
-                                                    onClick={() => handleCancelRequest(user.id)}
-                                                    className="rounded-2xl font-bold h-12"
-                                                >
-                                                    Cancel Request
-                                                </Button>
-                                            ) : user.friendshipStatus === 'PENDING' && !user.isRequester ? (
-                                                <div className="flex gap-2">
+                                                <div className="flex flex-col gap-2">
                                                     <Button
-                                                        type="primary"
                                                         size="large"
-                                                        loading={actionLoadingId === user.id}
-                                                        icon={<CheckOutlined />}
-                                                        onClick={() => handleRespond(user.id, 'ACCEPT')}
-                                                        className="rounded-2xl font-bold h-12 grow"
+                                                        block
+                                                        disabled
+                                                        icon={<CheckCircleFilled className="text-success" />}
+                                                        className="rounded-xl font-bold h-12 bg-success/10 border-success/20 text-success"
                                                     >
-                                                        Accept
+                                                        Friends
                                                     </Button>
                                                     <Button
-                                                        danger
+                                                        block
+                                                        icon={<GlobalOutlined />}
+                                                        onClick={() => router.push(`/users/${user.id}`)}
+                                                        className="rounded-xl h-10 border-primary/20 hover:border-primary/50 text-primary"
+                                                    >
+                                                        View Profile
+                                                    </Button>
+                                                </div>
+                                            ) : user.friendshipStatus === 'PENDING' && user.isRequester ? (
+                                                <div className="flex flex-col gap-2">
+                                                    <Button
                                                         size="large"
+                                                        block
+                                                        danger
                                                         loading={actionLoadingId === user.id}
                                                         icon={<CloseOutlined />}
-                                                        onClick={() => handleRespond(user.id, 'REJECT')}
-                                                        className="rounded-2xl font-bold h-12 grow"
+                                                        onClick={() => handleCancelRequest(user.id)}
+                                                        className="rounded-xl font-bold h-12"
                                                     >
-                                                        Reject
+                                                        Cancel Request
+                                                    </Button>
+                                                    <Button
+                                                        block
+                                                        icon={<GlobalOutlined />}
+                                                        onClick={() => router.push(`/users/${user.id}`)}
+                                                        className="rounded-xl h-10 border-primary/20 hover:border-primary/50 text-primary"
+                                                    >
+                                                        View Profile
+                                                    </Button>
+                                                </div>
+                                            ) : user.friendshipStatus === 'PENDING' && !user.isRequester ? (
+                                                <div className="flex flex-col gap-2">
+                                                    <div className="flex gap-2">
+                                                        <Button
+                                                            type="primary"
+                                                            size="large"
+                                                            loading={actionLoadingId === user.id}
+                                                            icon={<CheckOutlined />}
+                                                            onClick={() => handleRespond(user.id, 'ACCEPT')}
+                                                            className="rounded-xl font-bold h-12 grow"
+                                                        >
+                                                            Accept
+                                                        </Button>
+                                                        <Button
+                                                            danger
+                                                            size="large"
+                                                            loading={actionLoadingId === user.id}
+                                                            icon={<CloseOutlined />}
+                                                            onClick={() => handleRespond(user.id, 'REJECT')}
+                                                            className="rounded-xl font-bold h-12 grow"
+                                                        >
+                                                            Reject
+                                                        </Button>
+                                                    </div>
+                                                    <Button
+                                                        block
+                                                        icon={<GlobalOutlined />}
+                                                        onClick={() => router.push(`/users/${user.id}`)}
+                                                        className="rounded-xl h-10 border-primary/20 hover:border-primary/50 text-primary"
+                                                    >
+                                                        View Profile
                                                     </Button>
                                                 </div>
                                             ) : (
-                                                <Button
-                                                    type="primary"
-                                                    size="large"
-                                                    block
-                                                    icon={<UserAddOutlined />}
-                                                    loading={actionLoadingId === user.id}
-                                                    onClick={() => handleAddFriend(user.id)}
-                                                    className="rounded-2xl font-bold h-12 shadow-[0_4px_14px_0_rgba(124,58,237,0.39)] hover:shadow-[0_6px_20px_rgba(124,58,237,0.23)]"
-                                                >
-                                                    Add Friend
-                                                </Button>
+                                                <div className="flex flex-col gap-2">
+                                                    <Button
+                                                        type="primary"
+                                                        size="large"
+                                                        block
+                                                        icon={<UserAddOutlined />}
+                                                        loading={actionLoadingId === user.id}
+                                                        onClick={() => handleAddFriend(user.id)}
+                                                        className="rounded-xl font-bold h-12 shadow-lg hover:shadow-primary/20"
+                                                    >
+                                                        Add Friend
+                                                    </Button>
+                                                    <Button
+                                                        block
+                                                        icon={<GlobalOutlined />}
+                                                        onClick={() => router.push(`/users/${user.id}`)}
+                                                        className="rounded-xl h-10 border-primary/20 hover:border-primary/50 text-primary"
+                                                    >
+                                                        View Profile
+                                                    </Button>
+                                                </div>
                                             )}
                                         </div>
 
