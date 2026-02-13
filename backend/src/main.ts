@@ -22,9 +22,10 @@ async function bootstrap(): Promise<INestApplication> {
 
     // Enable CORS
     app.enableCors({
-      origin: `${process.env.FRONTEND_URL}`,
+      origin: process.env.FRONTEND_URL || '*',
       methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
       credentials: true,
+      allowedHeaders: 'Content-Type, Accept, Authorization',
     });
 
     await app.init();
