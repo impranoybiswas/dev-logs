@@ -7,7 +7,6 @@ import api from '@/lib/api';
 import { useRouter } from 'next/navigation';
 import { AxiosError } from 'axios';
 import SocialLinks from '@/components/SocialLinks';
-import JobApplications from '@/components/JobApplications';
 
 const { Title } = Typography;
 
@@ -55,7 +54,7 @@ export default function ProfilePage() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 p-8">
+        <div className="min-h-screen bg-background p-8">
             <div className="max-w-4xl mx-auto">
                 <Card
                     title={<Title level={3} className="m-0">User Profile</Title>}
@@ -110,7 +109,6 @@ export default function ProfilePage() {
                     )}
                 </Card>
                 <SocialLinks />
-                <JobApplications />
             </div>
         </div>
     );
