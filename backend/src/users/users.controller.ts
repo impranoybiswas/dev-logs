@@ -59,4 +59,17 @@ export class UsersController {
       receiverId,
     );
   }
+  @UseGuards(JwtAuthGuard)
+  @Patch('friend-request/:id/respond')
+  async respondToFriendRequest(
+    @Request() req: AuthenticatedRequest,
+    @Param('id') friendshipId: string,
+    @Body('action') action: 'ACCEPT' | 'REJECT',
+  ) {
+    return await this.usersService.respondToFriendRequest(
+      req.user.userId,
+      friendshipId,
+      action,
+    );
+  }
 }

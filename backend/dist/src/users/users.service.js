@@ -192,6 +192,57 @@ let UsersService = class UsersService {
         });
         return friendship;
     }
+    async respondToFriendRequest(userId, requesterId, action) {
+        const friendship = await this.prisma.friendship.findFirst({
+            where: {
+                requesterId,
+                receiverId: userId,
+                status: 'PENDING',
+            },
+            include: { receiver: true, requester: true },
+        });
+        if (!friendship) {
+            throw new common_1.NotFoundException('Friend request not found');
+        }
+        if (action === 'REJECT') {
+            await this.prisma.friendship.update({
+                where: { id: friendship.id },
+                data: { status: 'REJECTED' },
+            });
+            await this.prisma.notification.updateMany({
+                where: {
+                    userId,
+                    requesterId,
+                    type: 'FRIEND_REQUEST',
+                    read: false,
+                },
+                data: { read: true },
+            });
+            return { message: 'Friend request rejected' };
+        }
+        const updatedFriendship = await this.prisma.friendship.update({
+            where: { id: friendship.id },
+            data: { status: 'ACCEPTED' },
+        });
+        await this.prisma.notification.updateMany({
+            where: {
+                userId,
+                requesterId,
+                type: 'FRIEND_REQUEST',
+                read: false,
+            },
+            data: { read: true },
+        });
+        await this.prisma.notification.create({
+            data: {
+                type: 'FRIEND_ACCEPTED',
+                message: `${friendship.receiver.name} accepted your friend request`,
+                userId: friendship.requesterId,
+                requesterId: userId,
+            },
+        });
+        return updatedFriendship;
+    }
 };
 exports.UsersService = UsersService;
 exports.UsersService = UsersService = __decorate([

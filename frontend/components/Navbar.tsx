@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
     MenuOutlined,
     CloseOutlined,
@@ -13,12 +13,21 @@ import {
 } from '@ant-design/icons';
 import { useTheme } from 'next-themes';
 import { Badge, Popover, List, Button, Empty, Avatar, message } from 'antd';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getNotifications, markAsRead, markAllAsRead, Notification } from '@/lib/notification';
+import { respondToFriendRequest } from '@/lib/user';
 
 export default function Navbar() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const { theme, setTheme } = useTheme();
-    const [notifications, setNotifications] = useState<Notification[]>([]);
+    const queryClient = useQueryClient();
+
+    const { data: notifications = [] } = useQuery({
+        queryKey: ['notifications'],
+        queryFn: getNotifications,
+        refetchInterval: 30000, // Poll every 30 seconds
+    });
+
     const unreadCount = notifications.filter(n => !n.read).length;
 
     const navLinks = [
@@ -28,27 +37,12 @@ export default function Navbar() {
         { href: '/profile', label: 'Profile' },
     ];
 
-    const loadNotifications = async () => {
-        try {
-            const data = await getNotifications();
-            setNotifications(data);
-        } catch (error) {
-            console.error('Failed to load notifications', error);
-        }
-    };
-
-    useEffect(() => {
-        loadNotifications();
-        const interval = setInterval(loadNotifications, 30000); // Poll every 30 seconds
-        return () => clearInterval(interval);
-    }, []);
-
 
     const handleMarkAsRead = async (id: string) => {
         try {
             await markAsRead(id);
-            setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
-        } catch (error) {
+            queryClient.invalidateQueries({ queryKey: ['notifications'] });
+        } catch {
             message.error('Failed to mark notification as read');
         }
     };
@@ -56,10 +50,23 @@ export default function Navbar() {
     const handleMarkAllAsRead = async () => {
         try {
             await markAllAsRead();
-            setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+            queryClient.invalidateQueries({ queryKey: ['notifications'] });
             message.success('All notifications marked as read');
-        } catch (error) {
+        } catch {
             message.error('Failed to mark all as read');
+        }
+    };
+
+
+    const handleFriendResponse = async (notification: Notification, action: 'ACCEPT' | 'REJECT') => {
+        try {
+            if (!notification.requesterId) return;
+            await respondToFriendRequest(notification.requesterId, action);
+            message.success(`Friend request ${action === 'ACCEPT' ? 'accepted' : 'rejected'}`);
+            queryClient.invalidateQueries({ queryKey: ['notifications'] });
+        } catch (error) {
+            message.error(`Failed to ${action.toLowerCase()} request`);
+            console.error(error);
         }
     };
 
@@ -80,7 +87,7 @@ export default function Navbar() {
                 renderItem={(item) => (
                     <List.Item
                         className={`cursor-pointer hover:bg-muted p-2 rounded-lg transition-colors ${!item.read ? 'bg-primary/5' : ''}`}
-                        onClick={() => !item.read && handleMarkAsRead(item.id)}
+                        onClick={() => !item.read && item.type !== 'FRIEND_REQUEST' && handleMarkAsRead(item.id)}
                     >
                         <List.Item.Meta
                             avatar={
@@ -90,20 +97,44 @@ export default function Navbar() {
                                 />
                             }
                             title={<span className={!item.read ? 'font-bold' : ''}>{item.message}</span>}
-                            description={new Date(item.createdAt).toLocaleDateString()}
+                            description={
+                                <div className="space-y-2">
+                                    <p className="text-xs text-muted-foreground">{new Date(item.createdAt).toLocaleDateString()}</p>
+                                    {item.type === 'FRIEND_REQUEST' && !item.read && (
+                                        <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+                                            <Button
+                                                type="primary"
+                                                size="small"
+                                                className="text-xs h-7 px-3 rounded-full"
+                                                onClick={() => handleFriendResponse(item, 'ACCEPT')}
+                                            >
+                                                Accept
+                                            </Button>
+                                            <Button
+                                                size="small"
+                                                className="text-xs h-7 px-3 rounded-full"
+                                                onClick={() => handleFriendResponse(item, 'REJECT')}
+                                            >
+                                                Decline
+                                            </Button>
+                                        </div>
+                                    )}
+                                </div>
+                            }
                         />
                     </List.Item>
                 )}
             />
             {notifications.length > 5 && (
                 <div className="text-center mt-2 pt-2 border-t border-border">
-                    <Link href="/notifications" className="text-primary text-sm font-medium">
+                    <Link href="/notifications" className="text-primary text-sm font-medium" onClick={() => (document.body.click())}>
                         View all notifications
                     </Link>
                 </div>
             )}
         </div>
     );
+
 
     return (
         <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-background/80 border-b border-border">

@@ -20,13 +20,13 @@ export declare class UsersService {
     constructor(prisma: PrismaService);
     create(data: RegisterDto): Promise<SafeUser>;
     findByEmail(email: string): Promise<{
+        id: string;
         email: string;
-        password: string;
         name: string;
+        password: string;
+        profilePhoto: string | null;
         gender: string | null;
         birthDate: Date | null;
-        profilePhoto: string | null;
-        id: string;
         createdAt: Date;
     } | null>;
     findById(id: string): Promise<UserWithRelations>;
@@ -38,5 +38,14 @@ export declare class UsersService {
         status: import("@prisma/client").$Enums.FriendshipStatus;
         requesterId: string;
         receiverId: string;
+    }>;
+    respondToFriendRequest(userId: string, requesterId: string, action: 'ACCEPT' | 'REJECT'): Promise<{
+        id: string;
+        createdAt: Date;
+        status: import("@prisma/client").$Enums.FriendshipStatus;
+        requesterId: string;
+        receiverId: string;
+    } | {
+        message: string;
     }>;
 }

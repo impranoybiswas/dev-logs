@@ -197,4 +197,71 @@ export class UsersService {
 
     return friendship;
   }
+
+  async respondToFriendRequest(
+    userId: string,
+    requesterId: string,
+    action: 'ACCEPT' | 'REJECT',
+  ) {
+    const friendship = await this.prisma.friendship.findFirst({
+      where: {
+        requesterId,
+        receiverId: userId,
+        status: 'PENDING',
+      },
+      include: { receiver: true, requester: true },
+    });
+
+    if (!friendship) {
+      throw new NotFoundException('Friend request not found');
+    }
+
+    if (action === 'REJECT') {
+      await this.prisma.friendship.update({
+        where: { id: friendship.id },
+        data: { status: 'REJECTED' },
+      });
+
+      // Mark the request notification as read
+      await this.prisma.notification.updateMany({
+        where: {
+          userId,
+          requesterId,
+          type: 'FRIEND_REQUEST',
+          read: false,
+        },
+        data: { read: true },
+      });
+
+      return { message: 'Friend request rejected' };
+    }
+
+    const updatedFriendship = await this.prisma.friendship.update({
+      where: { id: friendship.id },
+      data: { status: 'ACCEPTED' },
+    });
+
+    // Mark the request notification as read
+    await this.prisma.notification.updateMany({
+      where: {
+        userId,
+        requesterId,
+        type: 'FRIEND_REQUEST',
+        read: false,
+      },
+      data: { read: true },
+    });
+
+    // Create notification for the requester
+    await this.prisma.notification.create({
+      data: {
+        type: 'FRIEND_ACCEPTED',
+        message: `${friendship.receiver.name} accepted your friend request`,
+        userId: friendship.requesterId,
+        requesterId: userId,
+      },
+    });
+
+    return updatedFriendship;
+  }
 }

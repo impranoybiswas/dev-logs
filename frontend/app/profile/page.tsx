@@ -111,7 +111,7 @@ export default function ProfilePage() {
                                         bordered
                                         column={1}
                                         className="bg-muted/20! rounded-lg overflow-hidden"
-                                        labelStyle={{ fontWeight: 600, width: '120px' }}
+                                        style={{ fontWeight: 600, width: '120px' }}
                                     >
                                         <Descriptions.Item label={<><MailOutlined className="mr-2 text-primary" />Email</>}>
                                             <span className="font-medium">{user.email}</span>

@@ -19,5 +19,14 @@ export declare class UsersController {
         requesterId: string;
         receiverId: string;
     }>;
+    respondToFriendRequest(req: AuthenticatedRequest, friendshipId: string, action: 'ACCEPT' | 'REJECT'): Promise<{
+        id: string;
+        createdAt: Date;
+        status: import("@prisma/client").$Enums.FriendshipStatus;
+        requesterId: string;
+        receiverId: string;
+    } | {
+        message: string;
+    }>;
 }
 export {};
