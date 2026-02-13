@@ -5,6 +5,7 @@ import { AntdRegistry } from '@ant-design/nextjs-registry';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ConfigProvider, theme as antdTheme } from 'antd';
 import { useTheme } from 'next-themes';
+import { ThemeProvider } from './ThemeProvider';
 
 export default function Providers({ children }: { children: React.ReactNode }) {
     const [queryClient] = useState(() => new QueryClient());
@@ -24,32 +25,39 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     const isDarkMode = resolvedTheme === 'dark';
 
     return (
-        <AntdRegistry>
-            <QueryClientProvider client={queryClient}>
-                <ConfigProvider
-                    theme={{
-                        algorithm: isDarkMode ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
-                        token: {
-                            colorPrimary: '#6366f1', // Indigo
-                            borderRadius: 12,        // Modern rounded corners
-                            fontFamily: 'var(--font-sans)',
-                        },
-                        components: {
-                            Card: {
-                                boxShadow: isDarkMode
-                                    ? '0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2)'
-                                    : '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.01)',
+        <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+        >
+            <AntdRegistry>
+                <QueryClientProvider client={queryClient}>
+                    <ConfigProvider
+                        theme={{
+                            algorithm: isDarkMode ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
+                            token: {
+                                colorPrimary: '#6366f1', // Indigo
+                                borderRadius: 12,
+                                fontFamily: 'var(--font-sans)',
                             },
-                            Button: {
-                                borderRadius: 10,
-                                fontWeight: 600,
-                            },
-                        }
-                    }}
-                >
-                    {children}
-                </ConfigProvider>
-            </QueryClientProvider>
-        </AntdRegistry>
+                            components: {
+                                Card: {
+                                    boxShadow: isDarkMode
+                                        ? '0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2)'
+                                        : '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.01)',
+                                },
+                                Button: {
+                                    borderRadius: 10,
+                                    fontWeight: 600,
+                                },
+                            }
+                        }}
+                    >
+                        {children}
+                    </ConfigProvider>
+                </QueryClientProvider>
+            </AntdRegistry>
+        </ThemeProvider>
     );
 }
