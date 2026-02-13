@@ -21,10 +21,6 @@ export default function UsersPage() {
     const [requestingIds, setRequestingIds] = useState<Set<string>>(new Set());
     const [sentRequests, setSentRequests] = useState<Set<string>>(new Set());
 
-    useEffect(() => {
-        loadUsers();
-    }, []);
-
     const loadUsers = async () => {
         try {
             setLoading(true);
@@ -38,14 +34,20 @@ export default function UsersPage() {
         }
     };
 
+    useEffect(() => {
+        loadUsers();
+    }, []);
+
     const handleAddFriend = async (userId: string) => {
         setRequestingIds((prev) => new Set(Array.from(prev).concat(userId)));
         try {
             await sendFriendRequest(userId);
             message.success('Friend request sent!');
             setSentRequests((prev) => new Set(Array.from(prev).concat(userId)));
-        } catch (error: AxiosError<{ message: string }>) {
-            message.error(error.response?.data?.message || 'Failed to send friend request');
+        } catch (error: unknown) {
+            const axiosError = error as AxiosError<{ message: string }>;
+
+            message.error(axiosError.response?.data?.message || 'Failed to send friend request');
         } finally {
             setRequestingIds((prev) => {
                 const next = new Set(prev);
@@ -54,6 +56,7 @@ export default function UsersPage() {
             });
         }
     };
+
 
     const filteredUsers = users.filter(user =>
         user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -146,20 +149,25 @@ export default function UsersPage() {
 
                                         {/* Action Button */}
                                         <Button
-                                            type={sentRequests.has(user.id) ? 'default' : 'primary'}
+                                            type={user.friendshipStatus !== 'NONE' || sentRequests.has(user.id) ? 'default' : 'primary'}
                                             size="large"
                                             block
-                                            icon={sentRequests.has(user.id) ? <CheckCircleFilled className="text-success" /> : <UserAddOutlined />}
+                                            icon={(user.friendshipStatus !== 'NONE' || sentRequests.has(user.id)) ? <CheckCircleFilled className="text-success" /> : <UserAddOutlined />}
                                             loading={requestingIds.has(user.id)}
                                             onClick={() => handleAddFriend(user.id)}
-                                            disabled={sentRequests.has(user.id)}
-                                            className={`rounded-2xl font-bold h-12 transition-all duration-300 ${sentRequests.has(user.id)
+                                            disabled={user.friendshipStatus !== 'NONE' || sentRequests.has(user.id)}
+                                            className={`rounded-2xl font-bold h-12 transition-all duration-300 ${(user.friendshipStatus !== 'NONE' || sentRequests.has(user.id))
                                                 ? 'bg-success/10 border-success/20 text-success'
                                                 : 'shadow-[0_4px_14px_0_rgba(124,58,237,0.39)] hover:shadow-[0_6px_20px_rgba(124,58,237,0.23)]'
                                                 }`}
                                         >
-                                            {sentRequests.has(user.id) ? 'Request Sent' : 'Add Friend'}
+                                            {sentRequests.has(user.id) || user.friendshipStatus === 'PENDING'
+                                                ? 'Request Sent'
+                                                : user.friendshipStatus === 'ACCEPTED'
+                                                    ? 'Friends'
+                                                    : 'Add Friend'}
                                         </Button>
+
                                     </div>
                                 </motion.div>
                             ))}

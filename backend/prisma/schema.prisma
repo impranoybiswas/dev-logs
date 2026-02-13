@@ -27,8 +27,23 @@ model User {
   sentFriendRequests     Friendship[] @relation("Requester")
   receivedFriendRequests Friendship[] @relation("Receiver")
 
+  notifications Notification[]
+
   createdAt DateTime @default(now())
 }
+
+model Notification {
+  id          String   @id @default(uuid())
+  type        String   // FRIEND_REQUEST, FRIEND_ACCEPTED, etc.
+  message     String
+  userId      String   // Recipient
+  requesterId String?  // Optional: User who triggered the notification
+  read        Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
 
 model SocialLink {
   id   String @id @default(uuid())

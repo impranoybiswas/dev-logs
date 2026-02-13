@@ -120,7 +120,7 @@ let UsersService = class UsersService {
         });
     }
     async findAll(excludeUserId) {
-        return await this.prisma.user.findMany({
+        const users = await this.prisma.user.findMany({
             where: {
                 id: { not: excludeUserId },
             },
@@ -136,6 +136,18 @@ let UsersService = class UsersService {
             orderBy: {
                 createdAt: 'desc',
             },
+        });
+        const friendships = await this.prisma.friendship.findMany({
+            where: {
+                OR: [{ requesterId: excludeUserId }, { receiverId: excludeUserId }],
+            },
+        });
+        return users.map((user) => {
+            const friendship = friendships.find((f) => f.requesterId === user.id || f.receiverId === user.id);
+            return {
+                ...user,
+                friendshipStatus: friendship ? friendship.status : 'NONE',
+            };
         });
     }
     async sendFriendRequest(requesterId, receiverId) {
@@ -159,13 +171,26 @@ let UsersService = class UsersService {
         if (existingFriendship) {
             throw new common_1.ConflictException('Friend request already exists or you are already friends');
         }
-        return this.prisma.friendship.create({
+        const friendship = await this.prisma.friendship.create({
             data: {
                 requesterId,
                 receiverId,
                 status: 'PENDING',
             },
         });
+        const requester = await this.prisma.user.findUnique({
+            where: { id: requesterId },
+            select: { name: true },
+        });
+        await this.prisma.notification.create({
+            data: {
+                type: 'FRIEND_REQUEST',
+                message: `${requester?.name || 'Someone'} sent you a friend request`,
+                userId: receiverId,
+                requesterId,
+            },
+        });
+        return friendship;
     }
 };
 exports.UsersService = UsersService;

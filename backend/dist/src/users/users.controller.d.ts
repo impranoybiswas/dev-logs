@@ -14,8 +14,8 @@ export declare class UsersController {
     findAll(req: AuthenticatedRequest): Promise<import('./users.service').SafeUser[]>;
     sendFriendRequest(req: AuthenticatedRequest, receiverId: string): Promise<{
         id: string;
-        status: import("@prisma/client").$Enums.FriendshipStatus;
         createdAt: Date;
+        status: import("@prisma/client").$Enums.FriendshipStatus;
         requesterId: string;
         receiverId: string;
     }>;

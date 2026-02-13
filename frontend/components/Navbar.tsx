@@ -1,13 +1,25 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
-import { MenuOutlined, CloseOutlined, SunOutlined, MoonOutlined } from '@ant-design/icons';
+import { useState, useEffect } from 'react';
+import {
+    MenuOutlined,
+    CloseOutlined,
+    SunOutlined,
+    MoonOutlined,
+    BellOutlined,
+    CheckCircleOutlined,
+    UserOutlined
+} from '@ant-design/icons';
 import { useTheme } from 'next-themes';
+import { Badge, Popover, List, Button, Empty, Avatar, message } from 'antd';
+import { getNotifications, markAsRead, markAllAsRead, Notification } from '@/lib/notification';
 
 export default function Navbar() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const { theme, setTheme } = useTheme();
+    const [notifications, setNotifications] = useState<Notification[]>([]);
+    const unreadCount = notifications.filter(n => !n.read).length;
 
     const navLinks = [
         { href: '/', label: 'Home' },
@@ -15,6 +27,83 @@ export default function Navbar() {
         { href: '/users', label: 'Users' },
         { href: '/profile', label: 'Profile' },
     ];
+
+    const loadNotifications = async () => {
+        try {
+            const data = await getNotifications();
+            setNotifications(data);
+        } catch (error) {
+            console.error('Failed to load notifications', error);
+        }
+    };
+
+    useEffect(() => {
+        loadNotifications();
+        const interval = setInterval(loadNotifications, 30000); // Poll every 30 seconds
+        return () => clearInterval(interval);
+    }, []);
+
+
+    const handleMarkAsRead = async (id: string) => {
+        try {
+            await markAsRead(id);
+            setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+        } catch (error) {
+            message.error('Failed to mark notification as read');
+        }
+    };
+
+    const handleMarkAllAsRead = async () => {
+        try {
+            await markAllAsRead();
+            setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+            message.success('All notifications marked as read');
+        } catch (error) {
+            message.error('Failed to mark all as read');
+        }
+    };
+
+    const notificationContent = (
+        <div className="w-80">
+            <div className="flex items-center justify-between mb-4 border-b border-border pb-2">
+                <span className="font-bold text-lg">Notifications</span>
+                {unreadCount > 0 && (
+                    <Button type="link" onClick={handleMarkAllAsRead} size="small">
+                        Mark all as read
+                    </Button>
+                )}
+            </div>
+            <List
+                itemLayout="horizontal"
+                dataSource={notifications.slice(0, 5)}
+                locale={{ emptyText: <Empty description="No notifications" image={Empty.PRESENTED_IMAGE_SIMPLE} /> }}
+                renderItem={(item) => (
+                    <List.Item
+                        className={`cursor-pointer hover:bg-muted p-2 rounded-lg transition-colors ${!item.read ? 'bg-primary/5' : ''}`}
+                        onClick={() => !item.read && handleMarkAsRead(item.id)}
+                    >
+                        <List.Item.Meta
+                            avatar={
+                                <Avatar
+                                    icon={item.type === 'FRIEND_REQUEST' ? <UserOutlined /> : <CheckCircleOutlined />}
+                                    className={!item.read ? 'bg-primary' : 'bg-muted-foreground'}
+                                />
+                            }
+                            title={<span className={!item.read ? 'font-bold' : ''}>{item.message}</span>}
+                            description={new Date(item.createdAt).toLocaleDateString()}
+                        />
+                    </List.Item>
+                )}
+            />
+            {notifications.length > 5 && (
+                <div className="text-center mt-2 pt-2 border-t border-border">
+                    <Link href="/notifications" className="text-primary text-sm font-medium">
+                        View all notifications
+                    </Link>
+                </div>
+            )}
+        </div>
+    );
 
     return (
         <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-background/80 border-b border-border">
@@ -42,6 +131,20 @@ export default function Navbar() {
                             </Link>
                         ))}
 
+                        {/* Notification Bell */}
+                        <Popover
+                            content={notificationContent}
+                            trigger="click"
+                            placement="bottomRight"
+                            overlayClassName="notification-popover"
+                        >
+                            <button className="p-2 rounded-lg text-foreground hover:bg-muted transition-colors relative">
+                                <Badge count={unreadCount} size="small" offset={[2, -2]}>
+                                    <BellOutlined className="text-xl text-foreground" />
+                                </Badge>
+                            </button>
+                        </Popover>
+
                         {/* Theme Toggle */}
                         <button
                             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
@@ -64,17 +167,26 @@ export default function Navbar() {
                     </div>
 
                     {/* Mobile Menu Button */}
-                    <button
-                        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                        className="md:hidden p-2 rounded-lg text-foreground hover:bg-muted transition-colors"
-                        aria-label="Toggle menu"
-                    >
-                        {isMobileMenuOpen ? (
-                            <CloseOutlined className="text-xl" />
-                        ) : (
-                            <MenuOutlined className="text-xl" />
-                        )}
-                    </button>
+                    <div className="flex items-center space-x-4 md:hidden">
+                        <Popover content={notificationContent} trigger="click" placement="bottomRight">
+                            <button className="p-2 rounded-lg text-foreground relative">
+                                <Badge count={unreadCount} size="small">
+                                    <BellOutlined className="text-xl" />
+                                </Badge>
+                            </button>
+                        </Popover>
+                        <button
+                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                            className="p-2 rounded-lg text-foreground hover:bg-muted transition-colors"
+                            aria-label="Toggle menu"
+                        >
+                            {isMobileMenuOpen ? (
+                                <CloseOutlined className="text-xl" />
+                            ) : (
+                                <MenuOutlined className="text-xl" />
+                            )}
+                        </button>
+                    </div>
                 </div>
             </div>
 

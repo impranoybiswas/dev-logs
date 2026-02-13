@@ -9,6 +9,7 @@ export interface SafeUser {
     gender: string | null;
     birthDate: Date | null;
     createdAt: Date;
+    friendshipStatus?: 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'NONE';
 }
 export interface UserWithRelations extends SafeUser {
     socialLinks: any[];
@@ -19,13 +20,13 @@ export declare class UsersService {
     constructor(prisma: PrismaService);
     create(data: RegisterDto): Promise<SafeUser>;
     findByEmail(email: string): Promise<{
-        id: string;
         email: string;
-        name: string;
         password: string;
-        profilePhoto: string | null;
+        name: string;
         gender: string | null;
         birthDate: Date | null;
+        profilePhoto: string | null;
+        id: string;
         createdAt: Date;
     } | null>;
     findById(id: string): Promise<UserWithRelations>;

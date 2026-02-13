@@ -8,6 +8,7 @@ export interface User {
   gender: string | null;
   birthDate: string | null;
   createdAt: string;
+  friendshipStatus?: "PENDING" | "ACCEPTED" | "REJECTED" | "NONE";
 }
 
 export const getUsers = async (): Promise<User[]> => {

@@ -16,6 +16,7 @@ export interface SafeUser {
   gender: string | null;
   birthDate: Date | null;
   createdAt: Date;
+  friendshipStatus?: 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'NONE';
 }
 
 export interface UserWithRelations extends SafeUser {
@@ -106,7 +107,7 @@ export class UsersService {
   }
 
   async findAll(excludeUserId: string): Promise<SafeUser[]> {
-    return await this.prisma.user.findMany({
+    const users = await this.prisma.user.findMany({
       where: {
         id: { not: excludeUserId },
       },
@@ -122,6 +123,22 @@ export class UsersService {
       orderBy: {
         createdAt: 'desc',
       },
+    });
+
+    const friendships = await this.prisma.friendship.findMany({
+      where: {
+        OR: [{ requesterId: excludeUserId }, { receiverId: excludeUserId }],
+      },
+    });
+
+    return users.map((user) => {
+      const friendship = friendships.find(
+        (f) => f.requesterId === user.id || f.receiverId === user.id,
+      );
+      return {
+        ...user,
+        friendshipStatus: friendship ? friendship.status : 'NONE',
+      };
     });
   }
 
@@ -155,12 +172,29 @@ export class UsersService {
       );
     }
 
-    return this.prisma.friendship.create({
+    const friendship = await this.prisma.friendship.create({
       data: {
         requesterId,
         receiverId,
         status: 'PENDING',
       },
     });
+
+    // Get requester name for the notification message
+    const requester = await this.prisma.user.findUnique({
+      where: { id: requesterId },
+      select: { name: true },
+    });
+
+    await this.prisma.notification.create({
+      data: {
+        type: 'FRIEND_REQUEST',
+        message: `${requester?.name || 'Someone'} sent you a friend request`,
+        userId: receiverId,
+        requesterId,
+      },
+    });
+
+    return friendship;
   }
 }
