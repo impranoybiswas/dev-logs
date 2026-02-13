@@ -22,11 +22,5 @@ export declare class AuthService {
             name: string;
         };
     };
-    register(data: RegisterDto): Promise<{
-        email: string;
-        name: string;
-        profilePhoto: string | null;
-        id: string;
-        createdAt: Date;
-    }>;
+    register(data: RegisterDto): Promise<import("../users/users.service").SafeUser>;
 }

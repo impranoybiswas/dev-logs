@@ -8,17 +8,17 @@ export declare class UsersController {
             email: string;
         };
     }): Promise<{
-        id: string;
         email: string;
         name: string;
-        profilePhoto: string | null;
         gender: string | null;
         birthDate: Date | null;
+        profilePhoto: string | null;
+        id: string;
         createdAt: Date;
         socialLinks: {
-            id: string;
-            name: string;
             url: string;
+            name: string;
+            id: string;
             userId: string;
         }[];
         jobApplications: {

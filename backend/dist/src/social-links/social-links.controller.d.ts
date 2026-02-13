@@ -10,27 +10,27 @@ export declare class SocialLinksController {
     private readonly socialLinksService;
     constructor(socialLinksService: SocialLinksService);
     create(req: AuthenticatedRequest, createSocialLinkDto: CreateSocialLinkDto): Promise<{
+        url: string;
         name: string;
         id: string;
-        url: string;
         userId: string;
     }>;
     findAll(req: AuthenticatedRequest): Promise<{
+        url: string;
         name: string;
         id: string;
-        url: string;
         userId: string;
     }[]>;
     update(req: AuthenticatedRequest, id: string, updateSocialLinkDto: Partial<CreateSocialLinkDto>): Promise<{
+        url: string;
         name: string;
         id: string;
-        url: string;
         userId: string;
     }>;
     remove(req: AuthenticatedRequest, id: string): Promise<{
+        url: string;
         name: string;
         id: string;
-        url: string;
         userId: string;
     }>;
 }

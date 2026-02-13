@@ -1,20 +1,20 @@
 generator client {
-  provider      = "prisma-client-js"
-  binaryTargets = ["native", "rhel-openssl-1.0.x", "rhel-openssl-3.0.x"]
+  provider = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
+
 
 //Data Models
 
 model User {
-  id        String   @id @default(uuid())
-  name      String
-  email     String   @unique
-  password  String
+  id           String  @id @default(uuid())
+  name         String
+  email        String  @unique
+  password     String
   profilePhoto String?
 
   gender    String?
@@ -30,28 +30,25 @@ model User {
   createdAt DateTime @default(now())
 }
 
-
 model SocialLink {
-  id     String @id @default(uuid())
-  name   String
-  url    String
+  id   String @id @default(uuid())
+  name String
+  url  String
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-
 model Friendship {
-  id          String   @id @default(uuid())
+  id          String           @id @default(uuid())
   requesterId String
   receiverId  String
   status      FriendshipStatus
-  createdAt   DateTime @default(now())
+  createdAt   DateTime         @default(now())
 
   requester User @relation("Requester", fields: [requesterId], references: [id])
   receiver  User @relation("Receiver", fields: [receiverId], references: [id])
 }
-
 
 enum FriendshipStatus {
   PENDING

@@ -1,15 +1,16 @@
 import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDto } from '../auth/dto/register.dto';
+export interface SafeUser {
+    id: string;
+    name: string;
+    email: string;
+    profilePhoto: string | null;
+    createdAt: Date;
+}
 export declare class UsersService {
     private prisma;
     constructor(prisma: PrismaService);
-    create(data: RegisterDto): Promise<{
-        email: string;
-        name: string;
-        profilePhoto: string | null;
-        id: string;
-        createdAt: Date;
-    }>;
+    create(data: RegisterDto): Promise<SafeUser>;
     findByEmail(email: string): Promise<{
         email: string;
         password: string;
@@ -29,9 +30,9 @@ export declare class UsersService {
         id: string;
         createdAt: Date;
         socialLinks: {
+            url: string;
             name: string;
             id: string;
-            url: string;
             userId: string;
         }[];
         jobApplications: {

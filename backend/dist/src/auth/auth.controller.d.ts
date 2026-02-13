@@ -4,13 +4,7 @@ import { LoginDto } from './dto/login.dto';
 export declare class AuthController {
     private authService;
     constructor(authService: AuthService);
-    register(registerDto: RegisterDto): Promise<{
-        email: string;
-        name: string;
-        profilePhoto: string | null;
-        id: string;
-        createdAt: Date;
-    }>;
+    register(registerDto: RegisterDto): Promise<import("../users/users.service").SafeUser>;
     login(loginDto: LoginDto): Promise<{
         access_token: string;
         user: {

@@ -7,11 +7,19 @@ import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { RegisterDto } from '../auth/dto/register.dto';
 
+export interface SafeUser {
+  id: string;
+  name: string;
+  email: string;
+  profilePhoto: string | null;
+  createdAt: Date;
+}
+
 @Injectable()
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
-  async create(data: RegisterDto) {
+  async create(data: RegisterDto): Promise<SafeUser> {
     const existingUser = await this.prisma.user.findUnique({
       where: { email: data.email },
     });
