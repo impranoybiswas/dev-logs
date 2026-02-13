@@ -14,7 +14,7 @@ import {
 } from '@ant-design/icons';
 import { useTheme } from 'next-themes';
 import { Badge, Popover, List, Button, Empty, Avatar, message } from 'antd';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import {  useQuery, useQueryClient } from '@tanstack/react-query';
 import { getNotifications, markAsRead, markAllAsRead, Notification } from '@/lib/notification';
 import { respondToFriendRequest } from '@/lib/user';
 import api from '@/lib/api';
@@ -162,83 +162,95 @@ export default function Navbar() {
 
 
     return (
-        <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-background/80 border-b border-border">
+        <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-border/50">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
-                    {/* Logo */}
-                    <Link href="/" className="flex items-center space-x-2">
-                        <div className="w-8 h-8 rounded-lg bg-linear-to-br from-primary to-accent flex items-center justify-center">
-                            <span className="text-white font-bold text-lg">D</span>
+                    {/* Logo Section */}
+                    <Link href="/" className="flex items-center space-x-3 group">
+                        <div className="w-9 h-9 rounded-xl bg-linear-to-br from-primary to-accent flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                            <span className="text-white font-black text-xl">D</span>
                         </div>
-                        <span className="text-xl font-bold bg-linear-to-r from-primary to-accent bg-clip-text text-transparent">
+                        <span className="text-xl font-extrabold tracking-tight bg-linear-to-r from-primary to-accent bg-clip-text text-transparent">
                             Dev Logs
                         </span>
                     </Link>
 
                     {/* Desktop Navigation */}
-                    <div className="hidden md:flex items-center space-x-8">
+                    <div className="hidden md:flex items-center space-x-1">
                         {navLinks.map((link) => (
                             <Link
                                 key={link.href}
                                 href={link.href}
-                                className="text-foreground/80 hover:text-primary transition-colors duration-200 font-medium"
+                                className="px-4 py-2 rounded-lg text-foreground/80 hover:text-primary hover:bg-primary/5 transition-all duration-200 font-semibold text-sm"
                             >
                                 {link.label}
                             </Link>
                         ))}
 
-                        {/* Notification Bell */}
-                        <Popover
-                            content={notificationContent}
-                            trigger="click"
-                            placement="bottomRight"
-                            overlayClassName="notification-popover"
-                        >
-                            <button className="p-2 rounded-lg text-foreground hover:bg-muted transition-colors relative">
-                                <Badge count={unreadCount} size="small" offset={[2, -2]}>
-                                    <BellOutlined className="text-xl text-foreground" />
-                                </Badge>
-                            </button>
-                        </Popover>
+                        <div className="mx-4 h-6 w-px bg-border/50" />
 
-                        {/* Theme Toggle */}
-                        <button
-                            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                            className="p-2 rounded-lg text-foreground hover:bg-muted transition-colors"
-                            aria-label="Toggle theme"
-                        >
-                            {theme === 'dark' ? (
-                                <SunOutlined className="text-xl" />
-                            ) : (
-                                <MoonOutlined className="text-xl" />
-                            )}
-                        </button>
-
-                        {isLoggedIn ? (
-                            <Button
-                                danger
-                                icon={<LogoutOutlined />}
-                                onClick={handleLogout}
-                                className="px-6 py-5 rounded-lg font-medium transition-all duration-200 border-none shadow-md hover:shadow-lg"
+                        <div className="flex items-center space-x-2">
+                            {/* Notification Bell */}
+                            <Popover
+                                content={notificationContent}
+                                trigger="click"
+                                placement="bottomRight"
+                                overlayClassName="notification-popover"
                             >
-                                Logout
-                            </Button>
-                        ) : (
-                            <div className="flex items-center space-x-4">
-                                <Link
-                                    href="/auth/login"
-                                    className="text-foreground/80 hover:text-primary transition-colors duration-200 font-medium"
-                                >
-                                    Log In
-                                </Link>
-                                <Link
-                                    href="/auth/register"
-                                    className="px-6 py-2 rounded-lg bg-primary hover:bg-primary-hover text-primary-foreground font-medium transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105"
-                                >
-                                    Get Started
-                                </Link>
-                            </div>
-                        )}
+                                <button className="p-2.5 rounded-xl text-foreground/70 hover:text-primary hover:bg-primary/5 transition-all relative">
+                                    <Badge count={unreadCount} size="small" offset={[2, -2]}>
+                                        <BellOutlined className="text-xl" />
+                                    </Badge>
+                                </button>
+                            </Popover>
+
+                            {/* Theme Toggle */}
+                            <button
+                                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                                className="p-2.5 rounded-xl text-foreground/70 hover:text-primary hover:bg-primary/5 transition-all"
+                                aria-label="Toggle theme"
+                            >
+                                {theme === 'dark' ? (
+                                    <SunOutlined className="text-xl" />
+                                ) : (
+                                    <MoonOutlined className="text-xl" />
+                                )}
+                            </button>
+
+                            {isLoggedIn ? (
+                                <div className="ml-4 flex items-center space-x-3 pl-4 border-l border-border/50">
+                                    <Avatar
+                                        src={user?.profilePhoto}
+                                        icon={<UserOutlined />}
+                                        className="border-2 border-primary/20"
+                                    />
+                                    <Button
+                                        danger
+                                        type="text"
+                                        icon={<LogoutOutlined />}
+                                        onClick={handleLogout}
+                                        className="font-bold hover:bg-error/5"
+                                    >
+                                        Logout
+                                    </Button>
+                                </div>
+                            ) : (
+                                <div className="ml-4 flex items-center space-x-3">
+                                    <Link
+                                        href="/auth/login"
+                                        className="px-4 py-2 text-foreground/70 hover:text-primary font-bold text-sm transition-colors"
+                                    >
+                                        Log In
+                                    </Link>
+                                    <Link
+                                        href="/auth/register"
+                                        className="px-5 py-2 rounded-xl bg-primary hover:bg-primary-hover text-primary-foreground font-bold text-sm transition-all shadow-md hover:shadow-primary/25 hover:-translate-y-0.5"
+                                    >
+                                        Get Started
+                                    </Link>
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     {/* Mobile Menu Button */}

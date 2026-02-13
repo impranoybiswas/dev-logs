@@ -17,7 +17,7 @@ export default function ProfilePage() {
     const { data: user, isLoading, error } = useQuery({
         queryKey: ['profile'],
         queryFn: async () => {
-            const response = await api.get(`${process.env.NEXT_PUBLIC_API_URL}/users/profile`);
+            const response = await api.get('/users/profile');
             return response.data;
         },
         // Don't retry automatically on 401
@@ -94,7 +94,7 @@ export default function ProfilePage() {
                                         <Avatar
                                             size={128}
                                             icon={<UserOutlined />}
-                                            src={user.profilePhoto && user.profilePhoto}
+                                            src={user.profilePhoto}
                                             className="bg-card border-2 border-card"
                                         />
                                     </div>
@@ -111,7 +111,7 @@ export default function ProfilePage() {
                                         bordered
                                         column={1}
                                         className="bg-muted/20! rounded-lg overflow-hidden"
-                                        style={{ fontWeight: 600, width: '120px' }}
+                                        labelStyle={{ width: '150px', fontWeight: 600 }}
                                     >
                                         <Descriptions.Item label={<><MailOutlined className="mr-2 text-primary" />Email</>}>
                                             <span className="font-medium">{user.email}</span>
