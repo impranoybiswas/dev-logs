@@ -28,6 +28,12 @@ let UsersController = class UsersController {
     async updateProfile(req, updateProfileDto) {
         return this.usersService.updateProfile(req.user.userId, updateProfileDto);
     }
+    async findAll(req) {
+        return await this.usersService.findAll(req.user.userId);
+    }
+    async sendFriendRequest(req, receiverId) {
+        return await this.usersService.sendFriendRequest(req.user.userId, receiverId);
+    }
 };
 exports.UsersController = UsersController;
 __decorate([
@@ -47,6 +53,23 @@ __decorate([
     __metadata("design:paramtypes", [Object, update_profile_dto_1.UpdateProfileDto]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "updateProfile", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Get)(),
+    __param(0, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "findAll", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Post)('friend-request/:id'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "sendFriendRequest", null);
 exports.UsersController = UsersController = __decorate([
     (0, common_1.Controller)('users'),
     __metadata("design:paramtypes", [users_service_1.UsersService])

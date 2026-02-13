@@ -11,5 +11,13 @@ export declare class UsersController {
     constructor(usersService: UsersService);
     getProfile(req: AuthenticatedRequest): Promise<import('./users.service').UserWithRelations>;
     updateProfile(req: AuthenticatedRequest, updateProfileDto: UpdateProfileDto): Promise<import('./users.service').SafeUser>;
+    findAll(req: AuthenticatedRequest): Promise<import('./users.service').SafeUser[]>;
+    sendFriendRequest(req: AuthenticatedRequest, receiverId: string): Promise<{
+        id: string;
+        status: import("@prisma/client").$Enums.FriendshipStatus;
+        createdAt: Date;
+        requesterId: string;
+        receiverId: string;
+    }>;
 }
 export {};

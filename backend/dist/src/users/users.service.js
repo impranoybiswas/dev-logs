@@ -119,6 +119,54 @@ let UsersService = class UsersService {
             },
         });
     }
+    async findAll(excludeUserId) {
+        return await this.prisma.user.findMany({
+            where: {
+                id: { not: excludeUserId },
+            },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                profilePhoto: true,
+                gender: true,
+                birthDate: true,
+                createdAt: true,
+            },
+            orderBy: {
+                createdAt: 'desc',
+            },
+        });
+    }
+    async sendFriendRequest(requesterId, receiverId) {
+        if (requesterId === receiverId) {
+            throw new common_1.ConflictException('You cannot send a friend request to yourself');
+        }
+        const receiver = await this.prisma.user.findUnique({
+            where: { id: receiverId },
+        });
+        if (!receiver) {
+            throw new common_1.NotFoundException('User not found');
+        }
+        const existingFriendship = await this.prisma.friendship.findFirst({
+            where: {
+                OR: [
+                    { requesterId, receiverId },
+                    { requesterId: receiverId, receiverId: requesterId },
+                ],
+            },
+        });
+        if (existingFriendship) {
+            throw new common_1.ConflictException('Friend request already exists or you are already friends');
+        }
+        return this.prisma.friendship.create({
+            data: {
+                requesterId,
+                receiverId,
+                status: 'PENDING',
+            },
+        });
+    }
 };
 exports.UsersService = UsersService;
 exports.UsersService = UsersService = __decorate([

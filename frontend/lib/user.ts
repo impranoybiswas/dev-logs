@@ -1,0 +1,21 @@
+import api from "./api";
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  profilePhoto: string | null;
+  gender: string | null;
+  birthDate: string | null;
+  createdAt: string;
+}
+
+export const getUsers = async (): Promise<User[]> => {
+  const response = await api.get("/users");
+  return response.data;
+};
+
+export const sendFriendRequest = async (userId: string) => {
+  const response = await api.post(`/users/friend-request/${userId}`);
+  return response.data;
+};

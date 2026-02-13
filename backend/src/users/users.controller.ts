@@ -2,9 +2,11 @@ import {
   Controller,
   Get,
   Patch,
+  Post,
   Body,
   UseGuards,
   Request,
+  Param,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -36,5 +38,25 @@ export class UsersController {
     @Body() updateProfileDto: UpdateProfileDto,
   ): Promise<import('./users.service').SafeUser> {
     return this.usersService.updateProfile(req.user.userId, updateProfileDto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get()
+  async findAll(
+    @Request() req: AuthenticatedRequest,
+  ): Promise<import('./users.service').SafeUser[]> {
+    return await this.usersService.findAll(req.user.userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('friend-request/:id')
+  async sendFriendRequest(
+    @Request() req: AuthenticatedRequest,
+    @Param('id') receiverId: string,
+  ) {
+    return await this.usersService.sendFriendRequest(
+      req.user.userId,
+      receiverId,
+    );
   }
 }
