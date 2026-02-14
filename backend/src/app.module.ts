@@ -9,6 +9,7 @@ import { SocialLinksModule } from './social-links/social-links.module';
 import { JobApplicationsModule } from './job-applications/job-applications.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { ChatModule } from './chat/chat.module';
+import { ImageKitModule } from './image-kit/image-kit.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { ChatModule } from './chat/chat.module';
     JobApplicationsModule,
     NotificationsModule,
     ChatModule,
+    ImageKitModule,
   ],
   controllers: [AppController],
   providers: [AppService],

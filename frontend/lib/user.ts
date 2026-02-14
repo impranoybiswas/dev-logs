@@ -12,9 +12,23 @@ export interface User {
   isRequester?: boolean;
 }
 
+export interface SocialLink {
+  id: string;
+  name: string;
+  url: string;
+}
+
+export interface JobApplication {
+  id: string;
+  title: string;
+  company: string;
+  location: string;
+  createdAt: string;
+}
+
 export interface UserWithRelations extends User {
-  socialLinks: any[];
-  jobApplications: any[];
+  socialLinks: SocialLink[];
+  jobApplications: JobApplication[];
 }
 
 export interface FriendshipRequest {

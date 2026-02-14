@@ -18,6 +18,7 @@ const social_links_module_1 = require("./social-links/social-links.module");
 const job_applications_module_1 = require("./job-applications/job-applications.module");
 const notifications_module_1 = require("./notifications/notifications.module");
 const chat_module_1 = require("./chat/chat.module");
+const image_kit_module_1 = require("./image-kit/image-kit.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -32,6 +33,7 @@ exports.AppModule = AppModule = __decorate([
             job_applications_module_1.JobApplicationsModule,
             notifications_module_1.NotificationsModule,
             chat_module_1.ChatModule,
+            image_kit_module_1.ImageKitModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

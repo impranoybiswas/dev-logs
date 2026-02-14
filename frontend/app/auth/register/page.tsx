@@ -2,11 +2,12 @@
 
 import React from 'react';
 import { Form, Input, Button, Card, Typography, Select, DatePicker, message } from 'antd';
-import { UserOutlined, MailOutlined, LockOutlined, CameraOutlined } from '@ant-design/icons';
+import { UserOutlined, MailOutlined, LockOutlined } from '@ant-design/icons';
 import { useMutation } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { useRouter } from 'next/navigation';
 import { AxiosError } from 'axios';
+import { ImageUpload } from '@/components/ImageUpload';
 
 interface User {
     name: string;
@@ -26,6 +27,7 @@ const { Option } = Select;
 
 export default function RegisterPage() {
     const router = useRouter();
+    const [form] = Form.useForm();
 
     React.useEffect(() => {
         const token = localStorage.getItem('token');
@@ -65,6 +67,7 @@ export default function RegisterPage() {
                 </div>
 
                 <Form
+                    form={form}
                     name="register"
                     onFinish={onFinish}
                     layout="vertical"
@@ -109,8 +112,12 @@ export default function RegisterPage() {
                         <DatePicker className="w-full" />
                     </Form.Item>
 
-                    <Form.Item name="profilePhoto" label="Profile Photo URL">
-                        <Input prefix={<CameraOutlined />} placeholder="https://example.com/photo.jpg" />
+                    <Form.Item
+                        name="profilePhoto"
+                        label="Profile Photo"
+                        rules={[{ required: true, message: 'Please upload a profile photo' }]}
+                    >
+                        <ImageUpload />
                     </Form.Item>
 
                     <Form.Item>
