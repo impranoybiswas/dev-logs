@@ -17,6 +17,7 @@ import { UnauthorizedException } from '@nestjs/common';
   cors: {
     origin: '*', // In production, replace with your frontend URL
   },
+  transports: ['websocket'],
 })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()

@@ -225,16 +225,29 @@ export class UsersService {
     friendshipId: string,
     action: 'ACCEPT' | 'REJECT',
   ) {
-    const friendship = await this.prisma.friendship.findUnique({
+    let friendship = await this.prisma.friendship.findUnique({
       where: { id: friendshipId },
       include: { receiver: true, requester: true },
     });
 
+    // Fallback: search by requesterId if the provided friendshipId is not found
+    // This handles cases where the frontend passes notification.requesterId
     if (
       !friendship ||
       friendship.receiverId !== userId ||
       friendship.status !== 'PENDING'
     ) {
+      friendship = await this.prisma.friendship.findFirst({
+        where: {
+          receiverId: userId,
+          requesterId: friendshipId,
+          status: 'PENDING',
+        },
+        include: { receiver: true, requester: true },
+      });
+    }
+
+    if (!friendship) {
       throw new NotFoundException('Friend request not found');
     }
 

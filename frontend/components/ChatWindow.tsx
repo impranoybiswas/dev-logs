@@ -7,8 +7,9 @@ import { Input, Button, Avatar, Empty } from 'antd';
 import { useChat } from './ChatProvider';
 
 const ChatWindow: React.FC = () => {
-    const { isOpen, closeChat, activeFriend, messages, sendMessage, loadingMessages } = useChat();
+    const { isOpen, closeChat, activeFriend, messages, sendMessage, loadingMessages, isConnected } = useChat();
     const [inputValue, setInputValue] = useState('');
+    const [isSending, setIsSending] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const scrollToBottom = () => {
@@ -22,9 +23,13 @@ const ChatWindow: React.FC = () => {
     }, [messages, isOpen]);
 
     const handleSend = () => {
-        if (inputValue.trim()) {
+        if (inputValue.trim() && !isSending) {
+            setIsSending(true);
             sendMessage(inputValue);
             setInputValue('');
+            // Reset sending state after a short delay or when messageSent arrives
+            // For now, simple timeout as local feedback
+            setTimeout(() => setIsSending(false), 500);
         }
     };
 
@@ -45,9 +50,9 @@ const ChatWindow: React.FC = () => {
                     </Avatar>
                     <div>
                         <h4 className="font-black text-foreground m-0 leading-tight tracking-tight">{activeFriend?.user?.name}</h4>
-                        <span className="text-[10px] text-success font-black uppercase tracking-widest flex items-center gap-1">
-                            <span className="w-1.5 h-1.5 bg-success rounded-full animate-pulse" />
-                            Online
+                        <span className={`text-[10px] ${isConnected ? 'text-success' : 'text-warning'} font-black uppercase tracking-widest flex items-center gap-1`}>
+                            <span className={`w-1.5 h-1.5 ${isConnected ? 'bg-success' : 'bg-warning'} rounded-full ${isConnected ? 'animate-pulse' : ''}`} />
+                            {isConnected ? 'Online' : 'Connecting...'}
                         </span>
                     </div>
                 </div>
@@ -114,8 +119,10 @@ const ChatWindow: React.FC = () => {
                     />
                     <Button
                         type="primary"
-                        icon={<SendOutlined />}
+                        icon={isSending ? <LoadingOutlined /> : <SendOutlined />}
                         onClick={handleSend}
+                        loading={isSending}
+                        disabled={!inputValue.trim()}
                         className="rounded-xl h-10 w-10 flex items-center justify-center shadow-lg shadow-primary/20 border-none hover:scale-105 active:scale-95 transition-all p-0"
                     />
                 </div>

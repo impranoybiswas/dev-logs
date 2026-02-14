@@ -2,21 +2,36 @@ import {
   Injectable,
   NotFoundException,
   ForbiddenException,
+  Logger,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateSocialLinkDto } from './dto/create-social-link.dto';
 
 @Injectable()
 export class SocialLinksService {
+  private readonly logger = new Logger(SocialLinksService.name);
+
   constructor(private prisma: PrismaService) {}
 
   async create(userId: string, createSocialLinkDto: CreateSocialLinkDto) {
-    return this.prisma.socialLink.create({
-      data: {
-        ...createSocialLinkDto,
-        userId,
-      },
-    });
+    try {
+      return await this.prisma.socialLink.create({
+        data: {
+          ...createSocialLinkDto,
+          userId,
+        },
+      });
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      const errorStack = error instanceof Error ? error.stack : '';
+
+      this.logger.error(
+        `Failed to create social link for user ${userId}: ${errorMessage}`,
+        errorStack,
+      );
+      throw error;
+    }
   }
 
   async findAll(userId: string) {

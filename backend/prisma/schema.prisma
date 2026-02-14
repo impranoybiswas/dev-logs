@@ -54,6 +54,7 @@ model Notification {
   message     String
   userId      String   // Recipient
   requesterId String?  // Optional: User who triggered the notification
+  friendshipId String? // Added to link to the friendship
   read        Boolean  @default(false)
   createdAt   DateTime @default(now())
 

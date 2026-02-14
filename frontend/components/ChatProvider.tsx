@@ -15,6 +15,7 @@ interface ChatContextType {
     closeChat: () => void;
     sendMessage: (content: string) => void;
     loadingMessages: boolean;
+    isConnected: boolean;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -25,6 +26,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [isOpen, setIsOpen] = useState(false);
     const [loadingMessages, setLoadingMessages] = useState(false);
+    const [isConnected, setIsConnected] = useState(false);
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -33,24 +35,17 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
         const newSocket = io(socketUrl, {
             auth: { token },
+            transports: ['websocket'],
         });
 
         newSocket.on('connect', () => {
             console.log('Connected to chat server');
+            setIsConnected(true);
         });
 
-        newSocket.on('newMessage', (msg: ChatMessage) => {
-            // Only add if it belongs to current conversation
-            if (activeFriend && (msg.senderId === activeFriend.user.id || msg.receiverId === activeFriend.user.id)) {
-                setMessages(prev => [...prev, msg]);
-            } else {
-                // Show notification if it's from someone else
-                // message.info(`New message from another friend`);
-            }
-        });
-
-        newSocket.on('messageSent', (msg: ChatMessage) => {
-            setMessages(prev => [...prev, msg]);
+        newSocket.on('disconnect', () => {
+            console.log('Disconnected from chat server');
+            setIsConnected(false);
         });
 
         newSocket.on('error', (err: string) => {
@@ -62,7 +57,29 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return () => {
             newSocket.disconnect();
         };
-    }, [activeFriend]);
+    }, []);
+
+    useEffect(() => {
+        if (!socket) return;
+
+        const handleNewMessage = (msg: ChatMessage) => {
+            if (activeFriend && (msg.senderId === activeFriend.user.id || msg.receiverId === activeFriend.user.id)) {
+                setMessages(prev => [...prev, msg]);
+            }
+        };
+
+        const handleMessageSent = (msg: ChatMessage) => {
+            setMessages(prev => [...prev, msg]);
+        };
+
+        socket.on('newMessage', handleNewMessage);
+        socket.on('messageSent', handleMessageSent);
+
+        return () => {
+            socket.off('newMessage', handleNewMessage);
+            socket.off('messageSent', handleMessageSent);
+        };
+    }, [socket, activeFriend]);
 
     const openChat = useCallback(async (friend: FriendshipRequest) => {
         setActiveFriend(friend);
@@ -102,7 +119,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
             openChat,
             closeChat,
             sendMessage,
-            loadingMessages
+            loadingMessages,
+            isConnected
         }}>
             {children}
         </ChatContext.Provider>

@@ -196,7 +196,7 @@ export default function JobApplications() {
                     icon={<PlusOutlined />}
                     onClick={handleAdd}
                 >
-                    Add App
+                    Add Job
                 </Button>
             }
             className="mt-6"
