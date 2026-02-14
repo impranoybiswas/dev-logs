@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { SocialLinksModule } from './social-links/social-links.module';
 import { JobApplicationsModule } from './job-applications/job-applications.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { NotificationsModule } from './notifications/notifications.module';
     SocialLinksModule,
     JobApplicationsModule,
     NotificationsModule,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [AppService],

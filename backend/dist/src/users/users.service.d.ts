@@ -61,5 +61,6 @@ export declare class UsersService {
     unfriend(userId: string, friendshipId: string): Promise<{
         message: string;
     }>;
+    isFriend(userId1: string, userId2: string): Promise<boolean>;
     getPublicProfile(id: string): Promise<UserWithRelations>;
 }

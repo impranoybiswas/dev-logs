@@ -94,13 +94,15 @@ export class UsersService {
 
   async updateProfile(id: string, data: UpdateProfileDto): Promise<SafeUser> {
     const updateData: any = { ...data };
+    /* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment */
     if (updateData.birthDate) {
-      updateData.birthDate = new Date(updateData.birthDate);
+      updateData.birthDate = new Date(updateData.birthDate as string);
     }
 
     return await this.prisma.user.update({
       where: { id },
       data: updateData,
+      /* eslint-enable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment */
       select: {
         id: true,
         name: true,
@@ -199,7 +201,7 @@ export class UsersService {
     });
 
     // Get requester name for the notification message
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    //* eslint-disable @typescript-eslint/no-unsafe-assignment */
     const requester = await this.prisma.user.findUnique({
       where: { id: requesterId },
       select: { name: true },
@@ -338,7 +340,7 @@ export class UsersService {
 
       return {
         id: f.id,
-        status: f.status as any,
+        status: f.status,
         createdAt: f.createdAt,
         user: friend as SafeUser,
       };
@@ -400,6 +402,19 @@ export class UsersService {
     });
 
     return { message: 'Friend removed' };
+  }
+
+  async isFriend(userId1: string, userId2: string): Promise<boolean> {
+    const friendship = await this.prisma.friendship.findFirst({
+      where: {
+        status: 'ACCEPTED',
+        OR: [
+          { requesterId: userId1, receiverId: userId2 },
+          { requesterId: userId2, receiverId: userId1 },
+        ],
+      },
+    });
+    return !!friendship;
   }
 
   async getPublicProfile(id: string): Promise<UserWithRelations> {

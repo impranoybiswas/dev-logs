@@ -17,6 +17,7 @@ const auth_module_1 = require("./auth/auth.module");
 const social_links_module_1 = require("./social-links/social-links.module");
 const job_applications_module_1 = require("./job-applications/job-applications.module");
 const notifications_module_1 = require("./notifications/notifications.module");
+const chat_module_1 = require("./chat/chat.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -30,6 +31,7 @@ exports.AppModule = AppModule = __decorate([
             social_links_module_1.SocialLinksModule,
             job_applications_module_1.JobApplicationsModule,
             notifications_module_1.NotificationsModule,
+            chat_module_1.ChatModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

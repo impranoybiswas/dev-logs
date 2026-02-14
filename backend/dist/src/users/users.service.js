@@ -346,6 +346,18 @@ let UsersService = class UsersService {
         });
         return { message: 'Friend removed' };
     }
+    async isFriend(userId1, userId2) {
+        const friendship = await this.prisma.friendship.findFirst({
+            where: {
+                status: 'ACCEPTED',
+                OR: [
+                    { requesterId: userId1, receiverId: userId2 },
+                    { requesterId: userId2, receiverId: userId1 },
+                ],
+            },
+        });
+        return !!friendship;
+    }
     async getPublicProfile(id) {
         const user = await this.prisma.user.findUnique({
             where: { id },
