@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { Form, Input, Button, Card, Typography, message } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useMutation } from '@tanstack/react-query';
@@ -22,6 +23,13 @@ interface ErrorResponse {
 
 export default function LoginPage() {
     const router = useRouter();
+
+    React.useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            router.push('/profile');
+        }
+    }, [router]);
 
 
 

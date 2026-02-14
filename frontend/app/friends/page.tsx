@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
     Tabs,
@@ -178,23 +178,38 @@ const RequestList = ({ requests, type, onAction }: RequestListProps) => {
 };
 
 export default function FriendsPage() {
+    const router = useRouter();
     const queryClient = useQueryClient();
+
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+
+    React.useEffect(() => {
+        if (!token && typeof window !== 'undefined') {
+            router.push('/auth/login');
+        }
+    }, [token, router]);
+
     const [activeTab, setActiveTab] = useState('friends');
 
     const { data: friends = [], isLoading: loadingFriends } = useQuery({
         queryKey: ['friendships', 'accepted'],
         queryFn: getFriends,
+        enabled: !!token,
     });
 
     const { data: receivedRequests = [], isLoading: loadingReceived } = useQuery({
         queryKey: ['friendships', 'received'],
         queryFn: getReceivedRequests,
+        enabled: !!token,
     });
 
     const { data: sentRequests = [], isLoading: loadingSent } = useQuery({
         queryKey: ['friendships', 'sent'],
         queryFn: getSentRequests,
+        enabled: !!token,
     });
+
+    if (!token) return null;
 
     const handleAction = async (id: string, action: 'ACCEPT' | 'REJECT' | 'CANCEL' | 'UNFRIEND') => {
         try {

@@ -27,6 +27,13 @@ const { Option } = Select;
 export default function RegisterPage() {
     const router = useRouter();
 
+    React.useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            router.push('/profile');
+        }
+    }, [router]);
+
     const registerMutation = useMutation({
         mutationFn: async (values: User) => {
             // Format date for backend if provided

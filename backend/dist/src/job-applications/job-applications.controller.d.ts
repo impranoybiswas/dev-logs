@@ -12,48 +12,48 @@ export declare class JobApplicationsController {
     constructor(jobApplicationsService: JobApplicationsService);
     create(req: AuthenticatedRequest, createJobApplicationDto: CreateJobApplicationDto): Promise<{
         id: string;
-        userId: string;
         company: string;
         role: string;
         status: string;
         appliedAt: Date;
         notes: string | null;
+        userId: string;
     }>;
-    findAll(req: AuthenticatedRequest): Promise<{
+    findAll(req: AuthenticatedRequest, search?: string, status?: string): Promise<{
         id: string;
-        userId: string;
         company: string;
         role: string;
         status: string;
         appliedAt: Date;
         notes: string | null;
+        userId: string;
     }[]>;
     findOne(req: AuthenticatedRequest, id: string): Promise<{
         id: string;
-        userId: string;
         company: string;
         role: string;
         status: string;
         appliedAt: Date;
         notes: string | null;
+        userId: string;
     }>;
     update(req: AuthenticatedRequest, id: string, updateJobApplicationDto: UpdateJobApplicationDto): Promise<{
         id: string;
-        userId: string;
         company: string;
         role: string;
         status: string;
         appliedAt: Date;
         notes: string | null;
+        userId: string;
     }>;
     remove(req: AuthenticatedRequest, id: string): Promise<{
         id: string;
-        userId: string;
         company: string;
         role: string;
         status: string;
         appliedAt: Date;
         notes: string | null;
+        userId: string;
     }>;
 }
 export {};

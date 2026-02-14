@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { Card, Descriptions, Button, Avatar, Typography, Skeleton, Result, message } from 'antd';
 import { UserOutlined, LogoutOutlined, CalendarOutlined, MailOutlined, ManOutlined, WomanOutlined } from '@ant-design/icons';
 import { useQuery } from '@tanstack/react-query';
@@ -13,6 +14,7 @@ const { Title } = Typography;
 
 export default function ProfilePage() {
     const router = useRouter();
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
 
     const { data: user, isLoading, error } = useQuery({
         queryKey: ['profile'],
@@ -20,6 +22,7 @@ export default function ProfilePage() {
             const response = await api.get('/users/profile');
             return response.data;
         },
+        enabled: !!token,
         // Don't retry automatically on 401
         retry: (failureCount, error: AxiosError) => {
             if (error.response?.status === 401) return false;
@@ -27,15 +30,24 @@ export default function ProfilePage() {
         },
     });
 
+    React.useEffect(() => {
+        if (!token && typeof window !== 'undefined') {
+            router.push('/auth/login');
+        } else if (error && (error as AxiosError).response?.status === 401) {
+            router.push('/auth/login');
+        }
+    }, [token, error, router]);
+
     const handleLogout = () => {
         localStorage.removeItem('token');
         message.success('Logged out successfully');
         router.push('/auth/login');
     };
 
+    if (!token) return null;
+
     if (error) {
-        if (error.response?.status === 401) {
-            router.push('/auth/login');
+        if ((error as AxiosError).response?.status === 401) {
             return null;
         }
         return (

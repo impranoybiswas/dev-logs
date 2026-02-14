@@ -72,7 +72,7 @@ const ChatFloatingButton: React.FC = () => {
     );
 
     return (
-        <div className="fixed bottom-8 right-8 z-[1001]">
+        <div className="fixed bottom-8 right-8 z-1001">
             <Popover
                 content={friendListContent}
                 trigger="click"
@@ -92,7 +92,7 @@ const ChatFloatingButton: React.FC = () => {
                             size="large"
                             shape="circle"
                             onClick={handleToggle}
-                            className={`w-16 h-16 flex items-center justify-center shadow-2xl shadow-primary/40 border-none h-16! w-16! text-2xl! transition-all duration-500 ${isOpen || popoverVisible ? 'bg-foreground scale-90 rotate-90' : 'bg-primary'
+                            className={`w-16 h-16 flex items-center justify-center shadow-2xl shadow-primary/40 border-none text-2xl transition-all duration-500 ${isOpen || popoverVisible ? 'bg-foreground scale-90 rotate-90' : 'bg-primary'
                                 }`}
                             icon={isOpen || popoverVisible ? <CloseOutlined /> : <MessageOutlined />}
                         />

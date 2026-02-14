@@ -14,7 +14,7 @@ import {
 } from '@ant-design/icons';
 import { useTheme } from 'next-themes';
 import { Badge, Popover, List, Button, Empty, Avatar, message } from 'antd';
-import {  useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getNotifications, markAsRead, markAllAsRead, Notification } from '@/lib/notification';
 import { respondToFriendRequest } from '@/lib/user';
 import api from '@/lib/api';
@@ -46,13 +46,15 @@ export default function Navbar() {
 
     const unreadCount = notifications.filter(n => !n.read).length;
 
-    const navLinks = [
+    const allNavLinks = [
         { href: '/', label: 'Home' },
-        { href: '/jobs', label: 'Jobs' },
+        { href: '/jobs', label: 'Jobs', protected: true },
         { href: '/users', label: 'Users' },
-        { href: '/friends', label: 'Friends' },
-        { href: '/profile', label: 'Profile' },
+        { href: '/friends', label: 'Friends', protected: true },
+        { href: '/profile', label: 'Profile', protected: true },
     ];
+
+    const navLinks = allNavLinks.filter(link => !link.protected || isLoggedIn);
 
 
     const handleMarkAsRead = async (id: string) => {

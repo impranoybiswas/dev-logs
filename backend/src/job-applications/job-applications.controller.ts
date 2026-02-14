@@ -8,6 +8,7 @@ import {
   Delete,
   UseGuards,
   Request,
+  Query,
 } from '@nestjs/common';
 import { JobApplicationsService } from './job-applications.service';
 import { CreateJobApplicationDto } from './dto/create-job-application.dto';
@@ -40,8 +41,12 @@ export class JobApplicationsController {
   }
 
   @Get()
-  findAll(@Request() req: AuthenticatedRequest) {
-    return this.jobApplicationsService.findAll(req.user.userId);
+  findAll(
+    @Request() req: AuthenticatedRequest,
+    @Query('search') search?: string,
+    @Query('status') status?: string,
+  ) {
+    return this.jobApplicationsService.findAll(req.user.userId, search, status);
   }
 
   @Get(':id')

@@ -6,47 +6,47 @@ export declare class JobApplicationsService {
     constructor(prisma: PrismaService);
     create(userId: string, createJobApplicationDto: CreateJobApplicationDto): Promise<{
         id: string;
-        userId: string;
         company: string;
         role: string;
         status: string;
         appliedAt: Date;
         notes: string | null;
+        userId: string;
     }>;
-    findAll(userId: string): Promise<{
+    findAll(userId: string, search?: string, status?: string): Promise<{
         id: string;
-        userId: string;
         company: string;
         role: string;
         status: string;
         appliedAt: Date;
         notes: string | null;
+        userId: string;
     }[]>;
     findOne(userId: string, id: string): Promise<{
         id: string;
-        userId: string;
         company: string;
         role: string;
         status: string;
         appliedAt: Date;
         notes: string | null;
+        userId: string;
     }>;
     update(userId: string, id: string, updateJobApplicationDto: UpdateJobApplicationDto): Promise<{
         id: string;
-        userId: string;
         company: string;
         role: string;
         status: string;
         appliedAt: Date;
         notes: string | null;
+        userId: string;
     }>;
     remove(userId: string, id: string): Promise<{
         id: string;
-        userId: string;
         company: string;
         role: string;
         status: string;
         appliedAt: Date;
         notes: string | null;
+        userId: string;
     }>;
 }

@@ -31,13 +31,18 @@ const statusColors: Record<string, string> = {
 export default function JobApplications() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingJob, setEditingJob] = useState<JobApplication | null>(null);
+    const [searchText, setSearchText] = useState('');
+    const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
     const [form] = Form.useForm();
     const queryClient = useQueryClient();
 
     const { data: jobs, isLoading } = useQuery<JobApplication[]>({
-        queryKey: ['job-applications'],
+        queryKey: ['job-applications', searchText, statusFilter],
         queryFn: async () => {
-            const response = await api.get('/job-applications');
+            const params = new URLSearchParams();
+            if (searchText) params.append('search', searchText);
+            if (statusFilter) params.append('status', statusFilter);
+            const response = await api.get(`/job-applications?${params.toString()}`);
             return response.data;
         },
     });
@@ -100,6 +105,12 @@ export default function JobApplications() {
 
     const columns = [
         {
+            title: '#',
+            key: 'serial',
+            width: 60,
+            render: (_: unknown, __: JobApplication, index: number) => <span>{index + 1}</span>,
+        },
+        {
             title: 'Company',
             dataIndex: 'company',
             key: 'company',
@@ -156,7 +167,28 @@ export default function JobApplications() {
 
     return (
         <Card
-            title={<Title level={4} className="m-0">Job Applications</Title>}
+            title={
+                <Space size="middle" className="flex-wrap">
+                    <Title level={4} className="m-0">Job Applications</Title>
+                    <Input.Search
+                        placeholder="Search company or role"
+                        onSearch={setSearchText}
+                        allowClear
+                        style={{ width: 250 }}
+                    />
+                    <Select
+                        placeholder="Filter by status"
+                        allowClear
+                        style={{ width: 150 }}
+                        onChange={setStatusFilter}
+                    >
+                        <Option value="Pending">Pending</Option>
+                        <Option value="Interviewing">Interviewing</Option>
+                        <Option value="Accepted">Accepted</Option>
+                        <Option value="Rejected">Rejected</Option>
+                    </Select>
+                </Space>
+            }
             extra={
                 <Button
                     type="primary"

@@ -1,6 +1,7 @@
 'use client';
 
-import { Result, Button } from 'antd';
+import React from 'react';
+
 import { useRouter } from 'next/navigation';
 import JobApplications from '@/components/JobApplications';
 import { motion } from 'framer-motion';
@@ -11,26 +12,13 @@ export default function JobsPage() {
     // Check if user is authenticated
     const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
 
-    if (!token) {
-        return (
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="flex items-center justify-center min-h-screen bg-background"
-            >
-                <Result
-                    status="403"
-                    title="Authentication Required"
-                    subTitle="Please login to view your job applications."
-                    extra={
-                        <Button type="primary" onClick={() => router.push('/auth/login')} className="bg-primary! hover:bg-primary-hover!">
-                            Go to Login
-                        </Button>
-                    }
-                />
-            </motion.div>
-        );
-    }
+    React.useEffect(() => {
+        if (!token && typeof window !== 'undefined') {
+            router.push('/auth/login');
+        }
+    }, [token, router]);
+
+    if (!token) return null;
 
     return (
         <div className="min-h-screen bg-background p-4 md:p-8">

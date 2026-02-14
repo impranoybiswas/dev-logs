@@ -25,9 +25,18 @@ export class JobApplicationsService {
     });
   }
 
-  async findAll(userId: string) {
+  async findAll(userId: string, search?: string, status?: string) {
     return this.prisma.jobApplication.findMany({
-      where: { userId },
+      where: {
+        userId,
+        status: status || undefined,
+        OR: search
+          ? [
+              { company: { contains: search, mode: 'insensitive' } },
+              { role: { contains: search, mode: 'insensitive' } },
+            ]
+          : undefined,
+      },
       orderBy: { appliedAt: 'desc' },
     });
   }
