@@ -8,13 +8,12 @@ import {
     Avatar,
     Button,
     Empty,
-    message,
     Tag,
     Typography,
     Card,
     Badge,
-    Modal
 } from 'antd';
+import { message, modal } from '@/lib/antd';
 import {
     UserOutlined,
     CheckOutlined,
@@ -109,7 +108,7 @@ const RequestList = ({ requests, type, onAction }: RequestListProps) => {
                                             danger
                                             icon={<CloseOutlined />}
                                             onClick={() => {
-                                                Modal.confirm({
+                                                modal.confirm({
                                                     title: 'Unfriend User',
                                                     icon: <QuestionCircleOutlined style={{ color: '#ef4444' }} />,
                                                     content: `Are you sure you want to remove ${item?.user?.name} from your friends?`,
@@ -234,7 +233,7 @@ export default function FriendsPage() {
     };
 
     return (
-        <div className="min-h-screen bg-background p-4 md:p-12 transition-colors duration-500">
+        <div className="min-h-[calc(100vh-64px)] bg-background p-4 md:p-12 transition-colors duration-500">
             <div className="max-w-4xl mx-auto space-y-12">
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}

@@ -1,7 +1,8 @@
 'use client';
 
 import React from 'react';
-import { Form, Input, Button, Card, Typography, Select, DatePicker, message } from 'antd';
+import { Form, Input, Button, Card, Typography, Select, DatePicker } from 'antd';
+import { message } from '@/lib/antd';
 import { UserOutlined, MailOutlined, LockOutlined } from '@ant-design/icons';
 import { useMutation } from '@tanstack/react-query';
 import api from '@/lib/api';
@@ -59,7 +60,7 @@ export default function RegisterPage() {
     };
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-4">
+        <div className="flex flex-col items-center justify-center min-h-[calc(100vh-64px)] bg-background p-4">
             <Card className="w-full max-w-md shadow-lg my-8">
                 <div className="text-center mb-8">
                     <Title level={2}>Create Account</Title>

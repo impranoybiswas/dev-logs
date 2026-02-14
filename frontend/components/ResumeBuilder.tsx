@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import { Card, Button, Form, Input, Divider, Row, Col, message, Tabs } from 'antd';
+import { Card, Button, Form, Input, Divider, Row, Col, Tabs } from 'antd';
+import { message } from '@/lib/antd';
 import { PlusOutlined, MinusCircleOutlined, DownloadOutlined, UserOutlined, BookOutlined, RocketOutlined, ToolOutlined, SaveOutlined } from '@ant-design/icons';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -48,7 +49,7 @@ const EducationForm = () => (
         {(fields, { add, remove }) => (
             <div className="space-y-4">
                 {fields.map(({ key, name, ...restField }) => (
-                    <Card key={key} size="small" extra={<MinusCircleOutlined onClick={() => remove(name)} className="text-error cursor-pointer" />}>
+                    <Card key={key} size="small" extra={<MinusCircleOutlined onClick={() => remove(name)} style={{ color: '#f5222d', cursor: 'pointer' }} />}>
                         <Row gutter={16}>
                             <Col span={24}>
                                 <Form.Item {...restField} name={[name, 'school']} label="School/University" rules={[{ required: true }]}>
@@ -81,7 +82,7 @@ const ExperienceForm = () => (
         {(fields, { add, remove }) => (
             <div className="space-y-4">
                 {fields.map(({ key, name, ...restField }) => (
-                    <Card key={key} size="small" extra={<MinusCircleOutlined onClick={() => remove(name)} className="text-error cursor-pointer" />}>
+                    <Card key={key} size="small" extra={<MinusCircleOutlined onClick={() => remove(name)} style={{ color: '#f5222d', cursor: 'pointer' }} />}>
                         <Row gutter={16}>
                             <Col span={24}>
                                 <Form.Item {...restField} name={[name, 'company']} label="Company" rules={[{ required: true }]}>
@@ -128,7 +129,7 @@ const SkillsForm = () => (
                         >
                             <Input placeholder="Skill (e.g. React, Node.js)" />
                         </Form.Item>
-                        <MinusCircleOutlined onClick={() => remove(name)} className="text-red-500 cursor-pointer mt-2" />
+                        <MinusCircleOutlined onClick={() => remove(name)} style={{ color: '#ef4444', cursor: 'pointer', marginTop: '8px' }} />
                     </div>
                 ))}
                 <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
@@ -154,7 +155,7 @@ export default function ResumeBuilder() {
     React.useEffect(() => {
         const fetchResume = async () => {
             try {
-                const response = await api.get('/resume');
+                const response = await api.get(`${process.env.NEXT_PUBLIC_API_URL}/resume`);
                 if (response.data) {
                     const newData = {
                         personal: {
@@ -240,7 +241,19 @@ export default function ResumeBuilder() {
     return (
         <div className="flex flex-col lg:flex-row gap-8 min-h-[calc(100vh-100px)]">
             {/* Editor Section */}
-            <Card className="flex-1 lg:max-w-md h-fit shadow-lg overflow-y-auto max-h-[85vh] sticky top-24" title="Resume Editor">
+            <Card
+                title="Resume Editor"
+                style={{
+                    flex: '1',
+                    maxWidth: '100%',
+                    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                    height: 'fit-content',
+                    maxHeight: '85vh',
+                    overflowY: 'auto',
+                    position: 'sticky',
+                    top: '6rem'
+                }}
+            >
                 <Form
                     form={form}
                     layout="vertical"

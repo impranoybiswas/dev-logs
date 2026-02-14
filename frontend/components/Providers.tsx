@@ -3,9 +3,10 @@
 import React, { useState, useSyncExternalStore } from 'react';
 import { AntdRegistry } from '@ant-design/nextjs-registry';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ConfigProvider, theme as antdTheme } from 'antd';
+import { ConfigProvider, theme as antdTheme, App } from 'antd';
 import { useTheme } from 'next-themes';
 import { ThemeProvider } from './ThemeProvider';
+import AntdStatic from './AntdStatic';
 
 export default function Providers({ children }: { children: React.ReactNode }) {
     const [queryClient] = useState(() => new QueryClient());
@@ -60,7 +61,10 @@ function ConfigWrapper({ children }: { children: React.ReactNode }) {
                 }
             }}
         >
-            {children}
+            <App>
+                <AntdStatic />
+                {children}
+            </App>
         </ConfigProvider>
     );
 }

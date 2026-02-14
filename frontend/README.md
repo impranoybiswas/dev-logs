@@ -1,33 +1,52 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Dev Logs - Frontend 🎨
 
-## Getting Started
+![Dev Logs Hero](file:///frontend/public/dev_logs_hero_mockup.png)
 
-First, run the development server:
+# Live Demo : [https://dev-logs-pranoy.vercel.app/](https://dev-logs-pranoy.vercel.app/)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+# Test User
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+email : test@email.com
+password : pass123
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The premium, high-performance user interface for the Dev Logs platform, designed for a stunning developer experience.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## ✨ Premium Feature Showcase
 
-## Learn More
+### 📊 Intelligent Dashboard
 
-To learn more about Next.js, take a look at the following resources:
+- **Dynamic Analytics**: Visualized job application trends and success rates using [Recharts](https://recharts.org/).
+- **Status Management**: Real-time tracking of applications with expressive tags (Pending, Interviewing, Accepted, Rejected).
+- **Activity Stream**: A living log of your professional updates and networking milestones.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 📝 Resume Studio (Pro)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Live Preview Engine**: Real-time rendering of your professional profile into ATS-optimized formats.
+- **Sectioned Architecture**: Dedicated editors for Education, Experience, and Skills with drag-and-drop intuition.
+- **Single-Click Export**: High-fidelity PDF generation using `html2canvas` and `jspdf`.
+
+### 💬 Social & Networking
+
+- **Glassmorphic Chat**: Real-time messaging with friends using Socket.io and Framer Motion animations.
+- **Smart Notifications**: Context-aware popovers for friend requests and message alerts.
+- **Secure Uploads**: Integrated profile photo management powered by [ImageKit.io](https://imagekit.io/).
+
+### 🌗 Global Theme Engine
+
+- **Seamless Transition**: Instant switching between curated Light and Dark modes.
+- **Context-Aware Components**: Fully synchronized Ant Design components that respect the application theme.
+
+---
+
+## 🛠️ Technical Stack
+
+- **Core**: [Next.js 15](https://nextjs.org/) (App Router), React 19, TypeScript
+- **UI Architecture**: [Ant Design](https://ant.design/) (Customized for Premium Look)
+- **Design System**: [Tailwind CSS](https://tailwindcss.com/)
+- **Data Orchestration**: [TanStack Query v5](https://tanstack.com/query/latest)
+- **Fluidity**: [Framer Motion](https://www.framer.com/motion/)
+- **Real-time**: [Socket.io Client](https://socket.io/)
+- **Media**: [ImageKit.io SDK](https://imagekit.io/)
 
 ## Deploy on Vercel
 

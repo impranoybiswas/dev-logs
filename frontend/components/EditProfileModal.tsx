@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
-import { Modal, Form, Input, Select, DatePicker, Button, message } from 'antd';
+import { Modal, Form, Input, Select, DatePicker, Button } from 'antd';
+import { message } from '@/lib/antd';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { ImageUpload } from './ImageUpload';
@@ -79,7 +80,7 @@ export default function EditProfileModal({ open, onCancel, user }: EditProfileMo
                 initialValues={{
                     gender: 'other' // Default fallback
                 }}
-                className="pt-4"
+                style={{ paddingTop: '1rem' }}
             >
                 <Form.Item
                     name="profilePhoto"
@@ -116,7 +117,7 @@ export default function EditProfileModal({ open, onCancel, user }: EditProfileMo
                         label="Birth Date"
                     >
                         <DatePicker
-                            className="w-full"
+                            style={{ width: '100%' }}
                             format="YYYY-MM-DD"
                             placeholder="Select date"
                             suffixIcon={<CalendarOutlined />}

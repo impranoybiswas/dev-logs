@@ -1,7 +1,8 @@
 'use client';
 
 import React from 'react';
-import { Form, Input, Button, Card, Typography, message } from 'antd';
+import { Form, Input, Button, Card, Typography } from 'antd';
+import { message } from '@/lib/antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useMutation } from '@tanstack/react-query';
 import api from '@/lib/api';
@@ -53,7 +54,7 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-4">
+        <div className="flex flex-col items-center justify-center min-h-[calc(100vh-64px)] bg-background p-4">
             <Card className="w-full max-w-md shadow-lg">
                 <div className="text-center mb-8">
                     <Title level={2}>Welcome Back</Title>

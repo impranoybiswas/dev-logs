@@ -21,7 +21,7 @@ export default function JobsPage() {
     if (!token) return null;
 
     return (
-        <div className="min-h-screen bg-background p-4 md:p-8">
+        <div className="min-h-[calc(100vh-64px)] bg-background p-4 md:p-8">
             <motion.div
                 initial={{ opacity: 0, scale: 0.98 }}
                 animate={{ opacity: 1, scale: 1 }}

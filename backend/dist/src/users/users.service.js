@@ -380,6 +380,67 @@ let UsersService = class UsersService {
             jobApplications: [],
         };
     }
+    async getDashboardStats(userId) {
+        const [appStats, totalFriends, pendingReceived, unreadNotifications, userWithResume,] = await Promise.all([
+            this.prisma.jobApplication.groupBy({
+                by: ['status'],
+                where: { userId },
+                _count: true,
+            }),
+            this.prisma.friendship.count({
+                where: {
+                    status: 'ACCEPTED',
+                    OR: [{ requesterId: userId }, { receiverId: userId }],
+                },
+            }),
+            this.prisma.friendship.count({
+                where: {
+                    receiverId: userId,
+                    status: 'PENDING',
+                },
+            }),
+            this.prisma.notification.count({
+                where: {
+                    userId,
+                    read: false,
+                },
+            }),
+            this.prisma.user.findUnique({
+                where: { id: userId },
+                include: {
+                    resume: {
+                        include: {
+                            education: true,
+                            experience: true,
+                            skills: true,
+                        },
+                    },
+                },
+            }),
+        ]);
+        let completeness = 0;
+        if (userWithResume?.resume) {
+            const resume = userWithResume.resume;
+            if (resume.summary)
+                completeness += 25;
+            if (resume.education.length > 0)
+                completeness += 25;
+            if (resume.experience.length > 0)
+                completeness += 25;
+            if (resume.skills.length > 0)
+                completeness += 25;
+        }
+        return {
+            jobApplications: appStats.map((stat) => ({
+                status: stat.status,
+                count: stat._count,
+            })),
+            totalFriends,
+            pendingFriends: pendingReceived,
+            unreadNotifications,
+            resumeCompleteness: completeness,
+        };
+    }
 };
 exports.UsersService = UsersService;
 exports.UsersService = UsersService = __decorate([

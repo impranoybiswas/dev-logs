@@ -48,7 +48,15 @@ const ChatFloatingButton: React.FC = () => {
                         dataSource={friends}
                         renderItem={(item: FriendshipRequest) => (
                             <List.Item
-                                className="cursor-pointer hover:bg-muted/50 rounded-2xl p-3 border-none mb-2 transition-all duration-300 group"
+                                style={{
+                                    cursor: 'pointer',
+                                    borderRadius: '1rem',
+                                    padding: '12px',
+                                    border: 'none',
+                                    marginBottom: '8px',
+                                    transition: 'all 0.3s'
+                                }}
+                                className="hover:bg-muted/50 group"
                                 onClick={() => handleFriendSelect(item)}
                             >
                                 <List.Item.Meta
@@ -56,7 +64,11 @@ const ChatFloatingButton: React.FC = () => {
                                         <Avatar
                                             src={item?.user?.profilePhoto}
                                             icon={<UserOutlined />}
-                                            className="group-hover:scale-110 transition-transform duration-300 shadow-md"
+                                            style={{
+                                                transition: 'transform 0.3s',
+                                                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                                            }}
+                                            className="group-hover:scale-110"
                                         />
                                     }
                                     title={<span className="font-bold group-hover:text-primary transition-colors">{item?.user?.name}</span>}
@@ -79,7 +91,7 @@ const ChatFloatingButton: React.FC = () => {
                 open={popoverVisible && !isOpen}
                 onOpenChange={setPopoverVisible}
                 placement="topLeft"
-                overlayClassName="chat-popover"
+                classNames={{ root: 'chat-popover' }}
                 arrow={false}
             >
                 <motion.div
@@ -92,8 +104,20 @@ const ChatFloatingButton: React.FC = () => {
                             size="large"
                             shape="circle"
                             onClick={handleToggle}
-                            className={`w-16 h-16 flex items-center justify-center shadow-2xl shadow-primary/40 border-none text-2xl transition-all duration-500 ${isOpen || popoverVisible ? 'bg-foreground scale-90 rotate-90' : 'bg-primary'
-                                }`}
+
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                border: 'none',
+                                fontSize: '1.5rem',
+                                transition: 'all 0.5s ease-in-out',
+                                backgroundColor: (isOpen || popoverVisible) ? 'var(--foreground)' : 'var(--primary)',
+                                transform: (isOpen || popoverVisible) ? 'scale(0.9) rotate(90deg)' : 'scale(1) rotate(0deg)',
+                                boxShadow: '0 25px 50px -12px rgba(var(--primary-rgb), 0.4)',
+                                width: '64px',
+                                height: '64px'
+                            }}
                             icon={isOpen || popoverVisible ? <CloseOutlined /> : <MessageOutlined />}
                         />
                     </Badge>

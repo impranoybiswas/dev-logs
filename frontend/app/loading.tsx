@@ -1,6 +1,6 @@
 export default function Loading() {
     return (
-        <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="min-h-dvh flex items-center justify-center bg-background">
             <div className="text-center space-y-8">
                 {/* Spinner with gradient border */}
                 <div className="relative w-24 h-24 mx-auto">

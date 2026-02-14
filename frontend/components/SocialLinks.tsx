@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Card, Table, Button, Modal, Form, Input, Select, Space, Typography, message, Popconfirm } from 'antd';
+import { Card, Table, Button, Modal, Form, Input, Select, Space, Typography, Popconfirm } from 'antd';
+import { message } from '@/lib/antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined, GlobalOutlined, LinkedinOutlined, GithubOutlined, FacebookOutlined, InstagramOutlined, WhatsAppOutlined, MessageOutlined } from '@ant-design/icons';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AxiosError } from 'axios';

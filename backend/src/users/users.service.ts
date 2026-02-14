@@ -441,4 +441,76 @@ export class UsersService {
       jobApplications: [], // Exclude job applications for public profile
     };
   }
+
+  async getDashboardStats(userId: string) {
+    const [
+      appStats,
+      totalFriends,
+      pendingReceived,
+      unreadNotifications,
+      userWithResume,
+    ] = await Promise.all([
+      // Job Application Stats
+      this.prisma.jobApplication.groupBy({
+        by: ['status'],
+        where: { userId },
+        _count: true,
+      }),
+      // Total Friends
+      this.prisma.friendship.count({
+        where: {
+          status: 'ACCEPTED',
+          OR: [{ requesterId: userId }, { receiverId: userId }],
+        },
+      }),
+      // Pending Friend Requests Received
+      this.prisma.friendship.count({
+        where: {
+          receiverId: userId,
+          status: 'PENDING',
+        },
+      }),
+      // Unread Notifications
+      this.prisma.notification.count({
+        where: {
+          userId,
+          read: false,
+        },
+      }),
+      // Resume Completeness Check
+      this.prisma.user.findUnique({
+        where: { id: userId },
+        include: {
+          resume: {
+            include: {
+              education: true,
+              experience: true,
+              skills: true,
+            },
+          },
+        },
+      }),
+    ]);
+
+    // Calculate resume completeness
+    let completeness = 0;
+    if (userWithResume?.resume) {
+      const resume = userWithResume.resume;
+      if (resume.summary) completeness += 25;
+      if (resume.education.length > 0) completeness += 25;
+      if (resume.experience.length > 0) completeness += 25;
+      if (resume.skills.length > 0) completeness += 25;
+    }
+
+    return {
+      jobApplications: appStats.map((stat) => ({
+        status: stat.status,
+        count: stat._count,
+      })),
+      totalFriends,
+      pendingFriends: pendingReceived,
+      unreadNotifications,
+      resumeCompleteness: completeness,
+    };
+  }
 }

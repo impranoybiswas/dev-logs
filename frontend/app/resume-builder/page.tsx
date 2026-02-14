@@ -33,10 +33,10 @@ export default function ResumeBuilderPage() {
         }
     }, [error, router]);
 
-    if (isLoading) return <div className="min-h-screen bg-background flex items-center justify-center">Loading...</div>;
+    if (isLoading) return <div className="min-h-[calc(100vh-64px)] bg-background flex items-center justify-center">Loading...</div>;
 
     return (
-        <div className="min-h-screen bg-background">
+        <div className="min-h-[calc(100vh-64px)] bg-background">
             <Navbar />
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
                 <div className="mb-6 flex items-center gap-4">

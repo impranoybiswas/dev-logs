@@ -27,7 +27,7 @@ export default function UserProfilePage() {
 
     if (error) {
         return (
-            <div className="flex items-center justify-center min-h-screen">
+            <div className="flex items-center justify-center min-h-[calc(100vh-64px)]">
                 <Result
                     status="error"
                     title="User not found"
@@ -43,7 +43,7 @@ export default function UserProfilePage() {
     }
 
     return (
-        <div className="min-h-screen bg-background p-4 md:p-8">
+        <div className="min-h-[calc(100vh-64px)] bg-background p-4 md:p-8">
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}

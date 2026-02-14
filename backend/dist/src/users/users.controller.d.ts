@@ -35,5 +35,15 @@ export declare class UsersController {
         message: string;
     }>;
     getPublicProfile(userId: string): Promise<import('./users.service').UserWithRelations>;
+    getDashboardStats(req: AuthenticatedRequest): Promise<{
+        jobApplications: {
+            status: string;
+            count: number;
+        }[];
+        totalFriends: number;
+        pendingFriends: number;
+        unreadNotifications: number;
+        resumeCompleteness: number;
+    }>;
 }
 export {};

@@ -63,4 +63,14 @@ export declare class UsersService {
     }>;
     isFriend(userId1: string, userId2: string): Promise<boolean>;
     getPublicProfile(id: string): Promise<UserWithRelations>;
+    getDashboardStats(userId: string): Promise<{
+        jobApplications: {
+            status: string;
+            count: number;
+        }[];
+        totalFriends: number;
+        pendingFriends: number;
+        unreadNotifications: number;
+        resumeCompleteness: number;
+    }>;
 }

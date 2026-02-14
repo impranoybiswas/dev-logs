@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 export default function NotFound() {
     return (
-        <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-background via-background to-muted px-4">
+        <div className="min-h-[calc(100vh-64px)] flex items-center justify-center bg-linear-to-br from-background via-background to-muted px-4">
             <div className="max-w-2xl w-full text-center">
                 {/* Animated 404 Number */}
                 <div className="relative mb-8">
@@ -20,8 +20,7 @@ export default function NotFound() {
                         Page Not Found
                     </h2>
                     <p className="text-lg text-muted-foreground max-w-md mx-auto">
-                        Oops! The page you&apos;re looking for seems to have wandered off into the digital void.
-                        Let&apos;s get you back on track.
+                        Oops! The page you&apos;re looking for seems to have wandered off into the digital void. Let&apos;s get you back on track.
                     </p>
 
                     {/* Action Buttons */}

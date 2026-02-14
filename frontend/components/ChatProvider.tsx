@@ -4,7 +4,7 @@ import React, { createContext, useContext, useEffect, useState, useCallback } fr
 import { io, Socket } from 'socket.io-client';
 import { getChatMessages, ChatMessage } from '@/lib/chat';
 import { FriendshipRequest } from '@/lib/user';
-import { message } from 'antd';
+import { message } from '@/lib/antd';
 
 interface ChatContextType {
     socket: Socket | null;

@@ -13,7 +13,8 @@ import {
     LogoutOutlined
 } from '@ant-design/icons';
 import { useTheme } from 'next-themes';
-import { Badge, Popover, List, Button, Empty, Avatar, message } from 'antd';
+import { Badge, Popover, List, Button, Empty, Avatar } from 'antd';
+import { message } from '@/lib/antd';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getNotifications, markAsRead, markAllAsRead, Notification } from '@/lib/notification';
 import { respondToFriendRequest } from '@/lib/user';
@@ -57,7 +58,7 @@ export default function Navbar() {
 
     const allNavLinks = [
         { href: '/', label: 'Home' },
-        { href: '/jobs', label: 'Jobs', protected: true },
+        { href: '/jobs', label: 'My Jobs', protected: true },
         { href: '/users', label: 'Users' },
         { href: '/friends', label: 'Friends', protected: true },
         { href: '/profile', label: 'Profile', protected: true },
@@ -174,10 +175,10 @@ export default function Navbar() {
 
     return (
         <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
-                ? 'bg-background/80 backdrop-blur-md border-b border-border/50 shadow-xs'
-                : 'bg-transparent border-transparent'
+            ? 'bg-background/80 backdrop-blur-md border-b border-border/50 shadow-xs'
+            : 'bg-transparent border-transparent'
             }`}>
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-7xl p-4 md:p-2 lg:p-0 mx-auto">
                 <div className="flex items-center justify-between h-16">
                     {/* Logo Section */}
                     <Link href="/" className="flex items-center space-x-3 group">
@@ -196,6 +197,7 @@ export default function Navbar() {
                                 key={link.href}
                                 href={link.href}
                                 className="px-4 py-2 rounded-lg text-foreground/80 hover:text-primary hover:bg-primary/5 transition-all duration-200 font-semibold text-sm"
+                                
                             >
                                 {link.label}
                             </Link>
@@ -209,7 +211,7 @@ export default function Navbar() {
                                 content={notificationContent}
                                 trigger="click"
                                 placement="bottomRight"
-                                overlayClassName="notification-popover"
+                                classNames={{ root: "notification-popover" }}
                             >
                                 <button className="p-2.5 rounded-xl text-foreground/70 hover:text-primary hover:bg-primary/5 transition-all relative">
                                     <Badge count={unreadCount} size="small" offset={[2, -2]}>
@@ -236,7 +238,7 @@ export default function Navbar() {
                                     <Avatar
                                         src={user?.profilePhoto}
                                         icon={<UserOutlined />}
-                                        className="border-2 border-primary/20"
+                                        style={{ border: "1px solid var(--primary)", marginRight: "5px" }}
                                     />
                                     <Button
                                         danger
@@ -315,6 +317,7 @@ export default function Navbar() {
                                     setIsMobileMenuOpen(false);
                                 }}
                                 className="h-10 rounded-lg font-medium border-none"
+
                             >
                                 Logout
                             </Button>

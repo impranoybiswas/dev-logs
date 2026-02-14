@@ -12,7 +12,8 @@ import {
     CloseOutlined,
     MessageOutlined,
 } from '@ant-design/icons';
-import { message, Input, Empty, Button, Avatar } from 'antd';
+import { Input, Empty, Button, Avatar } from 'antd';
+import { message } from '@/lib/antd';
 import { getUsers, sendFriendRequest, respondToFriendRequest, cancelFriendRequest, getSentRequests, getFriends } from '@/lib/user';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useChat } from '@/components/ChatProvider';
@@ -107,7 +108,7 @@ export default function UsersPage() {
     };
 
     return (
-        <div className="min-h-screen bg-background p-4 md:p-12 transition-all duration-500" style={containerStyle}>
+        <div className="min-h-[calc(100vh-64px)] bg-background p-4 md:p-12 transition-all duration-500" style={containerStyle}>
             {/* Header Section */}
             <motion.div
                 initial={{ opacity: 0, y: -20 }}
@@ -120,7 +121,7 @@ export default function UsersPage() {
                             <GlobalOutlined />
                             <span>Global Network</span>
                         </div>
-                        <h1 className="text-5xl md:text-7xl font-black tracking-tight text-foreground leading-tight">
+                        <h1 className="text-3xl md:text-4xl lg:text-5xl font-black tracking-tight text-foreground leading-tight">
                             Discover <span className="bg-linear-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">Developers</span>
                         </h1>
                         <p className="text-muted-foreground text-xl max-w-2xl font-medium">
@@ -133,7 +134,15 @@ export default function UsersPage() {
                             placeholder="Search by name or email..."
                             prefix={<SearchOutlined className="text-muted-foreground" />}
                             size="large"
-                            className="h-14 rounded-2xl border-none shadow-xl ring-1 ring-border/50 focus:ring-2 focus:ring-primary/50 transition-all duration-300 bg-card/50 backdrop-blur-xl"
+                            style={{
+                                height: '3.5rem',
+                                borderRadius: '1rem',
+                                border: 'none',
+                                boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+                                backgroundColor: 'rgba(var(--card-rgb), 0.5)',
+                                backdropFilter: 'blur(24px)',
+                                transition: 'all 0.3s ease'
+                            }}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
                     </div>
@@ -176,7 +185,13 @@ export default function UsersPage() {
                                             <Avatar
                                                 size={110}
                                                 src={user?.profilePhoto}
-                                                className="border-4 border-card shadow-2xl ring-4 ring-primary/10 group-hover:ring-primary/30 transition-all duration-500 relative z-10"
+                                                style={{
+                                                    border: '4px solid var(--card)',
+                                                    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+                                                    position: 'relative',
+                                                    zIndex: 10,
+                                                    transition: 'all 0.5s ease'
+                                                }}
                                             >
                                                 {user?.name?.[0]}
                                             </Avatar>
@@ -217,7 +232,15 @@ export default function UsersPage() {
                                                                 openChat(friend);
                                                             }
                                                         }}
-                                                        className="rounded-2xl font-black h-12 shadow-lg shadow-primary/20 border-none bg-primary hover:scale-[1.02] transition-all"
+                                                        style={{
+                                                            borderRadius: '1rem',
+                                                            fontWeight: 900,
+                                                            height: '3rem',
+                                                            boxShadow: '0 10px 15px -3px rgba(var(--primary-rgb), 0.2)',
+                                                            border: 'none',
+                                                            backgroundColor: 'var(--primary)',
+                                                            transition: 'all 0.3s ease'
+                                                        }}
                                                     >
                                                         MESSAGE
                                                     </Button>
@@ -230,7 +253,14 @@ export default function UsersPage() {
                                                     loading={actionLoadingId === user.id}
                                                     icon={<CloseOutlined />}
                                                     onClick={() => handleCancelRequest(user.id)}
-                                                    className="rounded-2xl font-black h-12 shadow-lg shadow-error/10 border-2 border-error/20 hover:bg-error hover:text-white transition-all"
+                                                    style={{
+                                                        borderRadius: '1rem',
+                                                        fontWeight: 900,
+                                                        height: '3rem',
+                                                        boxShadow: '0 4px 6px -1px rgba(var(--error-rgb), 0.1)',
+                                                        border: '2px solid rgba(var(--error-rgb), 0.2)',
+                                                        transition: 'all 0.3s ease'
+                                                    }}
                                                 >
                                                     CANCEL REQUEST
                                                 </Button>
@@ -242,7 +272,16 @@ export default function UsersPage() {
                                                         loading={actionLoadingId === user.id}
                                                         icon={<CheckOutlined />}
                                                         onClick={() => handleRespond(user.id, 'ACCEPT')}
-                                                        className="rounded-2xl font-black h-12 grow shadow-lg shadow-success/20 border-none bg-success hover:scale-105"
+                                                        style={{
+                                                            borderRadius: '1rem',
+                                                            fontWeight: 900,
+                                                            height: '3rem',
+                                                            flexGrow: 1,
+                                                            boxShadow: '0 4px 6px -1px rgba(var(--success-rgb), 0.2)',
+                                                            border: 'none',
+                                                            backgroundColor: 'var(--color-success)',
+                                                            transition: 'all 0.3s ease'
+                                                        }}
                                                     >
                                                         ACCEPT
                                                     </Button>
@@ -252,7 +291,14 @@ export default function UsersPage() {
                                                         loading={actionLoadingId === user.id}
                                                         icon={<CloseOutlined />}
                                                         onClick={() => handleRespond(user.id, 'REJECT')}
-                                                        className="rounded-2xl font-black h-12 grow border-2 border-error/20 hover:bg-error transition-all"
+                                                        style={{
+                                                            borderRadius: '1rem',
+                                                            fontWeight: 900,
+                                                            height: '3rem',
+                                                            flexGrow: 1,
+                                                            border: '2px solid rgba(var(--error-rgb), 0.2)',
+                                                            transition: 'all 0.3s ease'
+                                                        }}
                                                     >
                                                         DECLINE
                                                     </Button>
@@ -265,7 +311,14 @@ export default function UsersPage() {
                                                     icon={<UserAddOutlined />}
                                                     loading={actionLoadingId === user.id}
                                                     onClick={() => handleAddFriend(user.id)}
-                                                    className="rounded-2xl font-black h-12 shadow-xl shadow-primary/20 border-none hover:scale-[1.02] transition-all"
+                                                    style={{
+                                                        borderRadius: '1rem',
+                                                        fontWeight: 900,
+                                                        height: '3rem',
+                                                        boxShadow: '0 20px 25px -5px rgba(var(--primary-rgb), 0.2)',
+                                                        border: 'none',
+                                                        transition: 'all 0.3s ease'
+                                                    }}
                                                 >
                                                     ADD FRIEND
                                                 </Button>
@@ -276,7 +329,14 @@ export default function UsersPage() {
                                                 size="large"
                                                 icon={<GlobalOutlined />}
                                                 onClick={() => router.push(`/users/${user.id}`)}
-                                                className="rounded-2xl h-12 border-2 border-primary/20 text-primary font-bold hover:bg-primary/5 hover:border-primary transition-all"
+                                                style={{
+                                                    borderRadius: '1rem',
+                                                    height: '3rem',
+                                                    border: '2px solid rgba(var(--primary-rgb), 0.2)',
+                                                    color: 'var(--primary)',
+                                                    fontWeight: 'bold',
+                                                    transition: 'all 0.3s ease'
+                                                }}
                                             >
                                                 VIEW PROFILE
                                             </Button>

@@ -110,4 +110,10 @@ export class UsersController {
   ): Promise<import('./users.service').UserWithRelations> {
     return await this.usersService.getPublicProfile(userId);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('dashboard/stats')
+  async getDashboardStats(@Request() req: AuthenticatedRequest) {
+    return await this.usersService.getDashboardStats(req.user.userId);
+  }
 }
