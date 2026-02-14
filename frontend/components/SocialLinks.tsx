@@ -168,7 +168,7 @@ export default function SocialLinks({ links: propLinks, editable = true }: Socia
 
     return (
         <Card
-            title={<Title level={4} className="m-0">Social Media</Title>}
+            title={<Title level={4} className="mt-2">Social Media</Title>}
             extra={editable && (
                 <Button
                     type="text"
@@ -178,8 +178,10 @@ export default function SocialLinks({ links: propLinks, editable = true }: Socia
                     Manage
                 </Button>
             )}
-            className="mt-6 shadow-sm border-0"
-            styles={{ body: { padding: '24px' } }}
+
+
+            classNames={{ root: "mt-6 shadow-sm border-0" }}
+
         >
             <div className="flex flex-wrap gap-3 items-center">
                 {links?.map((link) => (

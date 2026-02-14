@@ -99,7 +99,7 @@ export default function UserProfilePage() {
                                     <Descriptions
                                         bordered
                                         column={1}
-                                        className="bg-muted/20! rounded-lg overflow-hidden"
+                                        classNames={{ root: "bg-muted/20! rounded-lg overflow-hidden" }}
                                     >
                                         <Descriptions.Item label={<><MailOutlined className="mr-2 text-primary" />Email</>}>
                                             <span className="font-medium">{user.email}</span>

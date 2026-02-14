@@ -174,8 +174,8 @@ export default function Navbar() {
 
 
     return (
-        <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
-            ? 'bg-background/80 backdrop-blur-md border-b border-border/50 shadow-xs'
+        <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${isScrolled
+            ? 'bg-background/70 backdrop-blur-xl border-b border-border/40 shadow-sm'
             : 'bg-transparent border-transparent'
             }`}>
             <div className="max-w-7xl p-4 md:p-2 lg:p-0 mx-auto">
@@ -196,10 +196,10 @@ export default function Navbar() {
                             <Link
                                 key={link.href}
                                 href={link.href}
-                                className="px-4 py-2 rounded-lg text-foreground/80 hover:text-primary hover:bg-primary/5 transition-all duration-200 font-semibold text-sm"
-                                
+                                className="relative px-4 py-2 rounded-lg text-foreground/60 hover:text-primary transition-all duration-300 font-bold text-[13px] tracking-wide uppercase group/link"
                             >
                                 {link.label}
+                                <span className="absolute bottom-1 left-4 right-4 h-0.5 bg-primary scale-x-0 group-hover/link:scale-x-100 transition-transform duration-300 origin-center" />
                             </Link>
                         ))}
 

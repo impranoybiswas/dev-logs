@@ -206,7 +206,8 @@ export default function ProfilePage() {
                                         <Descriptions
                                             column={1}
                                             className="bg-muted/10 p-4 rounded-xl"
-                                            labelStyle={{ color: 'gray', fontWeight: 500 }}
+                        
+                                            styles={{label : {color : 'gray', fontWeight: 500}}}
                                         >
                                             <Descriptions.Item label="Gender">
                                                 <span className="capitalize font-medium">

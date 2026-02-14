@@ -55,7 +55,7 @@ function ConfigWrapper({ children }: { children: React.ReactNode }) {
                             : '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.01)',
                     },
                     Button: {
-                        borderRadius: 10,
+                        borderRadius: 5,
                         fontWeight: 600,
                     },
                 }

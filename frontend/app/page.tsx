@@ -62,7 +62,7 @@ export default function Home() {
               <Button
                 type="primary"
                 size="large"
-                className="h-16! px-12! text-xl! rounded-2xl! bg-primary! hover:bg-primary-hover! border-none shadow-2xl! shadow-primary/40 hover:shadow-primary/60 hover:scale-105 transition-all font-black! tracking-tight!"
+                className="h-16! px-12! text-xl! rounded-2xl! bg-primary! hover:bg-primary-hover! border-none shadow-2xl! shadow-primary/40 hover:shadow-primary/60 hover:scale-105 transition-all font-bold! tracking-tight!"
               >
                 Join the Community
               </Button>
@@ -70,7 +70,7 @@ export default function Home() {
             <Link href="/auth/login" passHref>
               <Button
                 size="large"
-                className="h-16! px-12! text-xl! rounded-2xl! border-2! border-foreground/10 hover:border-primary! text-foreground! bg-background/50 backdrop-blur-md hover:bg-primary/5 transition-all font-black! tracking-tight!"
+                className="h-16! px-12! text-xl! rounded-2xl! border-2! border-foreground/10 hover:border-primary! text-foreground! bg-background/50 backdrop-blur-md hover:bg-primary/5 transition-all font-bold! tracking-tight!"
               >
                 Member Log In
               </Button>
@@ -88,8 +88,8 @@ export default function Home() {
           {[
             { label: 'Job Tracking', icon: '🎯' },
             { label: 'Profile Hub', icon: '👤' },
-            { label: 'Cloud Sync', icon: '☁️' },
-            { label: 'Modern UX', icon: '✨' }
+            { label: 'Connections', icon: '👥' },
+            { label: 'Modern Ux', icon: '✨' }
           ].map((feature) => (
             <div key={feature.label} className="flex flex-col items-center space-y-3 group cursor-default">
               <div className="w-14 h-14 rounded-2xl bg-muted/50 flex items-center justify-center text-2xl group-hover:scale-110 group-hover:bg-primary/10 transition-all duration-300 group-hover:rotate-6">
