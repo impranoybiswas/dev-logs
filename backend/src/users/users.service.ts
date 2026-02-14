@@ -115,11 +115,10 @@ export class UsersService {
     });
   }
 
-  async findAll(excludeUserId: string): Promise<SafeUser[]> {
+  async findAll(excludeUserId?: string | null): Promise<SafeUser[]> {
+    const whereClause = excludeUserId ? { id: { not: excludeUserId } } : {};
     const users = await this.prisma.user.findMany({
-      where: {
-        id: { not: excludeUserId },
-      },
+      where: whereClause,
       select: {
         id: true,
         name: true,
@@ -134,11 +133,13 @@ export class UsersService {
       },
     });
 
-    const friendships = await this.prisma.friendship.findMany({
-      where: {
-        OR: [{ requesterId: excludeUserId }, { receiverId: excludeUserId }],
-      },
-    });
+    const friendships = excludeUserId
+      ? await this.prisma.friendship.findMany({
+          where: {
+            OR: [{ requesterId: excludeUserId }, { receiverId: excludeUserId }],
+          },
+        })
+      : [];
 
     return users.map((user) => {
       const friendship = friendships.find(

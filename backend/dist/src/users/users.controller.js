@@ -29,7 +29,8 @@ let UsersController = class UsersController {
         return await this.usersService.updateProfile(req.user.userId, updateProfileDto);
     }
     async findAll(req) {
-        return await this.usersService.findAll(req.user.userId);
+        const userId = req.user?.userId || null;
+        return await this.usersService.findAll(userId);
     }
     async sendFriendRequest(req, receiverId) {
         return await this.usersService.sendFriendRequest(req.user.userId, receiverId);
@@ -75,7 +76,6 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "updateProfile", null);
 __decorate([
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Get)(),
     __param(0, (0, common_1.Request)()),
     __metadata("design:type", Function),

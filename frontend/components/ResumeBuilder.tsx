@@ -251,7 +251,8 @@ export default function ResumeBuilder() {
                     maxHeight: '85vh',
                     overflowY: 'auto',
                     position: 'sticky',
-                    top: '6rem'
+                    top: '6rem',
+                    zIndex: 1
                 }}
             >
                 <Form
@@ -274,11 +275,17 @@ export default function ResumeBuilder() {
             </Card>
 
             {/* Preview Section */}
-            <div className="flex-1 flex justify-center bg-muted/20 p-4 rounded-xl overflow-auto">
+            <div className="flex-1 flex justify-center bg-muted/20 p-2 md:p-4 rounded-xl overflow-x-hidden md:overflow-auto">
                 <div
                     ref={resumeRef}
-                    className="bg-white w-[210mm] min-h-[297mm] p-[20mm] shadow-xl text-black"
-                    style={{ fontFamily: 'Arial, sans-serif' }}
+                    className="bg-white origin-top shadow-xl text-black scale-[0.4] sm:scale-[0.6] md:scale-[0.8] lg:scale-100"
+                    style={{
+                        fontFamily: 'Arial, sans-serif',
+                        width: '210mm',
+                        minHeight: '297mm',
+                        padding: '20mm',
+                        height: 'fit-content'
+                    }}
                 >
                     {/* Header */}
                     <div className="border-b-2 border-gray-800 pb-4 mb-6">

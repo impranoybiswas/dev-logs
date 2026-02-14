@@ -32,6 +32,10 @@
   --card-foreground: #09090b;
 
   --radius: 0.75rem;
+
+  /* RGB Values for opacity support */
+  --background-rgb: 250, 250, 250;
+  --border-rgb: 228, 228, 231;
 }
 
 @theme inline {
@@ -81,6 +85,9 @@
   --border: #27272a;
   --card: #09090b;
   --card-foreground: #fafafa;
+
+  --background-rgb: 9, 9, 11;
+  --border-rgb: 39, 39, 42;
 }
 
 @layer base {
@@ -98,16 +105,42 @@
       background-color 0.3s ease,
       color 0.3s ease;
   }
+  a {
+    color: inherit;
+    text-decoration: none;
+    font-family: inherit;
+  }
+  a {
+    color: inherit;
+    text-decoration: none;
+    font-family: inherit;
+  }
 }
 
 /* Glassmorphism Utilities */
 .glass {
   background: rgba(var(--background-rgb), 0.7);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(var(--border-rgb), 0.3);
 }
 
 .dark .glass {
   background: rgba(9, 9, 11, 0.7);
+}
+
+/* Animations */
+@keyframes nav-slide-in {
+  from {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-nav-slide-in {
+  animation: nav-slide-in 0.4s ease-out forwards;
 }

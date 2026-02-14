@@ -19,6 +19,13 @@ interface AuthenticatedRequest extends Request {
   };
 }
 
+interface RequestWithOptionalUser extends Request {
+  user?: {
+    userId: string;
+    email: string;
+  };
+}
+
 @Controller('users')
 export class UsersController {
   constructor(private usersService: UsersService) {}
@@ -43,12 +50,12 @@ export class UsersController {
     );
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get()
   async findAll(
-    @Request() req: AuthenticatedRequest,
+    @Request() req: RequestWithOptionalUser,
   ): Promise<import('./users.service').SafeUser[]> {
-    return await this.usersService.findAll(req.user.userId);
+    const userId = req.user?.userId ?? null;
+    return await this.usersService.findAll(userId);
   }
 
   @UseGuards(JwtAuthGuard)

@@ -244,7 +244,7 @@ export default function FriendsPage() {
                         <UserAddOutlined />
                         <span>Connections</span>
                     </div>
-                    <Title level={1} className="m-0! text-5xl! md:text-6xl! font-black! tracking-tight!">
+                    <Title level={1} className="m-0! text-3xl! sm:text-4xl! md:text-5xl! lg:text-6xl! font-black! tracking-tight!">
                         Friend <span className="bg-linear-to-r from-primary to-accent bg-clip-text text-transparent">Requests</span>
                     </Title>
                     <Text type="secondary" className="text-xl font-medium block">
@@ -263,8 +263,8 @@ export default function FriendsPage() {
                             {
                                 key: 'friends',
                                 label: (
-                                    <Badge count={friends.length} offset={[12, 0]} size="small" color="#10b981">
-                                        <span className="px-6 py-2 block font-black text-sm uppercase tracking-widest">Friends</span>
+                                    <Badge count={friends.length} offset={[10, 0]} size="small" color="#10b981">
+                                        <span className="px-3 md:px-6 py-2 block font-black text-xs md:text-sm uppercase tracking-widest">Friends</span>
                                     </Badge>
                                 ),
                                 children: (
@@ -285,8 +285,8 @@ export default function FriendsPage() {
                             {
                                 key: 'received',
                                 label: (
-                                    <Badge count={receivedRequests.length} offset={[12, 0]} size="small" color="#f59e0b">
-                                        <span className="px-6 py-2 block font-black text-sm uppercase tracking-widest text-nowrap">Requested You</span>
+                                    <Badge count={receivedRequests.length} offset={[10, 0]} size="small" color="#f59e0b">
+                                        <span className="px-3 md:px-6 py-2 block font-black text-xs md:text-sm uppercase tracking-widest text-nowrap">Incoming</span>
                                     </Badge>
                                 ),
                                 children: (
@@ -307,8 +307,8 @@ export default function FriendsPage() {
                             {
                                 key: 'sent',
                                 label: (
-                                    <Badge count={sentRequests.length} offset={[12, 0]} size="small" color="#6366f1">
-                                        <span className="px-6 py-2 block font-black text-sm uppercase tracking-widest text-nowrap">Sent Requests</span>
+                                    <Badge count={sentRequests.length} offset={[10, 0]} size="small" color="#6366f1">
+                                        <span className="px-3 md:px-6 py-2 block font-black text-xs md:text-sm uppercase tracking-widest text-nowrap">Sent</span>
                                     </Badge>
                                 ),
                                 children: (

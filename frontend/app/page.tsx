@@ -33,7 +33,7 @@ export default function Home() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
             </span>
-            Now in Private Beta
+            Live Developers
           </div>
           <Title level={1} className="m-0! text-6xl! md:text-8xl! font-black! tracking-tighter! leading-none!">
             <span className="text-foreground">Code. </span>

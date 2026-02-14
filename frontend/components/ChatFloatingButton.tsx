@@ -7,15 +7,28 @@ import { Button, Badge, Popover, List, Avatar, Empty } from 'antd';
 import { useChat } from './ChatProvider';
 import { useQuery } from '@tanstack/react-query';
 import { getFriends, FriendshipRequest } from '@/lib/user';
+import api from '@/lib/api';
 
 const ChatFloatingButton: React.FC = () => {
     const { isOpen, closeChat, openChat } = useChat();
     const [popoverVisible, setPopoverVisible] = useState(false);
 
+    const { data: user } = useQuery({
+        queryKey: ['profile'],
+        queryFn: async () => {
+            const response = await api.get('/users/profile');
+            return response.data;
+        },
+        retry: false,
+    });
+
     const { data: friends = [], isLoading: loadingFriends } = useQuery({
         queryKey: ['friendships', 'accepted'],
         queryFn: getFriends,
+        enabled: !!user,
     });
+
+    if (!user) return null;
 
     const handleToggle = () => {
         if (isOpen) {

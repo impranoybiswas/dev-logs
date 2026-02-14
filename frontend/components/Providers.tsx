@@ -44,19 +44,23 @@ function ConfigWrapper({ children }: { children: React.ReactNode }) {
             theme={{
                 algorithm: isDarkMode ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
                 token: {
-                    colorPrimary: '#6366f1', // Indigo
-                    borderRadius: 12,
-                    fontFamily: 'var(--font-sans)',
+                    colorPrimary: isDarkMode ? '#818cf8' : '#6366f1', // Sync with globals.css
+                    borderRadius: 6,
+                    fontFamily: 'var(--font-outfit), var(--font-sans)',
+                    colorBgBase: isDarkMode ? '#09090b' : '#fafafa',
+                    colorTextBase: isDarkMode ? '#fafafa' : '#09090b',
                 },
                 components: {
                     Card: {
                         boxShadow: isDarkMode
                             ? '0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2)'
                             : '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.01)',
+                        borderRadiusLG: 12,
                     },
                     Button: {
                         borderRadius: 5,
                         fontWeight: 600,
+                        controlHeight: 40,
                     },
                 }
             }}

@@ -27,6 +27,7 @@ export default function UsersPage() {
     const { openChat } = useChat();
     const [searchQuery, setSearchQuery] = useState('');
     const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
+    const [isLoggedIn] = useState(() => typeof window !== 'undefined' && !!localStorage.getItem('token'));
 
     const { data: users = [], isLoading: loading } = useQuery({
         queryKey: ['users'],
@@ -36,6 +37,7 @@ export default function UsersPage() {
     const { data: sentRequests = [] } = useQuery({
         queryKey: ['friendships', 'sent'],
         queryFn: getSentRequests,
+        enabled: isLoggedIn,
     });
 
     const handleAddFriend = async (userId: string) => {
@@ -108,7 +110,7 @@ export default function UsersPage() {
     };
 
     return (
-        <div className="min-h-[calc(100vh-64px)] bg-background p-4 md:p-12 transition-all duration-500" style={containerStyle}>
+        <div className="min-h-[calc(100vh-64px)] bg-background p-4 md:p-8 lg:p-12 transition-all duration-500" style={containerStyle}>
             {/* Header Section */}
             <motion.div
                 initial={{ opacity: 0, y: -20 }}
@@ -129,17 +131,16 @@ export default function UsersPage() {
                         </p>
                     </div>
 
-                    <div className="relative w-full md:w-96">
+                    <div className="relative w-full md:max-w-md">
                         <Input
                             placeholder="Search by name or email..."
-                            prefix={<SearchOutlined className="text-muted-foreground" />}
+                            prefix={<SearchOutlined className="text-muted-foreground mr-2" />}
                             size="large"
+                            className="h-14 md:h-16"
                             style={{
-                                height: '3.5rem',
-                                borderRadius: '1rem',
-                                border: 'none',
-                                boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-                                backgroundColor: 'rgba(var(--card-rgb), 0.5)',
+                                borderRadius: '1.25rem',
+                                border: '1px solid var(--border)',
+                                backgroundColor: 'var(--color-card)',
                                 backdropFilter: 'blur(24px)',
                                 transition: 'all 0.3s ease'
                             }}
@@ -310,17 +311,18 @@ export default function UsersPage() {
                                                     block
                                                     icon={<UserAddOutlined />}
                                                     loading={actionLoadingId === user.id}
+                                                    disabled={!isLoggedIn}
                                                     onClick={() => handleAddFriend(user.id)}
                                                     style={{
                                                         borderRadius: '1rem',
                                                         fontWeight: 900,
                                                         height: '3rem',
-                                                        boxShadow: '0 20px 25px -5px rgba(var(--primary-rgb), 0.2)',
+                                                        boxShadow: isLoggedIn ? '0 20px 25px -5px rgba(var(--primary-rgb), 0.2)' : 'none',
                                                         border: 'none',
                                                         transition: 'all 0.3s ease'
                                                     }}
                                                 >
-                                                    ADD FRIEND
+                                                    {isLoggedIn ? 'ADD FRIEND' : 'LOGIN TO CONNECT'}
                                                 </Button>
                                             )}
 
@@ -328,17 +330,18 @@ export default function UsersPage() {
                                                 block
                                                 size="large"
                                                 icon={<GlobalOutlined />}
+                                                disabled={!isLoggedIn}
                                                 onClick={() => router.push(`/users/${user.id}`)}
                                                 style={{
                                                     borderRadius: '1rem',
                                                     height: '3rem',
-                                                    border: '2px solid rgba(var(--primary-rgb), 0.2)',
-                                                    color: 'var(--primary)',
+                                                    border: `2px solid ${isLoggedIn ? 'rgba(var(--primary-rgb), 0.2)' : 'var(--border)'}`,
+                                                    color: isLoggedIn ? 'var(--primary)' : 'var(--muted-foreground)',
                                                     fontWeight: 'bold',
                                                     transition: 'all 0.3s ease'
                                                 }}
                                             >
-                                                VIEW PROFILE
+                                                {isLoggedIn ? 'VIEW PROFILE' : 'LOGIN TO VIEW'}
                                             </Button>
                                         </div>
                                     </div>

@@ -67,7 +67,7 @@ export default function ProfilePage() {
     const isLoading = isUserLoading || isStatsLoading;
 
     return (
-        <div className="min-h-[calc(100vh-64px)] bg-background p-4 md:p-8 pt-24">
+        <div className="min-h-[calc(100vh-64px)] bg-background p-4 sm:p-6 md:p-8 pt-20 md:pt-24 transition-all duration-500">
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -76,11 +76,9 @@ export default function ProfilePage() {
             >
                 {/* Dashboard Header */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-2">
-                    <div>
-                        <Title level={2} className="m-0 text-foreground!">Dashboard Overview</Title>
-                        <Text type="secondary">Welcome back, {user?.name || 'User'}!
-                            <br className='block md:hidden' />
-                            {" "} Here&apos;s what&apos;s happening.</Text>
+                    <div className="space-y-1">
+                        <Title level={2} className="m-0 text-foreground text-2xl md:text-3xl font-black tracking-tight">Dashboard Overview</Title>
+                        <Text type="secondary" className="text-sm md:text-base">Welcome back, {user?.name || 'User'}!</Text>
                     </div>
                     <div className="flex gap-2">
                         <Button icon={<FileTextOutlined />} onClick={() => router.push('/resume-builder')}>
@@ -189,25 +187,25 @@ export default function ProfilePage() {
                                 <Skeleton active avatar paragraph={{ rows: 6 }} />
                             ) : (
                                 <div className="flex flex-col md:flex-row gap-8 py-2">
-                                    <div className="flex flex-col items-center">
+                                    <div className="flex flex-col items-center md:items-start px-2">
                                         <div className="relative p-1 rounded-full bg-linear-to-br from-primary to-accent mb-4">
                                             <Avatar
-                                                size={120}
+                                                size={{ xs: 80, sm: 100, md: 120, lg: 120, xl: 120, xxl: 120 }}
                                                 icon={<UserOutlined />}
                                                 src={user.profilePhoto}
                                                 style={{ backgroundColor: 'var(--card)', border: '2px solid var(--card)' }}
                                             />
                                         </div>
-                                        <Title level={4} className="mb-0 text-center">{user.name}</Title>
-                                        <Text type="secondary">{user.email}</Text>
+                                        <Title level={4} className="mb-0 text-center md:text-left">{user.name}</Title>
+                                        <Text type="secondary" className="text-center md:text-left">{user.email}</Text>
                                     </div>
 
-                                    <div className="grow">
+                                    <div className="grow w-full">
                                         <Descriptions
-                                            column={1}
+                                            column={{ xs: 1, sm: 1, md: 1, lg: 1, xl: 1 }}
                                             className="bg-muted/10 p-4 rounded-xl"
-                        
-                                            styles={{label : {color : 'gray', fontWeight: 500}}}
+
+                                            styles={{ label: { color: 'gray', fontWeight: 500 } }}
                                         >
                                             <Descriptions.Item label="Gender">
                                                 <span className="capitalize font-medium">

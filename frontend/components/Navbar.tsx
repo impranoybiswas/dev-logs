@@ -174,14 +174,17 @@ export default function Navbar() {
 
 
     return (
-        <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${isScrolled
-            ? 'bg-background/70 backdrop-blur-xl border-b border-border/40 shadow-sm'
-            : 'bg-transparent border-transparent'
+        <nav className={`fixed left-0 right-0 z-50 transition-all duration-500 ease-in-out ${isScrolled
+            ? 'top-4'
+            : 'top-0'
             }`}>
-            <div className="max-w-7xl p-4 md:p-2 lg:p-0 mx-auto">
+            <div className={`mx-auto max-w-7xl transition-all duration-500 ease-in-out ${isScrolled
+                ? 'bg-background/80 backdrop-blur-xl border border-border/40 shadow-xl rounded-[2.5rem] px-6 py-2 mx-4'
+                : 'bg-transparent border-transparent px-4'
+                }`}>
                 <div className="flex items-center justify-between h-16">
                     {/* Logo Section */}
-                    <Link href="/" className="flex items-center space-x-3 group">
+                    <Link href="/" className="flex items-center space-x-3 group cursor-pointer transition-opacity hover:opacity-80">
                         <div className="w-9 h-9 rounded-xl bg-linear-to-br from-primary to-accent flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
                             <span className="text-white font-black text-xl">D</span>
                         </div>
@@ -196,7 +199,7 @@ export default function Navbar() {
                             <Link
                                 key={link.href}
                                 href={link.href}
-                                className="relative px-4 py-2 rounded-lg text-foreground/60 hover:text-primary transition-all duration-300 font-bold text-[13px] tracking-wide uppercase group/link"
+                                className="relative px-4 py-2 rounded-lg text-muted-foreground hover:text-primary transition-all duration-300 font-bold text-[13px] tracking-wide uppercase group/link cursor-pointer"
                             >
                                 {link.label}
                                 <span className="absolute bottom-1 left-4 right-4 h-0.5 bg-primary scale-x-0 group-hover/link:scale-x-100 transition-transform duration-300 origin-center" />
@@ -206,24 +209,25 @@ export default function Navbar() {
                         <div className="mx-4 h-6 w-px bg-border/50" />
 
                         <div className="flex items-center space-x-2">
-                            {/* Notification Bell */}
-                            <Popover
-                                content={notificationContent}
-                                trigger="click"
-                                placement="bottomRight"
-                                classNames={{ root: "notification-popover" }}
-                            >
-                                <button className="p-2.5 rounded-xl text-foreground/70 hover:text-primary hover:bg-primary/5 transition-all relative">
-                                    <Badge count={unreadCount} size="small" offset={[2, -2]}>
-                                        <BellOutlined className="text-xl" />
-                                    </Badge>
-                                </button>
-                            </Popover>
+                            {isLoggedIn && (
+                                <Popover
+                                    content={notificationContent}
+                                    trigger="click"
+                                    placement="bottomRight"
+                                    classNames={{ root: "notification-popover" }}
+                                >
+                                    <button className="size-10 flex items-center justify-center rounded-full text-foreground/70 hover:text-primary hover:bg-primary/5 transition-all relative">
+                                        <Badge count={unreadCount} size="small" offset={[2, -2]}>
+                                            <BellOutlined className="text-xl" />
+                                        </Badge>
+                                    </button>
+                                </Popover>
+                            )}
 
                             {/* Theme Toggle */}
                             <button
                                 onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                                className="p-2.5 rounded-xl text-foreground/70 hover:text-primary hover:bg-primary/5 transition-all"
+                                className="size-10 flex items-center justify-center rounded-full text-foreground/70 hover:text-primary hover:bg-primary/5 transition-all"
                                 aria-label="Toggle theme"
                             >
                                 {theme === 'dark' ? (
@@ -252,35 +256,54 @@ export default function Navbar() {
                                 </div>
                             ) : (
                                 <div className="ml-4 flex items-center space-x-3">
-                                    <Link
-                                        href="/auth/login"
-                                        className="px-4 py-2 text-foreground/70 hover:text-primary font-bold text-sm transition-colors"
+                                    <Button
+                                        type="text"
+                                        className="font-bold text-muted-foreground hover:text-primary transition-colors"
+                                        onClick={() => router.push('/auth/login')}
                                     >
                                         Log In
-                                    </Link>
-                                    <Link
-                                        href="/auth/register"
-                                        className="px-5 py-2 rounded-xl bg-primary hover:bg-primary-hover text-primary-foreground font-bold text-sm transition-all shadow-md hover:shadow-primary/25 hover:-translate-y-0.5"
+                                    </Button>
+                                    <Button
+                                        type="primary"
+                                        size="middle"
+                                        className="rounded-xl font-bold shadow-md hover:shadow-primary/25 hover:-translate-y-0.2 transition-all h-10 px-6"
+                                        onClick={() => router.push('/auth/register')}
                                     >
                                         Get Started
-                                    </Link>
+                                    </Button>
                                 </div>
                             )}
                         </div>
                     </div>
 
-                    {/* Mobile Menu Button */}
-                    <div className="flex items-center space-x-4 md:hidden">
-                        <Popover content={notificationContent} trigger="click" placement="bottomRight">
-                            <button className="p-2 rounded-lg text-foreground relative">
-                                <Badge count={unreadCount} size="small">
-                                    <BellOutlined className="text-xl" />
-                                </Badge>
-                            </button>
-                        </Popover>
+                    {/* Mobile Menu Actions */}
+                    <div className="flex items-center space-x-2 md:hidden">
+                        {/* Mobile Theme Toggle */}
+                        <button
+                            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                            className="p-2 rounded-full text-foreground/70 hover:text-primary hover:bg-primary/5 transition-all"
+                            aria-label="Toggle theme"
+                        >
+                            {theme === 'dark' ? (
+                                <SunOutlined className="text-xl" />
+                            ) : (
+                                <MoonOutlined className="text-xl" />
+                            )}
+                        </button>
+
+                        {isLoggedIn && (
+                            <Popover content={notificationContent} trigger="click" placement="bottomRight">
+                                <button className="p-2 rounded-full text-foreground relative hover:bg-primary/5">
+                                    <Badge count={unreadCount} size="small" offset={[2, -2]}>
+                                        <BellOutlined className="text-xl" />
+                                    </Badge>
+                                </button>
+                            </Popover>
+                        )}
+
                         <button
                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                            className="p-2 rounded-lg text-foreground hover:bg-muted transition-colors"
+                            className="p-2 rounded-full text-primary hover:bg-primary/5 transition-all"
                             aria-label="Toggle menu"
                         >
                             {isMobileMenuOpen ? (
@@ -293,55 +316,60 @@ export default function Navbar() {
                 </div>
             </div>
 
-            {/* Mobile Menu */}
+            {/* Mobile Menu Overflow */}
             {isMobileMenuOpen && (
-                <div className="md:hidden bg-background border-t border-border">
-                    <div className="px-4 py-4 space-y-3">
-                        {navLinks.map((link) => (
+                <div className="md:hidden fixed inset-0 z-40 bg-background/95 backdrop-blur-xl animate-in fade-in duration-300">
+                    <div className="flex flex-col h-full pt-24 px-6 space-y-4">
+                        {navLinks.map((link, idx) => (
                             <Link
                                 key={link.href}
                                 href={link.href}
                                 onClick={() => setIsMobileMenuOpen(false)}
-                                className="block px-4 py-2 rounded-lg text-foreground/80 hover:text-primary hover:bg-muted transition-colors"
+                                className="block px-6 py-4 rounded-2xl text-2xl font-black tracking-tight text-foreground/60 hover:text-primary hover:bg-primary/5 transition-all opacity-0 animate-nav-slide-in"
+                                style={{ animationDelay: `${idx * 0.05}s` }}
                             >
                                 {link.label}
                             </Link>
                         ))}
-                        {isLoggedIn ? (
-                            <Button
-                                danger
-                                block
-                                icon={<LogoutOutlined />}
-                                onClick={() => {
-                                    handleLogout();
-                                    setIsMobileMenuOpen(false);
-                                }}
-                                className="h-10 rounded-lg font-medium border-none"
 
-                            >
-                                Logout
-                            </Button>
-                        ) : (
-                            <>
-                                <Link
-                                    href="/auth/login"
-                                    onClick={() => setIsMobileMenuOpen(false)}
-                                    className="block px-4 py-2 rounded-lg text-foreground/80 hover:text-primary hover:bg-muted transition-colors text-center font-medium"
+                        <div className="pt-8 border-t border-border/50 mt-auto pb-12 space-y-4">
+                            {isLoggedIn ? (
+                                <Button
+                                    danger
+                                    block
+                                    size="large"
+                                    icon={<LogoutOutlined />}
+                                    onClick={() => {
+                                        handleLogout();
+                                        setIsMobileMenuOpen(false);
+                                    }}
+                                    className="h-14 rounded-2xl font-black tracking-tight text-lg"
                                 >
-                                    Log In
-                                </Link>
-                                <Link
-                                    href="/auth/register"
-                                    onClick={() => setIsMobileMenuOpen(false)}
-                                    className="block w-full px-4 py-2 rounded-lg bg-primary hover:bg-primary-hover text-primary-foreground text-center font-medium transition-all"
-                                >
-                                    Get Started
-                                </Link>
-                            </>
-                        )}
+                                    LOGOUT
+                                </Button>
+                            ) : (
+                                <div className="grid grid-cols-2 gap-4">
+                                    <Link
+                                        href="/auth/login"
+                                        onClick={() => setIsMobileMenuOpen(false)}
+                                        className="flex items-center justify-center px-4 py-4 rounded-2xl text-foreground font-black tracking-tight bg-muted/50"
+                                    >
+                                        LOG IN
+                                    </Link>
+                                    <Link
+                                        href="/auth/register"
+                                        onClick={() => setIsMobileMenuOpen(false)}
+                                        className="flex items-center justify-center px-4 py-4 rounded-2xl bg-primary text-white font-black tracking-tight"
+                                    >
+                                        SIGN UP
+                                    </Link>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             )}
+
         </nav>
     );
 }
