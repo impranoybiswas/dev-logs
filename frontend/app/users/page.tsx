@@ -9,11 +9,13 @@ import {
     LoadingOutlined,
     CheckCircleFilled,
     CheckOutlined,
-    CloseOutlined
+    CloseOutlined,
+    MessageOutlined,
 } from '@ant-design/icons';
 import { message, Input, Empty, Button, Avatar } from 'antd';
-import { getUsers, sendFriendRequest, respondToFriendRequest, cancelFriendRequest, getSentRequests } from '@/lib/user';
+import { getUsers, sendFriendRequest, respondToFriendRequest, cancelFriendRequest, getSentRequests, getFriends } from '@/lib/user';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useChat } from '@/components/ChatProvider';
 import { AxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
 
@@ -21,6 +23,7 @@ import { useRouter } from 'next/navigation';
 export default function UsersPage() {
     const router = useRouter();
     const queryClient = useQueryClient();
+    const { openChat } = useChat();
     const [searchQuery, setSearchQuery] = useState('');
     const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
 
@@ -202,6 +205,22 @@ export default function UsersPage() {
                                                         <CheckCircleFilled />
                                                         <span>CONNECTED</span>
                                                     </div>
+                                                    <Button
+                                                        block
+                                                        size="large"
+                                                        type="primary"
+                                                        icon={<MessageOutlined />}
+                                                        onClick={async () => {
+                                                            const friends = await getFriends();
+                                                            const friend = friends.find(f => f.user.id === user.id);
+                                                            if (friend) {
+                                                                openChat(friend);
+                                                            }
+                                                        }}
+                                                        className="rounded-2xl font-black h-12 shadow-lg shadow-primary/20 border-none bg-primary hover:scale-[1.02] transition-all"
+                                                    >
+                                                        MESSAGE
+                                                    </Button>
                                                 </div>
                                             ) : user.friendshipStatus === 'PENDING' && user.isRequester ? (
                                                 <Button

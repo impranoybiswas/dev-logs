@@ -22,7 +22,8 @@ import {
     ClockCircleOutlined,
     QuestionCircleOutlined,
     UserAddOutlined,
-    GlobalOutlined
+    GlobalOutlined,
+    MessageOutlined,
 } from '@ant-design/icons';
 import {
     getSentRequests,
@@ -35,6 +36,7 @@ import {
 } from '@/lib/user';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
+import { useChat } from '@/components/ChatProvider';
 
 const { Title, Text } = Typography;
 
@@ -46,6 +48,7 @@ interface RequestListProps {
 
 const RequestList = ({ requests, type, onAction }: RequestListProps) => {
     const router = useRouter();
+    const { openChat } = useChat();
     return (
         <List
             itemLayout="horizontal"
@@ -63,6 +66,16 @@ const RequestList = ({ requests, type, onAction }: RequestListProps) => {
                         actions={[
                             <div key="actions" className="flex flex-col gap-3 items-end">
                                 <div className="flex gap-2">
+                                    {type === 'friends' && (
+                                        <Button
+                                            type="primary"
+                                            icon={<MessageOutlined />}
+                                            onClick={() => openChat(item)}
+                                            className="rounded-xl shadow-lg bg-primary border-none h-10 px-6 font-bold hover:scale-105 transition-transform"
+                                        >
+                                            Chat
+                                        </Button>
+                                    )}
                                     {type === 'received' ? (
                                         <>
                                             <Button
