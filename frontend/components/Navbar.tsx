@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
     MenuOutlined,
     CloseOutlined,
@@ -23,6 +23,15 @@ import { useRouter } from 'next/navigation';
 export default function Navbar() {
     const router = useRouter();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isScrolled, setIsScrolled] = useState(false);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            setIsScrolled(window.scrollY > 20);
+        };
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
     const { theme, setTheme } = useTheme();
     const queryClient = useQueryClient();
 
@@ -164,7 +173,10 @@ export default function Navbar() {
 
 
     return (
-        <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-border/50">
+        <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
+                ? 'bg-background/80 backdrop-blur-md border-b border-border/50 shadow-xs'
+                : 'bg-transparent border-transparent'
+            }`}>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
                     {/* Logo Section */}

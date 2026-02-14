@@ -1,14 +1,16 @@
 'use client';
 
 import React from 'react';
-import { Card, Descriptions, Button, Avatar, Typography, Skeleton, Result, message } from 'antd';
-import { UserOutlined, LogoutOutlined, CalendarOutlined, MailOutlined, ManOutlined, WomanOutlined } from '@ant-design/icons';
+import { Card, Descriptions, Button, Avatar, Typography, Skeleton, Result } from 'antd';
+import { UserOutlined, CalendarOutlined, MailOutlined, ManOutlined, WomanOutlined } from '@ant-design/icons';
 import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { useRouter } from 'next/navigation';
 import { AxiosError } from 'axios';
 import SocialLinks from '@/components/SocialLinks';
 import { motion } from 'framer-motion';
+import EditProfileModal from '@/components/EditProfileModal';
+import { useState } from 'react';
 
 const { Title } = Typography;
 
@@ -38,11 +40,7 @@ export default function ProfilePage() {
         }
     }, [token, error, router]);
 
-    const handleLogout = () => {
-        localStorage.removeItem('token');
-        message.success('Logged out successfully');
-        router.push('/auth/login');
-    };
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
     if (!token) return null;
 
@@ -82,12 +80,11 @@ export default function ProfilePage() {
                         title={<Title level={3} className="m-0 text-foreground!">User Profile</Title>}
                         extra={
                             <Button
-                                danger
-                                icon={<LogoutOutlined />}
-                                onClick={handleLogout}
-                                className="hover:bg-error/10!"
+                                type="primary"
+                                icon={<UserOutlined />}
+                                onClick={() => setIsEditModalOpen(true)}
                             >
-                                Logout
+                                Edit Profile
                             </Button>
                         }
                         className="shadow-xl bg-card! border-border/50 rounded-2xl! overflow-hidden"
@@ -158,6 +155,16 @@ export default function ProfilePage() {
                     <SocialLinks />
                 </motion.div>
             </motion.div>
-        </div>
+
+            {
+                user && (
+                    <EditProfileModal
+                        open={isEditModalOpen}
+                        onCancel={() => setIsEditModalOpen(false)}
+                        user={user}
+                    />
+                )
+            }
+        </div >
     );
 }
