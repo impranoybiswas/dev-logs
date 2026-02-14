@@ -54,13 +54,13 @@ const ChatFloatingButton: React.FC = () => {
                                 <List.Item.Meta
                                     avatar={
                                         <Avatar
-                                            src={item.user.profilePhoto}
+                                            src={item?.user?.profilePhoto}
                                             icon={<UserOutlined />}
                                             className="group-hover:scale-110 transition-transform duration-300 shadow-md"
                                         />
                                     }
-                                    title={<span className="font-bold group-hover:text-primary transition-colors">{item.user.name}</span>}
-                                    description={<span className="text-[10px] uppercase font-black tracking-widest text-muted-foreground/60">{item.user.gender || 'Developer'}</span>}
+                                    title={<span className="font-bold group-hover:text-primary transition-colors">{item?.user?.name}</span>}
+                                    description={<span className="text-[10px] uppercase font-black tracking-widest text-muted-foreground/60">{item?.user?.gender || 'Developer'}</span>}
                                 />
                                 <div className="w-2 h-2 rounded-full bg-success opacity-0 group-hover:opacity-100 transition-opacity" />
                             </List.Item>

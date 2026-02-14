@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Card, Descriptions, Button, Avatar, Typography, Skeleton, Result } from 'antd';
-import { UserOutlined, CalendarOutlined, MailOutlined, ManOutlined, WomanOutlined } from '@ant-design/icons';
+import { UserOutlined, CalendarOutlined, MailOutlined, ManOutlined, WomanOutlined, FileTextOutlined } from '@ant-design/icons';
 import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { useRouter } from 'next/navigation';
@@ -79,13 +79,21 @@ export default function ProfilePage() {
                     <Card
                         title={<Title level={3} className="m-0 text-foreground!">User Profile</Title>}
                         extra={
-                            <Button
-                                type="primary"
-                                icon={<UserOutlined />}
-                                onClick={() => setIsEditModalOpen(true)}
-                            >
-                                Edit Profile
-                            </Button>
+                            <div className="flex gap-2">
+                                <Button
+                                    icon={<FileTextOutlined />}
+                                    onClick={() => router.push('/resume-builder')}
+                                >
+                                    Resume Builder
+                                </Button>
+                                <Button
+                                    type="primary"
+                                    icon={<UserOutlined />}
+                                    onClick={() => setIsEditModalOpen(true)}
+                                >
+                                    Edit Profile
+                                </Button>
+                            </div>
                         }
                         className="shadow-xl bg-card! border-border/50 rounded-2xl! overflow-hidden"
                     >

@@ -33,10 +33,10 @@ export default function EditProfileModal({ open, onCancel, user }: EditProfileMo
     useEffect(() => {
         if (open && user) {
             form.setFieldsValue({
-                name: user.name,
-                profilePhoto: user.profilePhoto,
-                gender: user.gender,
-                birthDate: user.birthDate ? dayjs(user.birthDate) : undefined,
+                name: user?.name,
+                profilePhoto: user?.profilePhoto,
+                gender: user?.gender,
+                birthDate: user?.birthDate ? dayjs(user.birthDate) : undefined,
             });
         }
     }, [open, user, form]);
@@ -69,7 +69,7 @@ export default function EditProfileModal({ open, onCancel, user }: EditProfileMo
             open={open}
             onCancel={onCancel}
             footer={null}
-            destroyOnClose
+            destroyOnHidden
             centered
         >
             <Form

@@ -35,16 +35,16 @@ const ChatWindow: React.FC = () => {
             initial={{ opacity: 0, scale: 0.9, y: 20, x: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0, x: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20, x: 20 }}
-            className="fixed bottom-24 right-6 w-[380px] h-[580px] bg-card border border-border/50 rounded-[2.5rem] shadow-2xl backdrop-blur-3xl z-[1000] flex flex-col overflow-hidden"
+            className="fixed bottom-24 right-6 w-[380px] h-[580px] bg-card border border-border/50 rounded-[2.5rem] shadow-2xl backdrop-blur-3xl z-1000 flex flex-col overflow-hidden"
         >
             {/* Header */}
             <div className="p-6 border-b border-border/50 bg-linear-to-r from-primary/10 to-accent/10 flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                    <Avatar size={48} src={activeFriend.user.profilePhoto} className="border-2 border-primary/20 shadow-md">
-                        {activeFriend.user.name[0]}
+                    <Avatar size={48} src={activeFriend?.user?.profilePhoto} className="border-2 border-primary/20 shadow-md">
+                        {activeFriend?.user?.name?.[0]}
                     </Avatar>
                     <div>
-                        <h4 className="font-black text-foreground m-0 leading-tight tracking-tight">{activeFriend.user.name}</h4>
+                        <h4 className="font-black text-foreground m-0 leading-tight tracking-tight">{activeFriend?.user?.name}</h4>
                         <span className="text-[10px] text-success font-black uppercase tracking-widest flex items-center gap-1">
                             <span className="w-1.5 h-1.5 bg-success rounded-full animate-pulse" />
                             Online
@@ -73,7 +73,7 @@ const ChatWindow: React.FC = () => {
                     </div>
                 ) : (
                     messages.map((msg, index) => {
-                        const isMe = msg.senderId !== activeFriend.user.id;
+                        const isMe = msg.senderId !== activeFriend?.user?.id;
                         return (
                             <motion.div
                                 key={msg.id || index}

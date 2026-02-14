@@ -112,7 +112,7 @@ const RequestList = ({ requests, type, onAction }: RequestListProps) => {
                                                 Modal.confirm({
                                                     title: 'Unfriend User',
                                                     icon: <QuestionCircleOutlined style={{ color: '#ef4444' }} />,
-                                                    content: `Are you sure you want to remove ${item.user.name} from your friends?`,
+                                                    content: `Are you sure you want to remove ${item?.user?.name} from your friends?`,
                                                     okText: 'Yes, Unfriend',
                                                     okType: 'danger',
                                                     cancelText: 'No',
@@ -130,7 +130,7 @@ const RequestList = ({ requests, type, onAction }: RequestListProps) => {
                                     size="small"
                                     type="text"
                                     icon={<GlobalOutlined />}
-                                    onClick={() => router.push(`/users/${item.user.id}`)}
+                                    onClick={() => router.push(`/users/${item?.user?.id}`)}
                                     className="text-primary hover:text-primary-hover font-bold flex items-center gap-1"
                                 >
                                     View Profile
@@ -143,7 +143,7 @@ const RequestList = ({ requests, type, onAction }: RequestListProps) => {
                                 <Badge dot={type === 'received'} status="processing" offset={[-5, 5]}>
                                     <Avatar
                                         size={72}
-                                        src={item.user.profilePhoto}
+                                        src={item?.user?.profilePhoto}
                                         icon={<UserOutlined />}
                                         className="border-3 border-primary/10 shadow-lg group-hover:scale-110 transition-transform duration-500"
                                     />
@@ -151,7 +151,7 @@ const RequestList = ({ requests, type, onAction }: RequestListProps) => {
                             }
                             title={
                                 <div className="flex items-center gap-3 mb-2">
-                                    <Text className="text-xl font-black tracking-tight text-foreground">{item.user.name}</Text>
+                                    <Text className="text-xl font-black tracking-tight text-foreground">{item?.user?.name}</Text>
                                     <Tag color={type === 'sent' ? 'blue' : type === 'received' ? 'orange' : 'green'} className="rounded-lg border-none px-3 py-0.5 font-bold uppercase text-[10px] tracking-widest bg-opacity-10">
                                         {type === 'sent' ? 'Sent' : type === 'received' ? 'Received' : 'Friend'}
                                     </Tag>
@@ -161,7 +161,7 @@ const RequestList = ({ requests, type, onAction }: RequestListProps) => {
                                 <div className="space-y-2">
                                     <div className="flex items-center gap-2 text-muted-foreground/80 font-medium">
                                         <UserOutlined className="text-xs" />
-                                        <span>{item.user.email}</span>
+                                        <span>{item?.user?.email}</span>
                                     </div>
                                     <div className="flex items-center gap-2 text-xs text-muted-foreground/60">
                                         <ClockCircleOutlined />

@@ -10,18 +10,20 @@ import { JobApplicationsModule } from './job-applications/job-applications.modul
 import { NotificationsModule } from './notifications/notifications.module';
 import { ChatModule } from './chat/chat.module';
 import { ImageKitModule } from './image-kit/image-kit.module';
+import { ResumeModule } from './resume/resume.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    PrismaModule,
-    UsersModule,
     AuthModule,
+    UsersModule,
+    PrismaModule,
     SocialLinksModule,
     JobApplicationsModule,
     NotificationsModule,
     ChatModule,
     ImageKitModule,
+    ResumeModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -19,6 +19,7 @@ const job_applications_module_1 = require("./job-applications/job-applications.m
 const notifications_module_1 = require("./notifications/notifications.module");
 const chat_module_1 = require("./chat/chat.module");
 const image_kit_module_1 = require("./image-kit/image-kit.module");
+const resume_module_1 = require("./resume/resume.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -26,14 +27,15 @@ exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
             config_1.ConfigModule.forRoot({ isGlobal: true }),
-            prisma_module_1.PrismaModule,
-            users_module_1.UsersModule,
             auth_module_1.AuthModule,
+            users_module_1.UsersModule,
+            prisma_module_1.PrismaModule,
             social_links_module_1.SocialLinksModule,
             job_applications_module_1.JobApplicationsModule,
             notifications_module_1.NotificationsModule,
             chat_module_1.ChatModule,
             image_kit_module_1.ImageKitModule,
+            resume_module_1.ResumeModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

@@ -175,10 +175,10 @@ export default function UsersPage() {
                                             <div className="absolute inset-0 bg-linear-to-br from-primary to-accent opacity-20 rounded-full blur-2xl group-hover:opacity-40 transition-all duration-500 scale-150" />
                                             <Avatar
                                                 size={110}
-                                                src={user.profilePhoto}
+                                                src={user?.profilePhoto}
                                                 className="border-4 border-card shadow-2xl ring-4 ring-primary/10 group-hover:ring-primary/30 transition-all duration-500 relative z-10"
                                             >
-                                                {user.name?.[0]}
+                                                {user?.name?.[0]}
                                             </Avatar>
                                             {user.friendshipStatus === 'ACCEPTED' && (
                                                 <div className="absolute -bottom-2 -right-2 bg-success text-white p-1.5 rounded-full shadow-lg border-4 border-card z-20">
