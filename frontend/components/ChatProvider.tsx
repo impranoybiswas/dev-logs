@@ -1,13 +1,21 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { io, Socket } from 'socket.io-client';
-import { getChatMessages, ChatMessage } from '@/lib/chat';
+import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
+import Pusher from 'pusher-js';
+import { getChatMessages, sendMessage as sendMessageApi, ChatMessage } from '@/lib/chat';
 import { FriendshipRequest } from '@/lib/user';
 import { message } from '@/lib/antd';
+import { jwtDecode } from 'jwt-decode';
+
+interface TokenPayload {
+    sub: string;
+    email: string;
+    iat: number;
+    exp: number;
+}
 
 interface ChatContextType {
-    socket: Socket | null;
+    socket: null;
     messages: ChatMessage[];
     activeFriend: FriendshipRequest | null;
     isOpen: boolean;
@@ -16,70 +24,119 @@ interface ChatContextType {
     sendMessage: (content: string) => void;
     loadingMessages: boolean;
     isConnected: boolean;
+    isTyping: boolean;
+    typingUser: string | null;
+    emitTyping: () => void;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
 export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [socket, setSocket] = useState<Socket | null>(null);
-    const [activeFriend, setActiveFriend] = useState<FriendshipRequest | null>(null);
     const [messages, setMessages] = useState<ChatMessage[]>([]);
+    const [activeFriend, setActiveFriend] = useState<FriendshipRequest | null>(null);
     const [isOpen, setIsOpen] = useState(false);
     const [loadingMessages, setLoadingMessages] = useState(false);
     const [isConnected, setIsConnected] = useState(false);
+    const [isTyping, setIsTyping] = useState(false);
+    const [typingUser, setTypingUser] = useState<string | null>(null);
+    const pusherRef = useRef<Pusher | null>(null);
+    const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-    useEffect(() => {
+    // Get current User ID from token
+    const getUserId = useCallback(() => {
         const token = localStorage.getItem('token');
-        if (!token) return;
-
-        const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-        const newSocket = io(socketUrl, {
-            auth: { token },
-            transports: ['websocket'],
-        });
-
-        newSocket.on('connect', () => {
-            console.log('Connected to chat server');
-            setIsConnected(true);
-        });
-
-        newSocket.on('disconnect', () => {
-            console.log('Disconnected from chat server');
-            setIsConnected(false);
-        });
-
-        newSocket.on('error', (err: string) => {
-            message.error(err);
-        });
-
-        setSocket(newSocket);
-
-        return () => {
-            newSocket.disconnect();
-        };
+        if (!token) return null;
+        try {
+            const decoded = jwtDecode<TokenPayload>(token);
+            return decoded.sub;
+        } catch (e) {
+            console.error('Failed to decode token', e);
+            return null;
+        }
     }, []);
 
     useEffect(() => {
-        if (!socket) return;
+        const userId = getUserId();
+        if (!userId) return;
 
-        const handleNewMessage = (msg: ChatMessage) => {
-            if (activeFriend && (msg.senderId === activeFriend.user.id || msg.receiverId === activeFriend.user.id)) {
-                setMessages(prev => [...prev, msg]);
+        // Initialize Pusher
+        const pusherKey = process.env.NEXT_PUBLIC_PUSHER_KEY;
+        const pusherCluster = process.env.NEXT_PUBLIC_PUSHER_CLUSTER;
+
+        if (!pusherKey || !pusherCluster) {
+            console.error('Pusher configuration missing');
+            return;
+        }
+
+        const pusher = new Pusher(pusherKey, {
+            cluster: pusherCluster,
+            forceTLS: true,
+        });
+
+        pusherRef.current = pusher;
+
+        pusher.connection.bind('connected', () => {
+            console.log('Connected to Pusher');
+            setIsConnected(true);
+        });
+
+        pusher.connection.bind('disconnected', () => {
+            console.log('Disconnected from Pusher');
+            setIsConnected(false);
+        });
+
+        // Subscribe to user's channel
+        const channel = pusher.subscribe(`user-${userId}`);
+
+        channel.bind('newMessage', (msg: ChatMessage) => {
+            setMessages(prev => {
+                // If the message is already in state (sent by this user), don't add it again
+                if (prev.find(m => m.id === msg.id)) return prev;
+
+                // Only add if it belongs to the active friend conversation
+                if (activeFriend && (msg.senderId === activeFriend.user.id || msg.receiverId === activeFriend.user.id)) {
+                    return [...prev, msg];
+                }
+                return prev;
+            });
+        });
+
+        channel.bind('messageSent', (msg: ChatMessage) => {
+            setMessages(prev => {
+                if (prev.find(m => m.id === msg.id)) return prev;
+                return [...prev, msg];
+            });
+        });
+
+        channel.bind('userTyping', (data: { userId: string; userName: string }) => {
+            setIsTyping(true);
+            setTypingUser(data.userName);
+
+            // Clear previous timeout
+            if (typingTimeoutRef.current) {
+                clearTimeout(typingTimeoutRef.current);
             }
-        };
 
-        const handleMessageSent = (msg: ChatMessage) => {
-            setMessages(prev => [...prev, msg]);
-        };
+            // Auto-hide typing indicator after 3 seconds
+            typingTimeoutRef.current = setTimeout(() => {
+                setIsTyping(false);
+                setTypingUser(null);
+            }, 3000);
+        });
 
-        socket.on('newMessage', handleNewMessage);
-        socket.on('messageSent', handleMessageSent);
+        channel.bind('userStoppedTyping', () => {
+            setIsTyping(false);
+            setTypingUser(null);
+            if (typingTimeoutRef.current) {
+                clearTimeout(typingTimeoutRef.current);
+            }
+        });
 
         return () => {
-            socket.off('newMessage', handleNewMessage);
-            socket.off('messageSent', handleMessageSent);
+            pusher.disconnect();
+            pusherRef.current = null;
         };
-    }, [socket, activeFriend]);
+    }, [getUserId, activeFriend]);
 
     const openChat = useCallback(async (friend: FriendshipRequest) => {
         setActiveFriend(friend);
@@ -101,18 +158,39 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setMessages([]);
     }, []);
 
-    const sendMessage = useCallback((content: string) => {
-        if (socket && activeFriend && content.trim()) {
-            socket.emit('sendMessage', {
-                receiverId: activeFriend.user.id,
-                content,
-            });
+    const emitTyping = useCallback(() => {
+        if (!activeFriend || !pusherRef.current) return;
+
+        const userId = getUserId();
+        if (!userId) return;
+
+        // Trigger typing event via backend API
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/chat/typing/${activeFriend.user.id}`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                'Content-Type': 'application/json',
+            },
+        }).catch(err => console.error('Failed to emit typing event', err));
+    }, [activeFriend, getUserId]);
+
+    const sendMessage = useCallback(async (content: string) => {
+        if (activeFriend && content.trim()) {
+            try {
+                // We don't need to manually update state here, 
+                // because 'messageSent' event will trigger an update.
+                // However, for immediate feel, we could add a temporary message.
+                await sendMessageApi(activeFriend.user.id, content);
+            } catch (err) {
+                message.error('Failed to send message');
+                console.error(err);
+            }
         }
-    }, [socket, activeFriend]);
+    }, [activeFriend]);
 
     return (
         <ChatContext.Provider value={{
-            socket,
+            socket: null, // No longer using direct socket.io
             messages,
             activeFriend,
             isOpen,
@@ -120,7 +198,10 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
             closeChat,
             sendMessage,
             loadingMessages,
-            isConnected
+            isConnected,
+            isTyping,
+            typingUser,
+            emitTyping
         }}>
             {children}
         </ChatContext.Provider>

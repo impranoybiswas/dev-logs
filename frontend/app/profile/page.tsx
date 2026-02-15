@@ -67,7 +67,7 @@ export default function ProfilePage() {
     const isLoading = isUserLoading || isStatsLoading;
 
     return (
-        <div className="min-h-[calc(100vh-64px)] bg-background p-4 sm:p-6 md:p-8 pt-20 md:pt-24 transition-all duration-500">
+        <div className="min-h-[calc(100vh-64px)] bg-background p-4 sm:p-6 md:p-8 pt-10 md:pt-14 transition-all duration-500">
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -161,7 +161,7 @@ export default function ProfilePage() {
                                     <Progress
                                         type="circle"
                                         percent={stats?.resumeCompleteness || 0}
-                                        size={40}
+                                        size={34}
                                         strokeColor={{ '0%': '#108ee9', '100%': '#87d068' }}
                                     />
                                     <Text className="font-bold text-lg">{stats?.resumeCompleteness || 0}%</Text>
@@ -175,59 +175,61 @@ export default function ProfilePage() {
                     {/* Profile Overview Card */}
                     <Col xs={24} lg={14}>
                         <Card
-                            title={<span className="flex items-center gap-2"><UserOutlined /> Profile Overview</span>}
-                            style={{
-                                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                                border: '1px solid var(--border)',
-                                borderRadius: '1rem',
-                                height: '100%'
-                            }}
+                            title={
+                                <span className="flex items-center gap-2 text-lg font-semibold">
+                                    <UserOutlined className='size-10 rounded-full border flex justify-center items-center' /> Profile Overview
+                                </span>
+                            }
+                            className="shadow-md border border-gray-200 rounded-2xl h-full"
                         >
                             {isLoading ? (
                                 <Skeleton active avatar paragraph={{ rows: 6 }} />
                             ) : (
-                                <div className="flex flex-col md:flex-row gap-8 py-2">
+                                <div className="flex flex-col md:flex-row gap-8 py-4">
+                                    {/* Avatar Section */}
                                     <div className="flex flex-col items-center md:items-start px-2">
-                                        <div className="relative p-1 rounded-full bg-linear-to-br from-primary to-accent mb-4">
+                                        <div className="relative p-1 rounded-full bg-linear-to-br from-blue-500 to-purple-500 mb-4">
                                             <Avatar
-                                                size={{ xs: 80, sm: 100, md: 120, lg: 120, xl: 120, xxl: 120 }}
+                                                size={100}
                                                 icon={<UserOutlined />}
                                                 src={user.profilePhoto}
-                                                style={{ backgroundColor: 'var(--card)', border: '2px solid var(--card)' }}
+                                                className="bg-white border-2 border-white"
                                             />
                                         </div>
-                                        <Title level={4} className="mb-0 text-center md:text-left">{user.name}</Title>
-                                        <Text type="secondary" className="text-center md:text-left">{user.email}</Text>
+                                        <Title level={4} style={{ fontSize: '1.5rem', textAlign: 'center' }}>{user.name}</Title>
+                                        <Text type="secondary" style={{ textAlign: 'center' }}>{user.email}</Text>
                                     </div>
 
-                                    <div className="grow w-full">
+                                    {/* Info Section */}
+                                    <div className="flex-1 w-full">
                                         <Descriptions
-                                            column={{ xs: 1, sm: 1, md: 1, lg: 1, xl: 1 }}
-                                            className="bg-muted/10 p-4 rounded-xl"
-
-                                            styles={{ label: { color: 'gray', fontWeight: 500 } }}
+                                            column={1}
+                                            className="bg-gray-50 p-4 rounded-xl space-y-2"
                                         >
                                             <Descriptions.Item label="Gender">
-                                                <span className="capitalize font-medium">
-                                                    {user.gender === 'male' && <ManOutlined className="mr-2 text-blue-500" />}
-                                                    {user.gender === 'female' && <WomanOutlined className="mr-2 text-pink-500" />}
+                                                <span className="capitalize font-medium flex items-center gap-1">
+                                                    {user.gender === 'male' && <ManOutlined className="text-blue-500" />}
+                                                    {user.gender === 'female' && <WomanOutlined className="text-pink-500" />}
                                                     {user.gender || 'Not set'}
                                                 </span>
                                             </Descriptions.Item>
+
                                             <Descriptions.Item label="Birth Date">
-                                                <span className="font-medium">
-                                                    <CalendarOutlined className="mr-2 text-primary" />
+                                                <span className="flex items-center gap-1 font-medium">
+                                                    <CalendarOutlined className="text-primary" />
                                                     {user.birthDate ? new Date(user.birthDate).toLocaleDateString() : 'Not provided'}
                                                 </span>
                                             </Descriptions.Item>
+
                                             <Descriptions.Item label="Member Since">
-                                                <span className="font-medium text-xs text-secondary">
+                                                <span className="text-xs text-gray-500 font-medium">
                                                     {new Date(user.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long' })}
                                                 </span>
                                             </Descriptions.Item>
                                         </Descriptions>
+
                                         <div className="mt-6">
-                                            <Text strong className="mb-2">Social Presence</Text>
+                                            <Text strong className="mb-2 block">Social Presence</Text>
                                             <SocialLinks />
                                         </div>
                                     </div>
@@ -236,10 +238,11 @@ export default function ProfilePage() {
                         </Card>
                     </Col>
 
+
                     {/* Applications Chart Card */}
                     <Col xs={24} lg={10}>
                         <Card
-                            title={<span className="flex items-center gap-2"><RocketOutlined /> Job Applications</span>}
+                            title={<span className="flex items-center gap-2"><RocketOutlined className='size-10 rounded-full border flex justify-center items-center' /> Job Applications</span>}
                             style={{
                                 boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
                                 border: '1px solid var(--border)',

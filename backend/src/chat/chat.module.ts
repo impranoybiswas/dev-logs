@@ -6,6 +6,7 @@ import { UsersModule } from '../users/users.module';
 import { JwtModule } from '@nestjs/jwt';
 
 import { ChatController } from './chat.controller';
+import { PusherService } from './pusher.service';
 
 @Module({
   imports: [
@@ -17,7 +18,7 @@ import { ChatController } from './chat.controller';
     }),
   ],
   controllers: [ChatController],
-  providers: [ChatService, ChatGateway],
-  exports: [ChatService],
+  providers: [ChatService, ChatGateway, PusherService],
+  exports: [ChatService, PusherService],
 })
 export class ChatModule {}

@@ -8,22 +8,32 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var SocialLinksService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SocialLinksService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
-let SocialLinksService = class SocialLinksService {
+let SocialLinksService = SocialLinksService_1 = class SocialLinksService {
     prisma;
+    logger = new common_1.Logger(SocialLinksService_1.name);
     constructor(prisma) {
         this.prisma = prisma;
     }
     async create(userId, createSocialLinkDto) {
-        return this.prisma.socialLink.create({
-            data: {
-                ...createSocialLinkDto,
-                userId,
-            },
-        });
+        try {
+            return await this.prisma.socialLink.create({
+                data: {
+                    ...createSocialLinkDto,
+                    userId,
+                },
+            });
+        }
+        catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            const errorStack = error instanceof Error ? error.stack : '';
+            this.logger.error(`Failed to create social link for user ${userId}: ${errorMessage}`, errorStack);
+            throw error;
+        }
     }
     async findAll(userId) {
         return this.prisma.socialLink.findMany({
@@ -61,7 +71,7 @@ let SocialLinksService = class SocialLinksService {
     }
 };
 exports.SocialLinksService = SocialLinksService;
-exports.SocialLinksService = SocialLinksService = __decorate([
+exports.SocialLinksService = SocialLinksService = SocialLinksService_1 = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [prisma_service_1.PrismaService])
 ], SocialLinksService);

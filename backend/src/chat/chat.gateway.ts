@@ -11,11 +11,18 @@ import { Server, Socket } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 import { ChatService } from './chat.service';
 import { UsersService } from '../users/users.service';
+import { PusherService } from './pusher.service';
 import { UnauthorizedException } from '@nestjs/common';
+
+interface SocketData {
+  userId?: string;
+}
+
+type CustomSocket = Socket<any, any, any, SocketData>;
 
 @WebSocketGateway({
   cors: {
-    origin: '*', // In production, replace with your frontend URL
+    origin: '*',
   },
   transports: ['websocket'],
 })
@@ -23,32 +30,27 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
-  // Track connected users: userId -> socketId
-  private connectedUsers = new Map<string, string>();
-
   constructor(
     private jwtService: JwtService,
     private chatService: ChatService,
     private usersService: UsersService,
+    private pusherService: PusherService,
   ) {}
 
-  async handleConnection(client: Socket) {
+  async handleConnection(client: CustomSocket) {
     try {
-      /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
       const token =
-        client.handshake.auth.token ||
+        (client.handshake.auth?.token as string | undefined) ||
         client.handshake.headers.authorization?.split(' ')[1];
+
       if (!token) {
         throw new UnauthorizedException('Missing token');
       }
 
-      const payload = await this.jwtService.verifyAsync(token as string);
+      const payload = await this.jwtService.verifyAsync<{ sub: string }>(token);
       const userId = payload.sub;
 
-      this.connectedUsers.set(userId as string, client.id);
       client.data.userId = userId;
-      /* eslint-enable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access */
-
       console.log(`User connected: ${userId} (${client.id})`);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
@@ -57,31 +59,27 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  handleDisconnect(client: Socket) {
-    /* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment */
+  handleDisconnect(client: CustomSocket) {
     const userId = client.data.userId;
-    /* eslint-enable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment */
     if (userId) {
-      this.connectedUsers.delete(userId as string);
       console.log(`User disconnected: ${userId}`);
     }
   }
 
   @SubscribeMessage('sendMessage')
   async handleSendMessage(
-    @ConnectedSocket() client: Socket,
+    @ConnectedSocket() client: CustomSocket,
     @MessageBody() data: { receiverId: string; content: string },
   ) {
-    /* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment */
     const senderId = client.data.userId;
-    /* eslint-enable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment */
+    if (!senderId) {
+      client.emit('error', 'Unauthorized');
+      return;
+    }
     const { receiverId, content } = data;
 
     // 1. Check if they are friends
-    const areFriends = await this.usersService.isFriend(
-      senderId as string,
-      receiverId,
-    );
+    const areFriends = await this.usersService.isFriend(senderId, receiverId);
     if (!areFriends) {
       client.emit('error', 'You can only chat with friends');
       return;
@@ -89,18 +87,23 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     // 2. Save to database
     const message = await this.chatService.saveMessage(
-      senderId as string,
+      senderId,
       receiverId,
       content,
     );
 
-    // 3. Emit to receiver if online
-    const receiverSocketId = this.connectedUsers.get(receiverId);
-    if (receiverSocketId) {
-      this.server.to(receiverSocketId).emit('newMessage', message);
-    }
+    // 3. Trigger Pusher event for receiver
+    await this.pusherService.trigger(
+      `user-${receiverId}`,
+      'newMessage',
+      message,
+    );
 
-    // 4. Optionally emit back to sender to confirm
-    client.emit('messageSent', message);
+    // 4. Trigger Pusher event for sender (to sync multiple devices/tabs)
+    await this.pusherService.trigger(
+      `user-${senderId}`,
+      'messageSent',
+      message,
+    );
   }
 }

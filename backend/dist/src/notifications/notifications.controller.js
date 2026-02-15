@@ -22,13 +22,13 @@ let NotificationsController = class NotificationsController {
         this.notificationsService = notificationsService;
     }
     async findAll(req) {
-        return this.notificationsService.findAll(req.user.userId);
+        return this.notificationsService.findAll(req.user.id);
     }
     async markAsRead(id) {
         return this.notificationsService.markAsRead(id);
     }
     async markAllAsRead(req) {
-        return this.notificationsService.markAllAsRead(req.user.userId);
+        return this.notificationsService.markAllAsRead(req.user.id);
     }
 };
 exports.NotificationsController = NotificationsController;

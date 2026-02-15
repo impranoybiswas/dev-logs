@@ -14,3 +14,11 @@ export const getChatMessages = async (
   const response = await api.get(`/chat/messages/${friendId}`);
   return response.data;
 };
+
+export const sendMessage = async (
+  receiverId: string,
+  content: string,
+): Promise<ChatMessage> => {
+  const response = await api.post("/chat/send", { receiverId, content });
+  return response.data;
+};

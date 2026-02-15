@@ -1,6 +1,6 @@
 "use client";
 
-import { message } from "antd";
+import { App } from "antd";
 import { useState } from "react";
 
 
@@ -11,6 +11,8 @@ type UseImageKitUploadReturn = {
 
 export const useImageKitUpload = (folder: string = "default"): UseImageKitUploadReturn => {
   const [loading, setLoading] = useState(false);
+
+  const { message } = App.useApp();
 
   const uploadImage = async (file: File): Promise<string | null> => {
     if (!file) return null;

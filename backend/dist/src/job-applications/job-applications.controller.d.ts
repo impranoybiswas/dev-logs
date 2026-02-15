@@ -3,7 +3,7 @@ import { CreateJobApplicationDto } from './dto/create-job-application.dto';
 import { UpdateJobApplicationDto } from './dto/update-job-application.dto';
 interface AuthenticatedRequest extends Request {
     user: {
-        userId: string;
+        id: string;
         email: string;
     };
 }

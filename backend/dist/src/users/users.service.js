@@ -120,10 +120,9 @@ let UsersService = class UsersService {
         });
     }
     async findAll(excludeUserId) {
+        const whereClause = excludeUserId ? { id: { not: excludeUserId } } : {};
         const users = await this.prisma.user.findMany({
-            where: {
-                id: { not: excludeUserId },
-            },
+            where: whereClause,
             select: {
                 id: true,
                 name: true,
@@ -137,11 +136,13 @@ let UsersService = class UsersService {
                 createdAt: 'desc',
             },
         });
-        const friendships = await this.prisma.friendship.findMany({
-            where: {
-                OR: [{ requesterId: excludeUserId }, { receiverId: excludeUserId }],
-            },
-        });
+        const friendships = excludeUserId
+            ? await this.prisma.friendship.findMany({
+                where: {
+                    OR: [{ requesterId: excludeUserId }, { receiverId: excludeUserId }],
+                },
+            })
+            : [];
         return users.map((user) => {
             const friendship = friendships.find((f) => f.requesterId === user.id || f.receiverId === user.id);
             let status = 'NONE';
@@ -200,13 +201,23 @@ let UsersService = class UsersService {
         return friendship;
     }
     async respondToFriendRequest(userId, friendshipId, action) {
-        const friendship = await this.prisma.friendship.findUnique({
+        let friendship = await this.prisma.friendship.findUnique({
             where: { id: friendshipId },
             include: { receiver: true, requester: true },
         });
         if (!friendship ||
             friendship.receiverId !== userId ||
             friendship.status !== 'PENDING') {
+            friendship = await this.prisma.friendship.findFirst({
+                where: {
+                    receiverId: userId,
+                    requesterId: friendshipId,
+                    status: 'PENDING',
+                },
+                include: { receiver: true, requester: true },
+            });
+        }
+        if (!friendship) {
             throw new common_1.NotFoundException('Friend request not found');
         }
         if (action === 'REJECT') {

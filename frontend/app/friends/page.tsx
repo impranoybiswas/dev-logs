@@ -93,7 +93,8 @@ const RequestList = ({ requests, type, onAction, loading }: RequestListProps) =>
                         >
                             <Card
                                 className="h-full rounded-[2.5rem] border-border/50 bg-card/40 backdrop-blur-2xl hover:shadow-[0_20px_60px_-15px_rgba(var(--primary-rgb),0.15)] hover:border-primary/50 transition-all duration-500 overflow-hidden relative"
-                                bodyStyle={{ padding: '2rem', height: '100%', display: 'flex', flexDirection: 'column' }}
+
+                                style={{ padding: '2rem', height: '100%', display: 'flex', flexDirection: 'column' }}
                             >
                                 {/* Background Gradient Decoration */}
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-linear-to-br from-primary/10 to-accent/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700 -z-1" />
@@ -154,7 +155,7 @@ const RequestList = ({ requests, type, onAction, loading }: RequestListProps) =>
                                     {type === 'received' ? (
                                         <div className="flex gap-2">
                                             <Button
-                                                flex-1
+                                                flex-1={1}
                                                 type="primary"
                                                 icon={<CheckOutlined />}
                                                 onClick={() => onAction(item.id, 'ACCEPT')}
@@ -163,7 +164,7 @@ const RequestList = ({ requests, type, onAction, loading }: RequestListProps) =>
                                                 Accept
                                             </Button>
                                             <Button
-                                                flex-1
+                                                flex-1={1}
                                                 danger
                                                 icon={<CloseOutlined />}
                                                 onClick={() => onAction(item.id, 'REJECT')}
@@ -185,7 +186,7 @@ const RequestList = ({ requests, type, onAction, loading }: RequestListProps) =>
                                     ) : (
                                         <div className="flex gap-2">
                                             <Button
-                                                flex-1
+                                                flex-1={1}
                                                 icon={<GlobalOutlined />}
                                                 onClick={() => router.push(`/users/${item?.user?.id}`)}
                                                 className="rounded-2xl h-11 font-black uppercase text-[10px] tracking-widest border-2 border-primary/20 text-primary hover:bg-primary/5 transition-all"
@@ -193,7 +194,8 @@ const RequestList = ({ requests, type, onAction, loading }: RequestListProps) =>
                                                 Profile
                                             </Button>
                                             <Button
-                                                flex-1
+                                                flex-1={1}
+
                                                 danger
                                                 icon={<CloseOutlined />}
                                                 onClick={() => {

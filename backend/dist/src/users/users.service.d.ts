@@ -37,7 +37,7 @@ export declare class UsersService {
     } | null>;
     findById(id: string): Promise<UserWithRelations>;
     updateProfile(id: string, data: UpdateProfileDto): Promise<SafeUser>;
-    findAll(excludeUserId: string): Promise<SafeUser[]>;
+    findAll(excludeUserId?: string | null): Promise<SafeUser[]>;
     sendFriendRequest(requesterId: string, receiverId: string): Promise<{
         id: string;
         createdAt: Date;

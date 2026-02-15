@@ -2,7 +2,7 @@ import { SocialLinksService } from './social-links.service';
 import { CreateSocialLinkDto } from './dto/create-social-link.dto';
 interface AuthenticatedRequest extends Request {
     user: {
-        userId: string;
+        id: string;
         email: string;
     };
 }

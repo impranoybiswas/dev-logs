@@ -10,12 +10,12 @@ export class ResumeController {
   @Get()
   async getResume(@Request() req): Promise<Resume | null> {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    return this.resumeService.getResume(req.user.userId as string);
+    return this.resumeService.getResume(req.user.id as string);
   }
 
   @Put()
   async updateResume(@Request() req, @Body() data: any) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    return this.resumeService.upsertResume(req.user.userId as string, data);
+    return this.resumeService.upsertResume(req.user.id as string, data);
   }
 }

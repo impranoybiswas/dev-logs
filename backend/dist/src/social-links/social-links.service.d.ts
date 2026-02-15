@@ -2,6 +2,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateSocialLinkDto } from './dto/create-social-link.dto';
 export declare class SocialLinksService {
     private prisma;
+    private readonly logger;
     constructor(prisma: PrismaService);
     create(userId: string, createSocialLinkDto: CreateSocialLinkDto): Promise<{
         url: string;

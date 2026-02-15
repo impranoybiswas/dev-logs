@@ -1,7 +1,7 @@
 import { NotificationsService } from './notifications.service';
 interface AuthenticatedRequest extends Request {
     user: {
-        userId: string;
+        id: string;
         email: string;
     };
 }

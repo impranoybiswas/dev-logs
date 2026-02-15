@@ -18,28 +18,29 @@ const socket_io_1 = require("socket.io");
 const jwt_1 = require("@nestjs/jwt");
 const chat_service_1 = require("./chat.service");
 const users_service_1 = require("../users/users.service");
+const pusher_service_1 = require("./pusher.service");
 const common_1 = require("@nestjs/common");
 let ChatGateway = class ChatGateway {
     jwtService;
     chatService;
     usersService;
+    pusherService;
     server;
-    connectedUsers = new Map();
-    constructor(jwtService, chatService, usersService) {
+    constructor(jwtService, chatService, usersService, pusherService) {
         this.jwtService = jwtService;
         this.chatService = chatService;
         this.usersService = usersService;
+        this.pusherService = pusherService;
     }
     async handleConnection(client) {
         try {
-            const token = client.handshake.auth.token ||
+            const token = client.handshake.auth?.token ||
                 client.handshake.headers.authorization?.split(' ')[1];
             if (!token) {
                 throw new common_1.UnauthorizedException('Missing token');
             }
             const payload = await this.jwtService.verifyAsync(token);
             const userId = payload.sub;
-            this.connectedUsers.set(userId, client.id);
             client.data.userId = userId;
             console.log(`User connected: ${userId} (${client.id})`);
         }
@@ -52,12 +53,15 @@ let ChatGateway = class ChatGateway {
     handleDisconnect(client) {
         const userId = client.data.userId;
         if (userId) {
-            this.connectedUsers.delete(userId);
             console.log(`User disconnected: ${userId}`);
         }
     }
     async handleSendMessage(client, data) {
         const senderId = client.data.userId;
+        if (!senderId) {
+            client.emit('error', 'Unauthorized');
+            return;
+        }
         const { receiverId, content } = data;
         const areFriends = await this.usersService.isFriend(senderId, receiverId);
         if (!areFriends) {
@@ -65,11 +69,8 @@ let ChatGateway = class ChatGateway {
             return;
         }
         const message = await this.chatService.saveMessage(senderId, receiverId, content);
-        const receiverSocketId = this.connectedUsers.get(receiverId);
-        if (receiverSocketId) {
-            this.server.to(receiverSocketId).emit('newMessage', message);
-        }
-        client.emit('messageSent', message);
+        await this.pusherService.trigger(`user-${receiverId}`, 'newMessage', message);
+        await this.pusherService.trigger(`user-${senderId}`, 'messageSent', message);
     }
 };
 exports.ChatGateway = ChatGateway;
@@ -82,7 +83,7 @@ __decorate([
     __param(0, (0, websockets_1.ConnectedSocket)()),
     __param(1, (0, websockets_1.MessageBody)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [socket_io_1.Socket, Object]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], ChatGateway.prototype, "handleSendMessage", null);
 exports.ChatGateway = ChatGateway = __decorate([
@@ -90,9 +91,11 @@ exports.ChatGateway = ChatGateway = __decorate([
         cors: {
             origin: '*',
         },
+        transports: ['websocket'],
     }),
     __metadata("design:paramtypes", [jwt_1.JwtService,
         chat_service_1.ChatService,
-        users_service_1.UsersService])
+        users_service_1.UsersService,
+        pusher_service_1.PusherService])
 ], ChatGateway);
 //# sourceMappingURL=chat.gateway.js.map

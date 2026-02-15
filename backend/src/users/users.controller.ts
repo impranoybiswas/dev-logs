@@ -14,14 +14,14 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 
 interface AuthenticatedRequest extends Request {
   user: {
-    userId: string;
+    id: string;
     email: string;
   };
 }
 
 interface RequestWithOptionalUser extends Request {
   user?: {
-    userId: string;
+    id: string;
     email: string;
   };
 }
@@ -35,7 +35,7 @@ export class UsersController {
   async getProfile(
     @Request() req: AuthenticatedRequest,
   ): Promise<import('./users.service').UserWithRelations> {
-    return await this.usersService.findById(req.user.userId);
+    return await this.usersService.findById(req.user.id);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -44,17 +44,14 @@ export class UsersController {
     @Request() req: AuthenticatedRequest,
     @Body() updateProfileDto: UpdateProfileDto,
   ): Promise<import('./users.service').SafeUser> {
-    return await this.usersService.updateProfile(
-      req.user.userId,
-      updateProfileDto,
-    );
+    return await this.usersService.updateProfile(req.user.id, updateProfileDto);
   }
 
   @Get()
   async findAll(
     @Request() req: RequestWithOptionalUser,
   ): Promise<import('./users.service').SafeUser[]> {
-    const userId = req.user?.userId ?? null;
+    const userId = req.user?.id ?? null;
     return await this.usersService.findAll(userId);
   }
 
@@ -64,10 +61,7 @@ export class UsersController {
     @Request() req: AuthenticatedRequest,
     @Param('id') receiverId: string,
   ) {
-    return await this.usersService.sendFriendRequest(
-      req.user.userId,
-      receiverId,
-    );
+    return await this.usersService.sendFriendRequest(req.user.id, receiverId);
   }
   @UseGuards(JwtAuthGuard)
   @Patch('friend-request/:id/respond')
@@ -77,7 +71,7 @@ export class UsersController {
     @Body('action') action: 'ACCEPT' | 'REJECT',
   ) {
     return await this.usersService.respondToFriendRequest(
-      req.user.userId,
+      req.user.id,
       friendshipId,
       action,
     );
@@ -86,19 +80,19 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @Get('friendships/sent')
   async getSentRequests(@Request() req: AuthenticatedRequest) {
-    return await this.usersService.getFriendships(req.user.userId, 'SENT');
+    return await this.usersService.getFriendships(req.user.id, 'SENT');
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('friendships/received')
   async getReceivedRequests(@Request() req: AuthenticatedRequest) {
-    return await this.usersService.getFriendships(req.user.userId, 'RECEIVED');
+    return await this.usersService.getFriendships(req.user.id, 'RECEIVED');
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('friendships/accepted')
   async getFriends(@Request() req: AuthenticatedRequest) {
-    return await this.usersService.getFriendships(req.user.userId, 'ACCEPTED');
+    return await this.usersService.getFriendships(req.user.id, 'ACCEPTED');
   }
 
   @UseGuards(JwtAuthGuard)
@@ -107,7 +101,7 @@ export class UsersController {
     @Request() req: AuthenticatedRequest,
     @Param('id') friendshipId: string,
   ) {
-    return await this.usersService.unfriend(req.user.userId, friendshipId);
+    return await this.usersService.unfriend(req.user.id, friendshipId);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -121,6 +115,6 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @Get('dashboard/stats')
   async getDashboardStats(@Request() req: AuthenticatedRequest) {
-    return await this.usersService.getDashboardStats(req.user.userId);
+    return await this.usersService.getDashboardStats(req.user.id);
   }
 }

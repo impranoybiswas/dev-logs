@@ -23,38 +23,38 @@ let UsersController = class UsersController {
         this.usersService = usersService;
     }
     async getProfile(req) {
-        return await this.usersService.findById(req.user.userId);
+        return await this.usersService.findById(req.user.id);
     }
     async updateProfile(req, updateProfileDto) {
-        return await this.usersService.updateProfile(req.user.userId, updateProfileDto);
+        return await this.usersService.updateProfile(req.user.id, updateProfileDto);
     }
     async findAll(req) {
-        const userId = req.user?.userId || null;
+        const userId = req.user?.id ?? null;
         return await this.usersService.findAll(userId);
     }
     async sendFriendRequest(req, receiverId) {
-        return await this.usersService.sendFriendRequest(req.user.userId, receiverId);
+        return await this.usersService.sendFriendRequest(req.user.id, receiverId);
     }
     async respondToFriendRequest(req, friendshipId, action) {
-        return await this.usersService.respondToFriendRequest(req.user.userId, friendshipId, action);
+        return await this.usersService.respondToFriendRequest(req.user.id, friendshipId, action);
     }
     async getSentRequests(req) {
-        return await this.usersService.getFriendships(req.user.userId, 'SENT');
+        return await this.usersService.getFriendships(req.user.id, 'SENT');
     }
     async getReceivedRequests(req) {
-        return await this.usersService.getFriendships(req.user.userId, 'RECEIVED');
+        return await this.usersService.getFriendships(req.user.id, 'RECEIVED');
     }
     async getFriends(req) {
-        return await this.usersService.getFriendships(req.user.userId, 'ACCEPTED');
+        return await this.usersService.getFriendships(req.user.id, 'ACCEPTED');
     }
     async unfriend(req, friendshipId) {
-        return await this.usersService.unfriend(req.user.userId, friendshipId);
+        return await this.usersService.unfriend(req.user.id, friendshipId);
     }
     async getPublicProfile(userId) {
         return await this.usersService.getPublicProfile(userId);
     }
     async getDashboardStats(req) {
-        return await this.usersService.getDashboardStats(req.user.userId);
+        return await this.usersService.getDashboardStats(req.user.id);
     }
 };
 exports.UsersController = UsersController;

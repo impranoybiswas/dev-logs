@@ -14,6 +14,7 @@ const prisma_module_1 = require("../prisma/prisma.module");
 const users_module_1 = require("../users/users.module");
 const jwt_1 = require("@nestjs/jwt");
 const chat_controller_1 = require("./chat.controller");
+const pusher_service_1 = require("./pusher.service");
 let ChatModule = class ChatModule {
 };
 exports.ChatModule = ChatModule;
@@ -28,8 +29,8 @@ exports.ChatModule = ChatModule = __decorate([
             }),
         ],
         controllers: [chat_controller_1.ChatController],
-        providers: [chat_service_1.ChatService, chat_gateway_1.ChatGateway],
-        exports: [chat_service_1.ChatService],
+        providers: [chat_service_1.ChatService, chat_gateway_1.ChatGateway, pusher_service_1.PusherService],
+        exports: [chat_service_1.ChatService, pusher_service_1.PusherService],
     })
 ], ChatModule);
 //# sourceMappingURL=chat.module.js.map

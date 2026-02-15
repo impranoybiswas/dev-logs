@@ -17,7 +17,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 interface AuthenticatedRequest extends Request {
   user: {
-    userId: string;
+    id: string;
     email: string;
   };
 }
@@ -35,7 +35,7 @@ export class JobApplicationsController {
     @Body() createJobApplicationDto: CreateJobApplicationDto,
   ) {
     return this.jobApplicationsService.create(
-      req.user.userId,
+      req.user.id,
       createJobApplicationDto,
     );
   }
@@ -46,12 +46,12 @@ export class JobApplicationsController {
     @Query('search') search?: string,
     @Query('status') status?: string,
   ) {
-    return this.jobApplicationsService.findAll(req.user.userId, search, status);
+    return this.jobApplicationsService.findAll(req.user.id, search, status);
   }
 
   @Get(':id')
   findOne(@Request() req: AuthenticatedRequest, @Param('id') id: string) {
-    return this.jobApplicationsService.findOne(req.user.userId, id);
+    return this.jobApplicationsService.findOne(req.user.id, id);
   }
 
   @Patch(':id')
@@ -61,7 +61,7 @@ export class JobApplicationsController {
     @Body() updateJobApplicationDto: UpdateJobApplicationDto,
   ) {
     return this.jobApplicationsService.update(
-      req.user.userId,
+      req.user.id,
       id,
       updateJobApplicationDto,
     );
@@ -69,6 +69,6 @@ export class JobApplicationsController {
 
   @Delete(':id')
   remove(@Request() req: AuthenticatedRequest, @Param('id') id: string) {
-    return this.jobApplicationsService.remove(req.user.userId, id);
+    return this.jobApplicationsService.remove(req.user.id, id);
   }
 }

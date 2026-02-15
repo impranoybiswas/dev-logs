@@ -22,10 +22,10 @@ let ResumeController = class ResumeController {
         this.resumeService = resumeService;
     }
     async getResume(req) {
-        return this.resumeService.getResume(req.user.userId);
+        return this.resumeService.getResume(req.user.id);
     }
     async updateResume(req, data) {
-        return this.resumeService.upsertResume(req.user.userId, data);
+        return this.resumeService.upsertResume(req.user.id, data);
     }
 };
 exports.ResumeController = ResumeController;

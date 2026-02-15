@@ -23,16 +23,16 @@ let SocialLinksController = class SocialLinksController {
         this.socialLinksService = socialLinksService;
     }
     create(req, createSocialLinkDto) {
-        return this.socialLinksService.create(req.user.userId, createSocialLinkDto);
+        return this.socialLinksService.create(req.user.id, createSocialLinkDto);
     }
     findAll(req) {
-        return this.socialLinksService.findAll(req.user.userId);
+        return this.socialLinksService.findAll(req.user.id);
     }
     update(req, id, updateSocialLinkDto) {
-        return this.socialLinksService.update(req.user.userId, id, updateSocialLinkDto);
+        return this.socialLinksService.update(req.user.id, id, updateSocialLinkDto);
     }
     remove(req, id) {
-        return this.socialLinksService.remove(req.user.userId, id);
+        return this.socialLinksService.remove(req.user.id, id);
     }
 };
 exports.SocialLinksController = SocialLinksController;

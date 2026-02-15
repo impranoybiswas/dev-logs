@@ -11,7 +11,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 interface AuthenticatedRequest extends Request {
   user: {
-    userId: string;
+    id: string;
     email: string;
   };
 }
@@ -23,7 +23,7 @@ export class NotificationsController {
 
   @Get()
   async findAll(@Request() req: AuthenticatedRequest) {
-    return this.notificationsService.findAll(req.user.userId);
+    return this.notificationsService.findAll(req.user.id);
   }
 
   @Patch(':id/read')
@@ -33,6 +33,6 @@ export class NotificationsController {
 
   @Patch('read-all')
   async markAllAsRead(@Request() req: AuthenticatedRequest) {
-    return this.notificationsService.markAllAsRead(req.user.userId);
+    return this.notificationsService.markAllAsRead(req.user.id);
   }
 }

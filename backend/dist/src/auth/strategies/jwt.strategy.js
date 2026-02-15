@@ -30,7 +30,7 @@ let JwtStrategy = class JwtStrategy extends (0, passport_1.PassportStrategy)(pas
     async validate(payload) {
         try {
             await this.usersService.findById(payload.sub);
-            return { userId: payload.sub, email: payload.email };
+            return { id: payload.sub, email: payload.email };
         }
         catch {
             throw new common_1.UnauthorizedException('User no longer exists');

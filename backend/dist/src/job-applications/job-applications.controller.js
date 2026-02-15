@@ -24,19 +24,19 @@ let JobApplicationsController = class JobApplicationsController {
         this.jobApplicationsService = jobApplicationsService;
     }
     create(req, createJobApplicationDto) {
-        return this.jobApplicationsService.create(req.user.userId, createJobApplicationDto);
+        return this.jobApplicationsService.create(req.user.id, createJobApplicationDto);
     }
     findAll(req, search, status) {
-        return this.jobApplicationsService.findAll(req.user.userId, search, status);
+        return this.jobApplicationsService.findAll(req.user.id, search, status);
     }
     findOne(req, id) {
-        return this.jobApplicationsService.findOne(req.user.userId, id);
+        return this.jobApplicationsService.findOne(req.user.id, id);
     }
     update(req, id, updateJobApplicationDto) {
-        return this.jobApplicationsService.update(req.user.userId, id, updateJobApplicationDto);
+        return this.jobApplicationsService.update(req.user.id, id, updateJobApplicationDto);
     }
     remove(req, id) {
-        return this.jobApplicationsService.remove(req.user.userId, id);
+        return this.jobApplicationsService.remove(req.user.id, id);
     }
 };
 exports.JobApplicationsController = JobApplicationsController;

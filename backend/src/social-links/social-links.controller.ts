@@ -15,7 +15,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 interface AuthenticatedRequest extends Request {
   user: {
-    userId: string;
+    id: string;
     email: string;
   };
 }
@@ -30,12 +30,12 @@ export class SocialLinksController {
     @Request() req: AuthenticatedRequest,
     @Body() createSocialLinkDto: CreateSocialLinkDto,
   ) {
-    return this.socialLinksService.create(req.user.userId, createSocialLinkDto);
+    return this.socialLinksService.create(req.user.id, createSocialLinkDto);
   }
 
   @Get()
   findAll(@Request() req: AuthenticatedRequest) {
-    return this.socialLinksService.findAll(req.user.userId);
+    return this.socialLinksService.findAll(req.user.id);
   }
 
   @Patch(':id')
@@ -44,15 +44,11 @@ export class SocialLinksController {
     @Param('id') id: string,
     @Body() updateSocialLinkDto: Partial<CreateSocialLinkDto>,
   ) {
-    return this.socialLinksService.update(
-      req.user.userId,
-      id,
-      updateSocialLinkDto,
-    );
+    return this.socialLinksService.update(req.user.id, id, updateSocialLinkDto);
   }
 
   @Delete(':id')
   remove(@Request() req: AuthenticatedRequest, @Param('id') id: string) {
-    return this.socialLinksService.remove(req.user.userId, id);
+    return this.socialLinksService.remove(req.user.id, id);
   }
 }
