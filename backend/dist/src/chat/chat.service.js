@@ -12,22 +12,37 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ChatService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
+const redis_service_1 = require("../redis/redis.service");
 let ChatService = class ChatService {
     prisma;
-    constructor(prisma) {
+    redisService;
+    constructor(prisma, redisService) {
         this.prisma = prisma;
+        this.redisService = redisService;
+    }
+    getChatKey(userId1, userId2) {
+        const [minId, maxId] = [userId1, userId2].sort();
+        return `chat:${minId}:${maxId}`;
     }
     async saveMessage(senderId, receiverId, content) {
-        return await this.prisma.chatMessage.create({
+        const message = await this.prisma.chatMessage.create({
             data: {
                 content,
                 senderId,
                 receiverId,
             },
         });
+        const key = this.getChatKey(senderId, receiverId);
+        await this.redisService.del(key);
+        return message;
     }
     async getMessages(userId1, userId2) {
-        return await this.prisma.chatMessage.findMany({
+        const key = this.getChatKey(userId1, userId2);
+        const cachedMessages = (await this.redisService.get(key));
+        if (cachedMessages) {
+            return cachedMessages;
+        }
+        const messages = await this.prisma.chatMessage.findMany({
             where: {
                 OR: [
                     { senderId: userId1, receiverId: userId2 },
@@ -38,11 +53,14 @@ let ChatService = class ChatService {
                 createdAt: 'asc',
             },
         });
+        await this.redisService.set(key, messages, 3600);
+        return messages;
     }
 };
 exports.ChatService = ChatService;
 exports.ChatService = ChatService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        redis_service_1.RedisService])
 ], ChatService);
 //# sourceMappingURL=chat.service.js.map

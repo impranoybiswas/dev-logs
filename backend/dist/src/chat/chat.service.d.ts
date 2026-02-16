@@ -1,4 +1,5 @@
 import { PrismaService } from '../prisma/prisma.service';
+import { RedisService } from '../redis/redis.service';
 export interface ChatMessageResponse {
     id: string;
     content: string;
@@ -8,7 +9,9 @@ export interface ChatMessageResponse {
 }
 export declare class ChatService {
     private prisma;
-    constructor(prisma: PrismaService);
+    private redisService;
+    constructor(prisma: PrismaService, redisService: RedisService);
+    private getChatKey;
     saveMessage(senderId: string, receiverId: string, content: string): Promise<ChatMessageResponse>;
     getMessages(userId1: string, userId2: string): Promise<ChatMessageResponse[]>;
 }

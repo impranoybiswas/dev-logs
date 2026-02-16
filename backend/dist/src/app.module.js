@@ -20,6 +20,7 @@ const notifications_module_1 = require("./notifications/notifications.module");
 const chat_module_1 = require("./chat/chat.module");
 const image_kit_module_1 = require("./image-kit/image-kit.module");
 const resume_module_1 = require("./resume/resume.module");
+const redis_module_1 = require("./redis/redis.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -27,6 +28,7 @@ exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
             config_1.ConfigModule.forRoot({ isGlobal: true }),
+            redis_module_1.RedisModule,
             auth_module_1.AuthModule,
             users_module_1.UsersModule,
             prisma_module_1.PrismaModule,

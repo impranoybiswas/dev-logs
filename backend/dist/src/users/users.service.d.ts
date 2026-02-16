@@ -1,4 +1,5 @@
 import { PrismaService } from '../prisma/prisma.service';
+import { RedisService } from '../redis/redis.service';
 import { RegisterDto } from '../auth/dto/register.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 export interface SafeUser {
@@ -23,7 +24,8 @@ export interface FriendshipWithUser {
 }
 export declare class UsersService {
     private prisma;
-    constructor(prisma: PrismaService);
+    private redisService;
+    constructor(prisma: PrismaService, redisService: RedisService);
     create(data: RegisterDto): Promise<SafeUser>;
     findByEmail(email: string): Promise<{
         email: string;

@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { RedisService } from '../redis/redis.service';
 import * as bcrypt from 'bcrypt';
 import { RegisterDto } from '../auth/dto/register.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
@@ -33,7 +34,10 @@ export interface FriendshipWithUser {
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private redisService: RedisService,
+  ) {}
 
   async create(data: RegisterDto): Promise<SafeUser> {
     const existingUser = await this.prisma.user.findUnique({
@@ -70,6 +74,13 @@ export class UsersService {
   }
 
   async findById(id: string): Promise<UserWithRelations> {
+    const cacheKey = `user:profile:${id}`;
+    const cachedUser = await this.redisService.get(cacheKey);
+
+    if (cachedUser) {
+      return cachedUser;
+    }
+
     const user = await this.prisma.user.findUnique({
       where: { id },
       select: {
@@ -85,6 +96,10 @@ export class UsersService {
       },
     });
 
+    if (user) {
+      await this.redisService.set(cacheKey, user, 3600); // Cache for 1 hour
+    }
+
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -99,7 +114,7 @@ export class UsersService {
       updateData.birthDate = new Date(updateData.birthDate as string);
     }
 
-    return await this.prisma.user.update({
+    const updatedUser = await this.prisma.user.update({
       where: { id },
       data: updateData,
       /* eslint-enable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-assignment */
@@ -113,6 +128,11 @@ export class UsersService {
         createdAt: true,
       },
     });
+
+    // Invalidate cache
+    await this.redisService.del(`user:profile:${id}`);
+
+    return updatedUser;
   }
 
   async findAll(excludeUserId?: string | null): Promise<SafeUser[]> {

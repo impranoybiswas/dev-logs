@@ -45,11 +45,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UsersService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../prisma/prisma.service");
+const redis_service_1 = require("../redis/redis.service");
 const bcrypt = __importStar(require("bcrypt"));
 let UsersService = class UsersService {
     prisma;
-    constructor(prisma) {
+    redisService;
+    constructor(prisma, redisService) {
         this.prisma = prisma;
+        this.redisService = redisService;
     }
     async create(data) {
         const existingUser = await this.prisma.user.findUnique({
@@ -81,6 +84,11 @@ let UsersService = class UsersService {
         });
     }
     async findById(id) {
+        const cacheKey = `user:profile:${id}`;
+        const cachedUser = await this.redisService.get(cacheKey);
+        if (cachedUser) {
+            return cachedUser;
+        }
         const user = await this.prisma.user.findUnique({
             where: { id },
             select: {
@@ -95,6 +103,9 @@ let UsersService = class UsersService {
                 createdAt: true,
             },
         });
+        if (user) {
+            await this.redisService.set(cacheKey, user, 3600);
+        }
         if (!user) {
             throw new common_1.NotFoundException('User not found');
         }
@@ -105,7 +116,7 @@ let UsersService = class UsersService {
         if (updateData.birthDate) {
             updateData.birthDate = new Date(updateData.birthDate);
         }
-        return await this.prisma.user.update({
+        const updatedUser = await this.prisma.user.update({
             where: { id },
             data: updateData,
             select: {
@@ -118,6 +129,8 @@ let UsersService = class UsersService {
                 createdAt: true,
             },
         });
+        await this.redisService.del(`user:profile:${id}`);
+        return updatedUser;
     }
     async findAll(excludeUserId) {
         const whereClause = excludeUserId ? { id: { not: excludeUserId } } : {};
@@ -456,6 +469,7 @@ let UsersService = class UsersService {
 exports.UsersService = UsersService;
 exports.UsersService = UsersService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        redis_service_1.RedisService])
 ], UsersService);
 //# sourceMappingURL=users.service.js.map
