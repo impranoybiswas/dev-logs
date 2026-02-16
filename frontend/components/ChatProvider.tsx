@@ -141,6 +141,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const openChat = useCallback(async (friend: FriendshipRequest) => {
         setActiveFriend(friend);
         setIsOpen(true);
+        setMessages([]); // Clear previous messages immediately
         setLoadingMessages(true);
         try {
             const history = await getChatMessages(friend.user.id);
@@ -177,10 +178,15 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const sendMessage = useCallback(async (content: string) => {
         if (activeFriend && content.trim()) {
             try {
-                // We don't need to manually update state here, 
-                // because 'messageSent' event will trigger an update.
-                // However, for immediate feel, we could add a temporary message.
-                await sendMessageApi(activeFriend.user.id, content);
+                // Optimistically update UI or use the API response immediately
+                const sentMessage = await sendMessageApi(activeFriend.user.id, content);
+
+                // Add the message to state immediately
+                setMessages(prev => {
+                    // Check if it's already there (unlikely, but good practice)
+                    if (prev.find(m => m.id === sentMessage.id)) return prev;
+                    return [...prev, sentMessage];
+                });
             } catch (err) {
                 message.error('Failed to send message');
                 console.error(err);

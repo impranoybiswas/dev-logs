@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dev Logs - সম্পূর্ণ প্রজেক্ট টিউটোরিয়াল</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700&family=Fira+Code:wght@400;500&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans Bengali', sans-serif;
+            line-height: 1.8;
+            color: #1a1a1a;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 60px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding-bottom: 30px;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        .header h1 {
+            font-size: 48px;
+            color: #667eea;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+        
+        .header .subtitle {
+            font-size: 20px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .header .demo-info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .header .demo-info a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+            border-bottom: 2px solid white;
+        }
+        
+        h2 {
+            font-size: 32px;
+            color: #764ba2;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+            font-weight: 700;
+        }
+        
+        h3 {
+            font-size: 24px;
+            color: #667eea;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        h4 {
+            font-size: 20px;
+            color: #555;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            font-size: 16px;
+            text-align: justify;
+        }
+        
+        ul, ol {
+            margin-left: 30px;
+            margin-bottom: 20px;
+        }
+        
+        li {
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        code {
+            font-family: 'Fira Code', monospace;
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #e83e8c;
+        }
+        
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 20px 0;
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        pre code {
+            background: transparent;
+            color: inherit;
+            padding: 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 15px;
+        }
+        
+        table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        table td {
+            padding: 12px;
+            border: 1px solid #ddd;
+        }
+        
+        table tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        
+        .feature-box {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 5px solid #667eea;
+        }
+        
+        .warning-box {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .success-box {
+            background: #d4edda;
+            border-left: 5px solid #28a745;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .info-box {
+            background: #d1ecf1;
+            border-left: 5px solid #17a2b8;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .toc {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 30px 0;
+        }
+        
+        .toc h2 {
+            margin-top: 0;
+            color: #667eea;
+        }
+        
+        .toc ul {
+            list-style: none;
+            margin-left: 0;
+        }
+        
+        .toc li {
+            padding: 8px 0;
+        }
+        
+        .toc a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .toc a:hover {
+            color: #764ba2;
+            padding-left: 10px;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 3px solid #667eea;
+            color: #666;
+        }
+        
+        .footer .author {
+            font-size: 18px;
+            color: #764ba2;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .emoji {
+            font-size: 1.2em;
+        }
+        
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .container {
+                box-shadow: none;
+                padding: 40px;
+            }
+            
+            h2 {
+                page-break-after: avoid;
+            }
+            
+            pre, table {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><span class="emoji">🚀</span> Dev Logs</h1>
+            <div class="subtitle">সম্পূর্ণ প্রজেক্ট টিউটোরিয়াল</div>
+            <div class="demo-info">
+                <p><strong>লাইভ ডেমো:</strong> <a href="https://dev-logs-pranoy.vercel.app/" target="_blank">https://dev-logs-pranoy.vercel.app/</a></p>
+                <p><strong>টেস্ট ইউজার:</strong> test@email.com | পাসওয়ার্ড: pass123</p>
+            </div>
+        </div>
+
+        <div class="toc">
+            <h2>সূচিপত্র</h2>
+            <ul>
+                <li><a href="#intro">১. প্রজেক্ট পরিচিতি</a></li>
+                <li><a href="#tech">২. প্রযুক্তিগত বিবরণ</a></li>
+                <li><a href="#requirements">৩. সিস্টেম প্রয়োজনীয়তা</a></li>
+                <li><a href="#installation">৪. ইনস্টলেশন গাইড</a></li>
+                <li><a href="#features">৫. ফিচার সমূহ</a></li>
+                <li><a href="#usage">৬. ব্যবহার নির্দেশিকা</a></li>
+                <li><a href="#database">৭. ডেটাবেস স্ট্রাকচার</a></li>
+                <li><a href="#api">৮. API এন্ডপয়েন্ট</a></li>
+                <li><a href="#troubleshooting">৯. সমস্যা সমাধান</a></li>
+            </ul>
+        </div>
+
+        <h2 id="intro"><span class="emoji">📖</span> প্রজেক্ট পরিচিতি</h2>
+        
+        <p><strong>Dev Logs</strong> একটি আধুনিক ডেভেলপারদের জন্য তৈরি প্রিমিয়াম ওয়ার্কস্পেস যেখানে আপনি:</p>
+        
+        <ul>
+            <li><span class="emoji">📊</span> <strong>চাকরির আবেদন ট্র্যাক</strong> করতে পারবেন</li>
+            <li><span class="emoji">📝</span> <strong>AI-পাওয়ারড রিজিউম</strong> তৈরি করতে পারবেন</li>
+            <li><span class="emoji">💬</span> <strong>রিয়েল-টাইম চ্যাট</strong> করতে পারবেন অন্য ডেভেলপারদের সাথে</li>
+            <li><span class="emoji">🎨</span> <strong>প্রফেশনাল প্রোফাইল</strong> তৈরি করতে পারবেন</li>
+            <li><span class="emoji">📈</span> <strong>ক্যারিয়ার প্রগতি</strong> ভিজুয়ালাইজ করতে পারবেন</li>
+        </ul>
+
+        <h2 id="tech"><span class="emoji">⚙️</span> প্রযুক্তিগত বিবরণ</h2>
+        
+        <h3>Frontend টেকনোলজি</h3>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>প্রযুক্তি</th>
+                    <th>সংস্করণ</th>
+                    <th>উদ্দেশ্য</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Next.js</strong></td>
+                    <td>16.1.6</td>
+                    <td>React ফ্রেমওয়ার্ক (App Router)</td>
+                </tr>
+                <tr>
+                    <td><strong>React</strong></td>
+                    <td>19.2.3</td>
+                    <td>UI লাইব্রেরি</td>
+                </tr>
+                <tr>
+                    <td><strong>Ant Design</strong></td>
+                    <td>6.3.0</td>
+                    <td>UI কম্পোনেন্ট লাইব্রেরি</td>
+                </tr>
+                <tr>
+                    <td><strong>Tailwind CSS</strong></td>
+                    <td>4.0</td>
+                    <td>স্টাইলিং ফ্রেমওয়ার্ক</td>
+                </tr>
+                <tr>
+                    <td><strong>Framer Motion</strong></td>
+                    <td>12.34.0</td>
+                    <td>অ্যানিমেশন লাইব্রেরি</td>
+                </tr>
+                <tr>
+                    <td><strong>React Query</strong></td>
+                    <td>5.90.21</td>
+                    <td>ডেটা ফেচিং এবং ক্যাশিং</td>
+                </tr>
+                <tr>
+                    <td><strong>Recharts</strong></td>
+                    <td>3.7.0</td>
+                    <td>ডেটা ভিজুয়ালাইজেশন</td>
+                </tr>
+                <tr>
+                    <td><strong>Socket.io Client</strong></td>
+                    <td>4.8.3</td>
+                    <td>রিয়েল-টাইম কমিউনিকেশন</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Backend টেকনোলজি</h3>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>প্রযুক্তি</th>
+                    <th>সংস্করণ</th>
+                    <th>উদ্দেশ্য</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>NestJS</strong></td>
+                    <td>11.0.1</td>
+                    <td>Node.js ফ্রেমওয়ার্ক</td>
+                </tr>
+                <tr>
+                    <td><strong>PostgreSQL</strong></td>
+                    <td>-</td>
+                    <td>রিলেশনাল ডেটাবেস</td>
+                </tr>
+                <tr>
+                    <td><strong>Prisma</strong></td>
+                    <td>7.4.0</td>
+                    <td>ORM (Object-Relational Mapping)</td>
+                </tr>
+                <tr>
+                    <td><strong>JWT</strong></td>
+                    <td>11.0.2</td>
+                    <td>অথেন্টিকেশন</td>
+                </tr>
+                <tr>
+                    <td><strong>Passport</strong></td>
+                    <td>0.7.0</td>
+                    <td>অথেন্টিকেশন মিডলওয়্যার</td>
+                </tr>
+                <tr>
+                    <td><strong>Socket.io</strong></td>
+                    <td>4.8.3</td>
+                    <td>WebSocket সার্ভার</td>
+                </tr>
+                <tr>
+                    <td><strong>ImageKit</strong></td>
+                    <td>6.0.0</td>
+                    <td>ইমেজ আপলোড ও ম্যানেজমেন্ট</td>
+                </tr>
+                <tr>
+                    <td><strong>bcrypt</strong></td>
+                    <td>6.0.0</td>
+                    <td>পাসওয়ার্ড হ্যাশিং</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2 id="requirements"><span class="emoji">💻</span> সিস্টেম প্রয়োজনীয়তা</h2>
+        
+        <h3>সফটওয়্যার প্রয়োজনীয়তা</h3>
+        
+        <ol>
+            <li><strong>Node.js:</strong> সংস্করণ 18 বা তার উপরে</li>
+            <li><strong>PostgreSQL:</strong> সংস্করণ 12 বা তার উপরে</li>
+            <li><strong>npm</strong> বা <strong>yarn:</strong> প্যাকেজ ম্যানেজার</li>
+            <li><strong>Git:</strong> ভার্সন কন্ট্রোল</li>
+        </ol>
+
+        <h3>অপশনাল সার্ভিস</h3>
+        
+        <ol>
+            <li><strong>ImageKit.io অ্যাকাউন্ট:</strong> ইমেজ আপলোডের জন্য</li>
+            <li><strong>Pusher অ্যাকাউন্ট:</strong> রিয়েল-টাইম ফিচারের জন্য</li>
+        </ol>
+
+        <h2 id="installation"><span class="emoji">🔧</span> ইনস্টলেশন গাইড</h2>
+        
+        <p>এই সেকশনে আমরা ধাপে ধাপে দেখবো কিভাবে প্রজেক্ট সেটআপ করতে হয়।</p>
+
+        <div class="footer">
+            <div class="author">তৈরি করেছেন ❤️ দিয়ে Pranoy Biswas</div>
+            <p><strong>GitHub:</strong> <a href="https://github.com/impranoybiswas" target="_blank">@impranoybiswas</a></p>
+            <p><strong>Live Demo:</strong> <a href="https://dev-logs-pranoy.vercel.app/" target="_blank">https://dev-logs-pranoy.vercel.app/</a></p>
+            <p style="margin-top: 20px; color: #999;">© 2026 Dev Logs. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>
+
