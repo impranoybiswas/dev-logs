@@ -67,12 +67,12 @@ export default function ProfilePage() {
     const isLoading = isUserLoading || isStatsLoading;
 
     return (
-        <div className="min-h-[calc(100vh-64px)] bg-background p-4 sm:p-6 md:p-8 pt-10 md:pt-14 transition-all duration-500">
-            <motion.div
+        <div className="page-container">
+            <motion.section
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6 }}
-                className="max-w-7xl mx-auto space-y-8"
+                className="space-y-8"
             >
                 {/* Dashboard Header */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-2">
@@ -306,7 +306,7 @@ export default function ProfilePage() {
                         </Card>
                     </Col>
                 </Row>
-            </motion.div>
+            </motion.section>
 
             {user && (
                 <EditProfileModal

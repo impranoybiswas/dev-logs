@@ -19,6 +19,8 @@
   --accent-foreground: #ffffff;
   --accent-hover: #e11d48;
 
+  --content-text: #fafafa;
+
   /* Semantic colors */
   --success: #10b981;
   --warning: #f59e0b;
@@ -65,13 +67,15 @@
   --radius-xl: var(--radius);
   --letter-spacing-tight: -0.02em;
   --letter-spacing-wide: 0.01em;
+
+  --content-text: var(--color-foreground);
 }
 
 .dark {
   --background: #09090b;
   --foreground: #fafafa;
 
-  --primary: #818cf8;
+  --primary: #e43206;
   --primary-hover: #6366f1;
 
   --secondary: #34d399;
@@ -79,6 +83,8 @@
 
   --accent: #fb7185;
   --accent-hover: #f43f5e;
+
+  --content-text: #fafafa;
 
   --muted: #27272a;
   --muted-foreground: #a1a1aa;
@@ -143,4 +149,20 @@
 
 .animate-nav-slide-in {
   animation: nav-slide-in 0.4s ease-out forwards;
+}
+
+.nav-link {
+  @apply px-3 md:px-5 border-l h-full flex items-center relative text-lg text-foreground hover:text-primary after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-primary after:transition-all after:duration-500 after:ease-in-out hover:after:w-full;
+}
+
+.circle-button {
+  @apply size-8 rounded-full flex items-center justify-center cursor-pointer border text-lg;
+}
+
+.page-container {
+  @apply flex flex-col items-center px-0 lg:px-5 text-center bg-background overflow-hidden relative transition-all duration-300 ease-in-out;
+}
+
+.page-container section {
+  @apply w-full max-w-7xl mx-auto border-x pt-20 min-h-dvh px-5;
 }

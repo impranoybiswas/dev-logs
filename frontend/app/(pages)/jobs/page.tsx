@@ -21,17 +21,17 @@ export default function JobsPage() {
     if (!token) return null;
 
     return (
-        <div className="min-h-[calc(100vh-64px)] bg-background p-4 md:p-8">
-            <motion.div
+        <div className="page-container">
+            <motion.section
                 initial={{ opacity: 0, scale: 0.98 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5 }}
-                className="max-w-6xl mx-auto"
+                className="px-5"
             >
-                <div className="bg-muted/30 p-1 md:p-2 rounded-2xl border border-border/50">
+                
                     <JobApplications />
-                </div>
-            </motion.div>
+             
+            </motion.section>
         </div>
     );
 }

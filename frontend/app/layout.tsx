@@ -25,16 +25,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${outfit.variable} antialiased font-sans`}
-      >
-
+      <body className={`${outfit.variable} antialiased font-sans`}>
         <Providers>
           <ChatProvider>
             <Navbar />
-            <main className="pt-16">
-              {children}
-            </main>
+            {children}
             <ChatFloatingButton />
             <ChatWindow />
           </ChatProvider>

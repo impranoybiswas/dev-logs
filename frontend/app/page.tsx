@@ -8,7 +8,7 @@ const { Title, Paragraph } = Typography;
 
 export default function Home() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-64px)] p-6 md:p-12 text-center bg-background overflow-hidden relative">
+    <div className="page-container min-h-dvh pt-25 md:pt-5 md:justify-center">
       {/* Dynamic Background Elements */}
       <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden z-0">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 rounded-full blur-[120px] animate-pulse" />

@@ -110,7 +110,7 @@ export default function UsersPage() {
     };
 
     return (
-        <div className="min-h-[calc(100vh-64px)] bg-background p-4 md:p-8 lg:p-12 transition-all duration-500" style={containerStyle}>
+        <div className="page-container pt-15 md:pt-20 min-h-dvh" style={containerStyle}>
             {/* Header Section */}
             <motion.div
                 initial={{ opacity: 0, y: -20 }}

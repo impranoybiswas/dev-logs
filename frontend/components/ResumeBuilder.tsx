@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Card, Button, Form, Input, Divider, Row, Col, Tabs } from 'antd';
 import { message } from '@/lib/antd';
 import { PlusOutlined, MinusCircleOutlined, DownloadOutlined, UserOutlined, BookOutlined, RocketOutlined, ToolOutlined, SaveOutlined } from '@ant-design/icons';
@@ -152,7 +152,7 @@ export default function ResumeBuilder() {
         skills: []
     });
 
-    React.useEffect(() => {
+    useEffect(() => {
         const fetchResume = async () => {
             try {
                 const response = await api.get(`${process.env.NEXT_PUBLIC_API_URL}/resume`);
@@ -214,7 +214,30 @@ export default function ResumeBuilder() {
         if (!resumeRef.current) return;
         setLoading(true);
         try {
-            const canvas = await html2canvas(resumeRef.current, { scale: 2 });
+            const canvas = await html2canvas(resumeRef.current, {
+                scale: 2,
+                useCORS: true,
+                logging: false, // Set to true for debugging if needed
+                onclone: (clonedDoc) => {
+                    const resumeElement = clonedDoc.getElementById('resume-preview');
+                    if (resumeElement) {
+                        resumeElement.style.transform = 'none';
+                        resumeElement.style.scale = 'none';
+                        resumeElement.style.position = 'static';
+                        resumeElement.style.margin = '0';
+
+                        // Flatten colors to RGB to avoid html2canvas "unsupported color function lab" error
+                        const elements = resumeElement.querySelectorAll('*');
+                        elements.forEach((el) => {
+                            const htmlEl = el as HTMLElement;
+                            const style = window.getComputedStyle(htmlEl);
+                            htmlEl.style.color = style.color;
+                            htmlEl.style.backgroundColor = style.backgroundColor;
+                            htmlEl.style.borderColor = style.borderColor;
+                        });
+                    }
+                }
+            });
             const imgData = canvas.toDataURL('image/png');
             const pdf = new jsPDF('p', 'mm', 'a4');
             const pdfWidth = pdf.internal.pageSize.getWidth();
@@ -278,6 +301,7 @@ export default function ResumeBuilder() {
             <div className="flex-1 flex justify-center bg-muted/20 p-2 md:p-4 rounded-xl overflow-x-hidden md:overflow-auto">
                 <div
                     ref={resumeRef}
+                    id="resume-preview"
                     className="bg-white origin-top shadow-xl text-black scale-[0.4] sm:scale-[0.6] md:scale-[0.8] lg:scale-100"
                     style={{
                         fontFamily: 'Arial, sans-serif',
