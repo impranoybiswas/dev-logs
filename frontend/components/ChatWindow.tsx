@@ -107,7 +107,7 @@ const ChatWindow: React.FC = () => {
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.9, y: 30 }}
                 transition={{ type: 'spring', stiffness: 260, damping: 20 }}
-                className="fixed bottom-24 right-6 w-[380px] h-[580px] bg-card border border-border/50 rounded-[2.5rem] shadow-2xl backdrop-blur-3xl z-50 flex flex-col overflow-hidden"
+                className="fixed bottom-24 right-6 w-full md:w-100 h-130 bg-card border border-border/50 rounded-xl shadow-xl backdrop-blur-2xl z-50 flex flex-col overflow-hidden"
             >
                 {/* HEADER */}
                 <div className="p-6 border-b border-border/50 bg-linear-to-r from-primary/10 to-accent/10 flex items-center justify-between">

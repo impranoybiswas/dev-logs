@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 
 interface AuthenticatedRequest extends Request {
@@ -47,6 +48,7 @@ export class UsersController {
     return await this.usersService.updateProfile(req.user.id, updateProfileDto);
   }
 
+  @UseGuards(OptionalJwtAuthGuard)
   @Get()
   async findAll(
     @Request() req: RequestWithOptionalUser,

@@ -232,7 +232,6 @@ export default function Navbar() {
   );
 
   return (
-    
     <nav
       className={`fixed left-0 right-0 z-50 w-full h-14 transition-all duration-500 ease-in-out border-b bg-background px-0 lg:px-5 ${isScrolled ? "shadow-sm" : "shadow-xs"}`}
     >
@@ -246,6 +245,7 @@ export default function Navbar() {
             </Link>
           ))}
         </div>
+        {/* Authorize Logic */}
         {isLoggedIn ? (
           <>
             <span className="nav-link">
@@ -254,12 +254,12 @@ export default function Navbar() {
                 trigger="click"
                 placement="bottomRight"
               >
-                <span className="circle-button">
-                  <Badge count={unreadCount} size="small" offset={[2, -2]}>
+                <Badge count={unreadCount} size="small" offset={[2, -2]}>
+                  <span className="circle-button">
                     <BellOutlined className="text-lg" />
-                  </Badge>
-                </span>
-              </Popover>
+                  </span>
+                </Badge>
+              </Popover>{" "}
             </span>
 
             <span className="nav-link ">
@@ -284,21 +284,21 @@ export default function Navbar() {
             <UserOutlined className="circle-button" />
           </Link>
         )}
-
+        {/* Theme Toggler */}
         <span className="nav-link">
           <ThemeToggler className="circle-button" />
         </span>
-
+        {/* Mobile Nav Button */}
         <div
           className="lg:hidden block h-full z-50"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           aria-label="Toggle menu"
         >
           {isMobileMenuOpen ? (
-            <CloseOutlined className="text-2xl opacity-60 p-8" />
+            <CloseOutlined className="text-2xl opacity-60 p-5" />
           ) : (
-            <span className="nav-link">
-              <MenuOutlined className="text-xl" />
+            <span className="nav-link ">
+              <MenuOutlined className="text-xl px-1" />
             </span>
           )}
         </div>

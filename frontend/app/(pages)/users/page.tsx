@@ -162,7 +162,7 @@ export default function UsersPage() {
                     </div>
                 ) : filteredUsers.length > 0 ? (
                     <motion.div
-                        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"
+                        className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-5"
                         layout
                     >
                         <AnimatePresence mode="popLayout">
@@ -176,7 +176,7 @@ export default function UsersPage() {
                                     transition={{ duration: 0.5, delay: index * 0.05, ease: [0.23, 1, 0.32, 1] }}
                                     className="group"
                                 >
-                                    <div className="relative h-full bg-card/40 backdrop-blur-xl rounded-[2.5rem] border border-border/50 p-8 transition-all duration-500 hover:shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:hover:shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:border-primary/50 hover:-translate-y-3 overflow-hidden flex flex-col items-center text-center">
+                                    <div className="relative h-full bg-card/40 backdrop-blur-xl rounded-xl border border-border/70 p-5 transition-all duration-500 hover:shadow-primary/20 dark:hover:shadow-primary/20 hover:border-primary/50 hover:-translate-y-2 overflow-hidden flex flex-col items-center text-center">
                                         {/* Background Decoration */}
                                         <div className="absolute top-0 right-0 w-40 h-40 bg-linear-to-br from-primary/10 to-accent/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700" />
 
@@ -184,7 +184,7 @@ export default function UsersPage() {
                                         <div className="relative mb-8">
                                             <div className="absolute inset-0 bg-linear-to-br from-primary to-accent opacity-20 rounded-full blur-2xl group-hover:opacity-40 transition-all duration-500 scale-150" />
                                             <Avatar
-                                                size={110}
+                                                size={100}
                                                 src={user?.profilePhoto}
                                                 style={{
                                                     border: '4px solid var(--card)',
@@ -197,8 +197,8 @@ export default function UsersPage() {
                                                 {user?.name?.[0]}
                                             </Avatar>
                                             {user.friendshipStatus === 'ACCEPTED' && (
-                                                <div className="absolute -bottom-2 -right-2 bg-success text-white p-1.5 rounded-full shadow-lg border-4 border-card z-20">
-                                                    <CheckOutlined className="text-xs font-black" />
+                                                <div className="absolute -bottom-2 -right-2 bg-success text-white p-1.5 rounded-full shadow-lg border-4 border-card z-100">
+                                                    <CheckOutlined className="text-lg font-black" />
                                                 </div>
                                             )}
                                         </div>

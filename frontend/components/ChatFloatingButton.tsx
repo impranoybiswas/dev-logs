@@ -44,7 +44,7 @@ const ChatFloatingButton: React.FC = () => {
     };
 
     const friendListContent = (
-        <div className="w-[320px] max-h-[400px] flex flex-col p-4">
+        <div className="w-full md:w-100 h-130 flex flex-col p-4 ">
             <h4 className="text-lg font-black tracking-tight mb-4 flex items-center gap-2">
                 <MessageOutlined className="text-primary" />
                 Select a Connection

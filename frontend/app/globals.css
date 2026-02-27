@@ -156,7 +156,7 @@
 }
 
 .circle-button {
-  @apply size-8 rounded-full flex items-center justify-center cursor-pointer border text-lg;
+  @apply size-8 rounded-full flex items-center justify-center cursor-pointer border text-lg text-foreground hover:text-primary;
 }
 
 .page-container {
