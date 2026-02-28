@@ -8,6 +8,7 @@ export class OptionalJwtAuthGuard extends AuthGuard('jwt') {
     _err: any,
     user: TUser,
     _info: any, // eslint-disable-line @typescript-eslint/no-unused-vars
+    //TODO : Should I remove context?
     _context: ExecutionContext,
   ): TUser {
     // If no user is found (no token or invalid token), just return null (no throw)
