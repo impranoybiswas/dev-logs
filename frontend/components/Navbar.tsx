@@ -5,15 +5,11 @@ import { useState, useEffect } from "react";
 import {
   MenuOutlined,
   CloseOutlined,
-  SunOutlined,
-  MoonOutlined,
   BellOutlined,
   CheckCircleOutlined,
   UserOutlined,
   LogoutOutlined,
-  MoonFilled,
 } from "@ant-design/icons";
-import { useTheme } from "next-themes";
 import { Badge, Popover, List, Button, Empty, Avatar } from "antd";
 import { message } from "@/lib/antd";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -28,7 +24,6 @@ import api from "@/lib/api";
 import { useRouter } from "next/navigation";
 import SiteTitle from "./SiteTitle";
 import ThemeToggler from "./ThemeToggler";
-import { div } from "framer-motion/client";
 
 export default function Navbar() {
   const router = useRouter();
@@ -42,7 +37,7 @@ export default function Navbar() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-  const { theme, setTheme } = useTheme();
+
   const queryClient = useQueryClient();
 
   const { data: user } = useQuery({
