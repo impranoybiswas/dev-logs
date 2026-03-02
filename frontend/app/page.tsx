@@ -36,9 +36,9 @@ export default function Home() {
             Live Developers
           </div>
           <Title level={1} className="m-0! text-6xl! md:text-8xl! font-black! tracking-tighter! leading-none!">
-            <span className="text-foreground">Code. </span>
+            <span className="text-foreground font-bold">Code. </span>
             <span className="bg-linear-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">Log. </span>
-            <span className="text-foreground">Level Up.</span>
+            <span className="text-foreground font-bold">Level Up.</span>
           </Title>
         </motion.div>
 
