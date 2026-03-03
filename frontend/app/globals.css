@@ -164,5 +164,5 @@
 }
 
 .page-container section {
-  @apply w-full max-w-7xl mx-auto border-x pt-20 min-h-dvh px-5;
+  @apply w-full max-w-7xl mx-auto border-x pt-20 pb-10 min-h-dvh px-5;
 }

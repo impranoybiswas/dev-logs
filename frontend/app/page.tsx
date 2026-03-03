@@ -8,7 +8,7 @@ const { Title, Paragraph } = Typography;
 
 export default function Home() {
   return (
-    <div className="page-container min-h-dvh pt-25 md:pt-5 md:justify-center">
+    <div className="page-container min-h-dvh pt-25 md:pt-5 pb-10 md:justify-center">
       {/* Dynamic Background Elements */}
       <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden z-0">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 rounded-full blur-[120px] animate-pulse" />
@@ -65,6 +65,7 @@ export default function Home() {
                 className="h-16! px-12! text-xl! rounded-2xl! bg-primary! hover:bg-primary-hover! border-none shadow-2xl! shadow-primary/40 hover:shadow-primary/60 hover:scale-105 transition-all font-bold! tracking-tight!"
               >
                 Join the Community
+                
               </Button>
             </Link>
             <Link href="/auth/login" passHref>

@@ -23,4 +23,19 @@ api.interceptors.request.use(
   },
 );
 
+// Auto-clear stale / expired tokens and redirect to login on 401
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (typeof window !== "undefined" && error?.response?.status === 401) {
+      localStorage.removeItem("token");
+      // Only redirect to login if not already there to avoid loops
+      if (!window.location.pathname.startsWith("/auth/")) {
+        window.location.href = "/auth/login";
+      }
+    }
+    return Promise.reject(error);
+  },
+);
+
 export default api;
