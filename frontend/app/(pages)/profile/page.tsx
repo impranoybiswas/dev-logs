@@ -49,7 +49,9 @@ export default function ProfilePage() {
   const router = useRouter();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   // Lazy initializer: reads localStorage once at mount — no state update needed
-  const [isChecking] = useState(() => !localStorage.getItem("token"));
+  const [isChecking] = useState(() =>
+    typeof window !== "undefined" ? !localStorage.getItem("token") : true,
+  );
 
   useLayoutEffect(() => {
     if (isChecking) {

@@ -2,31 +2,9 @@
 
 import React, { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  Tabs,
-  Row,
-  Col,
-  Avatar,
-  Button,
-  Empty,
-  Tag,
-  Typography,
-  Card,
-  Badge,
-  Skeleton,
-} from "antd";
-import { message, modal } from "@/lib/antd";
-import {
-  UserOutlined,
-  CheckOutlined,
-  CloseOutlined,
-  QuestionCircleOutlined,
-  UserAddOutlined,
-  GlobalOutlined,
-  MessageOutlined,
-  SafetyCertificateOutlined,
-  CalendarOutlined,
-} from "@ant-design/icons";
+import { Tabs, Typography, Badge, Skeleton, Card, Empty } from "antd";
+import { message } from "@/lib/antd";
+import { UserAddOutlined } from "@ant-design/icons";
 import {
   getSentRequests,
   getReceivedRequests,
@@ -39,6 +17,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useChat } from "@/components/ChatProvider";
+import UserCard from "@/components/UserCard";
 
 const { Title, Text } = Typography;
 
@@ -63,21 +42,22 @@ const RequestList = ({
 
   if (loading) {
     return (
-      <Row gutter={[24, 24]}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {[1, 2, 3, 4].map((i) => (
-          <Col xs={24} sm={12} lg={8} xl={6} key={i}>
-            <Card className="rounded-[2.5rem] overflow-hidden border-border/50 bg-card/20 backdrop-blur-xl h-full p-4">
-              <Skeleton avatar active paragraph={{ rows: 3 }} />
-            </Card>
-          </Col>
+          <div
+            key={i}
+            className="rounded-4xl overflow-hidden border-border/50 bg-card/20 backdrop-blur-xl h-[400px] p-4"
+          >
+            <Skeleton avatar active paragraph={{ rows: 3 }} />
+          </div>
         ))}
-      </Row>
+      </div>
     );
   }
 
   if (requests.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-24 bg-card/10 backdrop-blur-sm rounded-[3rem] border border-dashed border-border/50">
+      <div className="flex flex-col items-center justify-center py-24 bg-card/10 backdrop-blur-sm rounded-4xl border border-dashed border-border/50">
         <Empty
           description={
             <span className="text-muted-foreground font-black uppercase tracking-widest">
@@ -91,188 +71,28 @@ const RequestList = ({
   }
 
   return (
-    <Row gutter={[24, 24]}>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       <AnimatePresence mode="popLayout">
-        {requests.map((item, index) => (
-          <Col xs={24} sm={12} lg={8} xl={6} key={item.id}>
-            <motion.div
-              layout
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.2 } }}
-              transition={{
-                type: "spring",
-                stiffness: 100,
-                damping: 15,
-                delay: index * 0.05,
-              }}
-              className="h-full group"
-            >
-              <Card
-                className="h-full rounded-[2.5rem] border-border/50 bg-card/40 backdrop-blur-2xl hover:shadow-[0_20px_60px_-15px_rgba(var(--primary-rgb),0.15)] hover:border-primary/50 transition-all duration-500 overflow-hidden relative"
-                style={{
-                  padding: "2rem",
-                  height: "100%",
-                  display: "flex",
-                  flexDirection: "column",
-                }}
-              >
-                {/* Background Gradient Decoration */}
-                <div className="absolute top-0 right-0 w-32 h-32 bg-linear-to-br from-primary/10 to-accent/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700 -z-1" />
-
-                <div className="flex flex-col items-center text-center">
-                  <Badge
-                    dot={type === "received"}
-                    status="processing"
-                    offset={[-8, 8]}
-                    className="mb-6"
-                  >
-                    <div className="relative p-1 rounded-full bg-linear-to-br from-primary/20 to-accent/20 border border-primary/10 shadow-xl group-hover:scale-110 transition-transform duration-500">
-                      <Avatar
-                        size={100}
-                        src={item?.user?.profilePhoto}
-                        icon={<UserOutlined />}
-                        className="border-4 border-card shadow-inner"
-                      />
-                    </div>
-                  </Badge>
-
-                  <div className="space-y-1 mb-6 w-full">
-                    <div className="flex items-center justify-center gap-2">
-                      <Title
-                        level={4}
-                        className="m-0! font-black! tracking-tight! text-foreground group-hover:text-primary transition-colors"
-                      >
-                        {item?.user?.name}
-                      </Title>
-                      {type === "friends" && (
-                        <SafetyCertificateOutlined className="text-success text-sm" />
-                      )}
-                    </div>
-                    <Text className="text-muted-foreground font-bold text-xs bg-muted/30 px-3 py-1 rounded-full border border-border/50 truncate w-full block">
-                      {item?.user?.email}
-                    </Text>
-                  </div>
-
-                  <div className="flex items-center justify-center gap-4 py-3 px-4 rounded-2xl bg-muted/20 border border-border/40 mb-8 w-full group-hover:bg-primary/5 transition-colors">
-                    <div className="flex flex-col items-center">
-                      <CalendarOutlined className="text-[10px] text-muted-foreground font-black mb-1" />
-                      <span className="text-[10px] uppercase font-black tracking-widest text-muted-foreground/80">
-                        {new Date(item.createdAt).toLocaleDateString(
-                          undefined,
-                          { month: "short", year: "numeric" },
-                        )}
-                      </span>
-                    </div>
-                    <div className="w-px h-6 bg-border/50" />
-                    <div className="flex flex-col items-center">
-                      <Tag
-                        color={
-                          type === "sent"
-                            ? "blue"
-                            : type === "received"
-                              ? "orange"
-                              : "green"
-                        }
-                        className="m-0 rounded-lg border-none px-2 py-0.5 font-black uppercase text-[9px] tracking-widest bg-opacity-10"
-                      >
-                        {type === "sent"
-                          ? "Sent"
-                          : type === "received"
-                            ? "Incoming"
-                            : "Friend"}
-                      </Tag>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-auto space-y-3 w-full">
-                  {type === "friends" && (
-                    <Button
-                      block
-                      type="primary"
-                      icon={<MessageOutlined />}
-                      onClick={() => openChat(item)}
-                      className="rounded-2xl h-11 font-black uppercase text-xs tracking-widest shadow-lg shadow-primary/20 hover:scale-102 active:scale-98 transition-all border-none"
-                    >
-                      Start Chat
-                    </Button>
-                  )}
-
-                  {type === "received" ? (
-                    <div className="flex gap-2">
-                      <Button
-                        flex-1={1}
-                        type="primary"
-                        icon={<CheckOutlined />}
-                        onClick={() => onAction(item.id, "ACCEPT")}
-                        className="rounded-2xl h-11 font-black uppercase text-[10px] tracking-widest bg-success border-none shadow-lg shadow-success/20 hover:scale-102 active:scale-98 transition-all"
-                      >
-                        Accept
-                      </Button>
-                      <Button
-                        flex-1={1}
-                        danger
-                        icon={<CloseOutlined />}
-                        onClick={() => onAction(item.id, "REJECT")}
-                        className="rounded-2xl h-11 font-black uppercase text-[10px] tracking-widest border-2 border-error/20 hover:bg-error/10 transition-all"
-                      >
-                        Decline
-                      </Button>
-                    </div>
-                  ) : type === "sent" ? (
-                    <Button
-                      block
-                      danger
-                      icon={<CloseOutlined />}
-                      onClick={() => onAction(item.id, "CANCEL")}
-                      className="rounded-2xl h-11 font-black uppercase text-xs tracking-widest border-2 border-error/20 hover:bg-error/10 transition-all"
-                    >
-                      Cancel Request
-                    </Button>
-                  ) : (
-                    <div className="flex gap-2">
-                      <Button
-                        flex-1={1}
-                        icon={<GlobalOutlined />}
-                        onClick={() => router.push(`/users/${item?.user?.id}`)}
-                        className="rounded-2xl h-11 font-black uppercase text-[10px] tracking-widest border-2 border-primary/20 text-primary hover:bg-primary/5 transition-all"
-                      >
-                        Profile
-                      </Button>
-                      <Button
-                        flex-1={1}
-                        danger
-                        icon={<CloseOutlined />}
-                        onClick={() => {
-                          modal.confirm({
-                            title: "Unfriend User",
-                            icon: (
-                              <QuestionCircleOutlined
-                                style={{ color: "#ef4444" }}
-                              />
-                            ),
-                            content: `Are you sure you want to remove ${item?.user?.name} from your friends?`,
-                            okText: "Yes, Unfriend",
-                            okType: "danger",
-                            cancelText: "No",
-                            onOk: () => onAction(item.id, "UNFRIEND"),
-                            className: "rounded-3xl",
-                          });
-                        }}
-                        className="rounded-2xl h-11 font-black uppercase text-[10px] tracking-widest border-2 border-error/20 hover:bg-error transition-all"
-                      >
-                        Unfriend
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              </Card>
-            </motion.div>
-          </Col>
+        {requests.map((item) => (
+          <UserCard
+            key={item.id}
+            user={item.user}
+            type={type}
+            friendshipId={item.id}
+            createdAt={item.createdAt}
+            onAction={async (userId, action, fId) => {
+              const mappedAction = action === "ADD" ? "ACCEPT" : action;
+              await onAction(
+                fId || item.id,
+                mappedAction as "ACCEPT" | "REJECT" | "CANCEL" | "UNFRIEND",
+              );
+            }}
+            onMessage={() => openChat(item)}
+            onViewProfile={() => router.push(`/users/${item.user.id}`)}
+          />
         ))}
       </AnimatePresence>
-    </Row>
+    </div>
   );
 };
 
