@@ -18,27 +18,38 @@ let ResumeService = class ResumeService {
         this.prisma = prisma;
     }
     async getResume(userId) {
-        return this.prisma.resume.findUnique({
+        return (await this.prisma.resume.findUnique({
             where: { userId },
             include: {
+                user: true,
                 education: true,
                 experience: true,
+                projects: true,
                 skills: true,
             },
-        });
+        }));
     }
     async upsertResume(userId, data) {
-        const { personal, education, experience, skills } = data;
+        console.log('Upserting resume for user:', userId);
+        console.log('Received data:', JSON.stringify(data, null, 2));
+        const { personal, education, experience, skills, projects } = data;
         const resume = await this.prisma.resume.upsert({
             where: { userId },
             create: {
                 userId,
-                summary: personal.summary,
+                name: personal?.name || null,
+                email: personal?.email || null,
+                phone: personal?.phone || null,
+                summary: personal?.summary || null,
             },
             update: {
-                summary: personal.summary,
+                name: personal?.name || null,
+                email: personal?.email || null,
+                phone: personal?.phone || null,
+                summary: personal?.summary || null,
             },
         });
+        console.log('Resume created/updated:', resume.id);
         if (education) {
             await this.prisma.education.deleteMany({
                 where: { resumeId: resume.id },
@@ -80,6 +91,22 @@ let ResumeService = class ResumeService {
                     data: validSkills.map((skill) => ({
                         resumeId: resume.id,
                         name: skill.name,
+                    })),
+                });
+            }
+        }
+        if (projects) {
+            await this.prisma.project.deleteMany({ where: { resumeId: resume.id } });
+            const validProjects = projects.filter((p) => p && p.title);
+            if (validProjects.length > 0) {
+                await this.prisma.project.createMany({
+                    data: validProjects.map((p) => ({
+                        resumeId: resume.id,
+                        title: p.title,
+                        details: Array.isArray(p.details)
+                            ? p.details.filter((d) => !!d)
+                            : [],
+                        techStack: p.techStack || null,
                     })),
                 });
             }

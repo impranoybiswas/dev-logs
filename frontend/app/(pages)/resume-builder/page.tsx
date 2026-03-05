@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Typography, Breadcrumb, Button } from 'antd';
+import { Typography, Button } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
 import ResumeBuilder from '@/components/ResumeBuilder';
@@ -46,14 +46,7 @@ export default function ResumeBuilderPage() {
                         type="text"
                     />
                     <div>
-                        <Breadcrumb
-                            items={[
-                                { title: <a href="/profile">Profile</a> },
-                                { title: 'Resume Builder' },
-                            ]}
-                        />
                         <Title level={2} style={{ margin: 0, marginTop: '8px' }}>Resume Builder</Title>
-                        <Title level={5} style={{ color: 'gray' }}>(Under Test)</Title>
                     </div>
                 </div>
 

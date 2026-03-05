@@ -105,9 +105,13 @@ model Resume {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   
   summary   String?
+  name      String?
+  email     String?
+  phone     String?
   
   education  Education[]
   experience Experience[]
+  projects   Project[]
   skills     Skill[]
 
   createdAt DateTime @default(now())
@@ -141,4 +145,14 @@ model Skill {
   name     String
   
   resume   Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+}
+
+model Project {
+  id        String   @id @default(uuid())
+  resumeId  String
+  title     String
+  details   String[]
+  techStack String?
+  
+  resume    Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
 }

@@ -76,12 +76,10 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         pusherRef.current = pusher;
 
         pusher.connection.bind('connected', () => {
-            console.log('Connected to Pusher');
             setIsConnected(true);
         });
 
         pusher.connection.bind('disconnected', () => {
-            console.log('Disconnected from Pusher');
             setIsConnected(false);
         });
 

@@ -153,7 +153,7 @@ const ChatFloatingButton: React.FC = () => {
                 color:
                   isOpen || popoverVisible
                     ? "var(--primary)"
-                    : "var(--foreground)",
+                    : "var(--background)",
               }}
               icon={
                 isOpen || popoverVisible ? (
