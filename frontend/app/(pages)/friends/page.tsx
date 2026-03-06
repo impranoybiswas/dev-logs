@@ -129,6 +129,8 @@ export default function FriendsPage() {
     enabled: !!token,
   });
 
+  // Token Check for User
+
   if (!token) return null;
 
   const handleAction = async (
@@ -193,7 +195,11 @@ export default function FriendsPage() {
           <div className="absolute -top-24 -left-24 w-96 h-96 bg-primary/5 rounded-full blur-[100px] pointer-events-none" />
           <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-accent/5 rounded-full blur-[100px] pointer-events-none" />
 
-          <Card className="rounded-[3rem] shadow-[0_32px_100px_-20px_rgba(0,0,0,0.1)] dark:shadow-[0_32px_100px_-20px_rgba(0,0,0,0.3)] border-border/40 bg-card/30 backdrop-blur-3xl overflow-hidden p-0 md:p-8 transition-all duration-500 z-10">
+          <Card
+            classNames={{
+              body: "rounded-[30rem] shadow-[0_32px_100px_-20px_rgba(0,0,0,0.1)] dark:shadow-[0_32px_100px_-20px_rgba(0,0,0,0.3)] border-border/40 bg-card/30 backdrop-blur-3xl overflow-hidden p-0 md:p-8 transition-all duration-500 z-10",
+            }}
+          >
             <Tabs
               activeKey={activeTab}
               onChange={setActiveTab}
