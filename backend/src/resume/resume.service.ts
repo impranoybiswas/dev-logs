@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
-export interface Education {
+export interface ResumeEducation {
   id: string;
   resumeId: string;
   school: string;
@@ -9,7 +9,7 @@ export interface Education {
   year: string | null;
 }
 
-export interface Experience {
+export interface ResumeExperience {
   id: string;
   resumeId: string;
   company: string;
@@ -18,13 +18,13 @@ export interface Experience {
   description: string | null;
 }
 
-export interface Skill {
+export interface ResumeSkill {
   id: string;
   resumeId: string;
   name: string;
 }
 
-export interface Project {
+export interface ResumeProject {
   id: string;
   resumeId: string;
   title: string;
@@ -62,6 +62,7 @@ export interface UpsertResumeDto {
     phone?: string | null;
     summary?: string | null;
   };
+  templateId?: string | null;
   education?: UpsertEducation[];
   experience?: UpsertExperience[];
   skills?: UpsertSkill[];
@@ -74,13 +75,14 @@ export interface Resume {
   name: string | null;
   email: string | null;
   phone: string | null;
+  templateId: string | null;
   summary: string | null;
   createdAt: Date;
   updatedAt: Date;
-  projects: Project[];
-  education: Education[];
-  experience: Experience[];
-  skills: Skill[];
+  projects: ResumeProject[];
+  education: ResumeEducation[];
+  experience: ResumeExperience[];
+  skills: ResumeSkill[];
 }
 
 @Injectable()
@@ -106,7 +108,8 @@ export class ResumeService {
   ): Promise<Resume | null> {
     console.log('Upserting resume for user:', userId);
     console.log('Received data:', JSON.stringify(data, null, 2));
-    const { personal, education, experience, skills, projects } = data;
+    const { personal, education, experience, skills, projects, templateId } =
+      data;
 
     // First ensure the resume exists or create it
     const resume = await this.prisma.resume.upsert({
@@ -116,12 +119,14 @@ export class ResumeService {
         name: personal?.name || null,
         email: personal?.email || null,
         phone: personal?.phone || null,
+        templateId: templateId || 'modern',
         summary: personal?.summary || null,
       },
       update: {
         name: personal?.name || null,
         email: personal?.email || null,
         phone: personal?.phone || null,
+        templateId: templateId || 'modern',
         summary: personal?.summary || null,
       },
     });

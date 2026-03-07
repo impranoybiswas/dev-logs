@@ -3,22 +3,22 @@ export declare class NotificationsService {
     private prisma;
     constructor(prisma: PrismaService);
     findAll(userId: string): Promise<{
+        message: string;
+        type: string;
         id: string;
         createdAt: Date;
         userId: string;
         requesterId: string | null;
-        type: string;
-        message: string;
         friendshipId: string | null;
         read: boolean;
     }[]>;
     markAsRead(id: string): Promise<{
+        message: string;
+        type: string;
         id: string;
         createdAt: Date;
         userId: string;
         requesterId: string | null;
-        type: string;
-        message: string;
         friendshipId: string | null;
         read: boolean;
     }>;

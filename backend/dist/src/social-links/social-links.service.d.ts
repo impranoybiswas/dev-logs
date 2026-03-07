@@ -5,27 +5,27 @@ export declare class SocialLinksService {
     private readonly logger;
     constructor(prisma: PrismaService);
     create(userId: string, createSocialLinkDto: CreateSocialLinkDto): Promise<{
-        id: string;
-        name: string;
         url: string;
+        name: string;
+        id: string;
         userId: string;
     }>;
     findAll(userId: string): Promise<{
-        id: string;
-        name: string;
         url: string;
+        name: string;
+        id: string;
         userId: string;
     }[]>;
     update(userId: string, id: string, updateData: Partial<CreateSocialLinkDto>): Promise<{
-        id: string;
-        name: string;
         url: string;
+        name: string;
+        id: string;
         userId: string;
     }>;
     remove(userId: string, id: string): Promise<{
-        id: string;
-        name: string;
         url: string;
+        name: string;
+        id: string;
         userId: string;
     }>;
 }

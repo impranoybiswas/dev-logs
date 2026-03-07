@@ -107,6 +107,7 @@ model Resume {
   name      String?
   email     String?
   phone     String?
+  templateId String?   @default("modern")
   
   education  Education[]
   experience Experience[]

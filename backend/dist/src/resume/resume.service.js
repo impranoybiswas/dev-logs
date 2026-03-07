@@ -32,7 +32,7 @@ let ResumeService = class ResumeService {
     async upsertResume(userId, data) {
         console.log('Upserting resume for user:', userId);
         console.log('Received data:', JSON.stringify(data, null, 2));
-        const { personal, education, experience, skills, projects } = data;
+        const { personal, education, experience, skills, projects, templateId } = data;
         const resume = await this.prisma.resume.upsert({
             where: { userId },
             create: {
@@ -40,12 +40,14 @@ let ResumeService = class ResumeService {
                 name: personal?.name || null,
                 email: personal?.email || null,
                 phone: personal?.phone || null,
+                templateId: templateId || 'modern',
                 summary: personal?.summary || null,
             },
             update: {
                 name: personal?.name || null,
                 email: personal?.email || null,
                 phone: personal?.phone || null,
+                templateId: templateId || 'modern',
                 summary: personal?.summary || null,
             },
         });

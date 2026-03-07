@@ -1,12 +1,12 @@
 import { PrismaService } from '../prisma/prisma.service';
-export interface Education {
+export interface ResumeEducation {
     id: string;
     resumeId: string;
     school: string;
     degree: string | null;
     year: string | null;
 }
-export interface Experience {
+export interface ResumeExperience {
     id: string;
     resumeId: string;
     company: string;
@@ -14,12 +14,12 @@ export interface Experience {
     duration: string | null;
     description: string | null;
 }
-export interface Skill {
+export interface ResumeSkill {
     id: string;
     resumeId: string;
     name: string;
 }
-export interface Project {
+export interface ResumeProject {
     id: string;
     resumeId: string;
     title: string;
@@ -52,6 +52,7 @@ export interface UpsertResumeDto {
         phone?: string | null;
         summary?: string | null;
     };
+    templateId?: string | null;
     education?: UpsertEducation[];
     experience?: UpsertExperience[];
     skills?: UpsertSkill[];
@@ -63,13 +64,14 @@ export interface Resume {
     name: string | null;
     email: string | null;
     phone: string | null;
+    templateId: string | null;
     summary: string | null;
     createdAt: Date;
     updatedAt: Date;
-    projects: Project[];
-    education: Education[];
-    experience: Experience[];
-    skills: Skill[];
+    projects: ResumeProject[];
+    education: ResumeEducation[];
+    experience: ResumeExperience[];
+    skills: ResumeSkill[];
 }
 export declare class ResumeService {
     private prisma;

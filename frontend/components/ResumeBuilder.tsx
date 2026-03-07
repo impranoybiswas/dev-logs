@@ -51,6 +51,7 @@ interface Skill {
 }
 
 export interface ResumeData {
+  templateId?: string;
   personal: Personal;
   education: Education[];
   experience: Experience[];
@@ -334,9 +335,9 @@ const ProjectsForm = () => (
 
 export default function ResumeBuilder() {
   const [form] = Form.useForm();
-  const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [resumeData, setResumeData] = useState<ResumeData>({
+    templateId: "modern",
     personal: { name: "", email: "", phone: "", summary: "" },
     education: [],
     experience: [],
@@ -350,6 +351,7 @@ export default function ResumeBuilder() {
         const response = await api.get("/resume");
         if (response.data) {
           const newData = {
+            templateId: response.data.templateId || "modern",
             personal: {
               name: response.data.name || response.data.user?.name || "",
               email: response.data.email || response.data.user?.email || "",
@@ -359,13 +361,19 @@ export default function ResumeBuilder() {
             education: response.data.education || [],
             experience: response.data.experience || [],
             projects:
-              response.data.projects?.map((p: any) => ({
-                title: p.title,
-                techStack: p.techStack || "",
-                description1: p.details?.[0] || "",
-                description2: p.details?.[1] || "",
-                description3: p.details?.[2] || "",
-              })) || [],
+              response.data.projects?.map(
+                (p: {
+                  title: string;
+                  techStack?: string;
+                  details?: string[];
+                }) => ({
+                  title: p.title,
+                  techStack: p.techStack || "",
+                  description1: p.details?.[0] || "",
+                  description2: p.details?.[1] || "",
+                  description3: p.details?.[2] || "",
+                }),
+              ) || [],
             skills: response.data.skills || [],
           };
           setResumeData(newData);
@@ -475,59 +483,129 @@ export default function ResumeBuilder() {
     },
   ];
 
+  const templateItems = [
+    {
+      id: "modern",
+      name: "Modern",
+      color: "#3b82f6",
+      bg: "bg-blue-500/10",
+      border: "border-blue-500/50",
+    },
+    {
+      id: "classic",
+      name: "Classic",
+      color: "#ff006e",
+      bg: "bg-pink-900/10",
+      border: "border-pink-900/50",
+    },
+    {
+      id: "minimalist",
+      name: "Minimalist",
+      color: "#10b981",
+      bg: "bg-emerald-500/10",
+      border: "border-emerald-500/50",
+    },
+    {
+      id: "professional",
+      name: "Professional",
+      color: "#6366f1",
+      bg: "bg-indigo-500/10",
+      border: "border-indigo-500/50",
+    },
+  ];
+
   return (
     <div className="flex flex-col lg:flex-row gap-8 min-h-[calc(100vh-100px)]">
       {/* Editor Section */}
-      <Card
-        title="Resume Editor"
-        style={{
-          flex: "1",
-          maxWidth: "100%",
-          boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
-          height: "fit-content",
-          maxHeight: "85vh",
-          overflowY: "auto",
-          position: "sticky",
-          top: "6rem",
-          zIndex: 1,
-        }}
-      >
-        <Form
-          form={form}
-          layout="vertical"
-          onValuesChange={handleValuesChange}
-          initialValues={resumeData}
+      <div className="flex-1 flex flex-col gap-10">
+        {/* Template Selector Block */}
+        <Card
+          size="default"
+          className="mb-10 border-none shadow-sm bg-transparent p-0!"
         >
-          <Tabs defaultActiveKey="1" items={tabItems} />
-        </Form>
-        <Divider />
-        <div className="flex gap-2">
-          <Button
-            type="default"
-            size="large"
-            block
-            icon={<SaveOutlined />}
-            onClick={handleSave}
-            loading={saving}
-          >
-            Save
-          </Button>
+          <div className="mb-3 flex items-center justify-between px-1">
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+              Select Template
+            </h3>
+            <span className="text-xs text-muted-foreground bg-secondary/50 px-2 py-1 rounded-full">
+              Current: {resumeData.templateId?.toUpperCase() || "MODERN"}
+            </span>
+          </div>
+          <Row gutter={[12, 12]}>
+            {templateItems.map((t) => (
+              <Col xs={12} sm={6} key={t.id}>
+                <div
+                  className={`cursor-pointer rounded-xl border-2 p-3 text-center transition-all duration-300 hover:shadow-md ${
+                    resumeData.templateId === t.id
+                      ? `${t.bg} ${t.border} scale-105 shadow-sm`
+                      : "border-transparent bg-card hover:border-border/50"
+                  }`}
+                  onClick={() => {
+                    form.setFieldsValue({ templateId: t.id });
+                    setResumeData({ ...resumeData, templateId: t.id });
+                  }}
+                  style={{
+                    color: resumeData.templateId === t.id ? t.color : "inherit",
+                  }}
+                >
+                  <div className="text-xs font-bold uppercase tracking-tight">
+                    {t.name}
+                  </div>
+                </div>
+              </Col>
+            ))}
+          </Row>
+        </Card>
 
-          <Button
-            type="primary"
-            size="large"
-            block
-            icon={<DownloadOutlined />}
-            onClick={() => {
-              const allValues = form.getFieldsValue();
-              generatePDF(allValues);
-            }}
-            loading={loading}
+        <Card
+          title="Resume Editor"
+          style={{
+            maxWidth: "100%",
+            boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
+            height: "fit-content",
+            maxHeight: "85vh",
+            overflowY: "auto",
+            position: "sticky",
+            top: "6rem",
+            zIndex: 1,
+          }}
+        >
+          <Form
+            form={form}
+            layout="vertical"
+            onValuesChange={handleValuesChange}
+            initialValues={resumeData}
           >
-            Export PDF
-          </Button>
-        </div>
-      </Card>
+            <Tabs defaultActiveKey="1" items={tabItems} />
+          </Form>
+          <Divider />
+          <div className="flex gap-2">
+            <Button
+              type="default"
+              size="large"
+              block
+              icon={<SaveOutlined />}
+              onClick={handleSave}
+              loading={saving}
+            >
+              Save
+            </Button>
+
+            <Button
+              type="primary"
+              size="large"
+              block
+              icon={<DownloadOutlined />}
+              onClick={() => {
+                const allValues = form.getFieldsValue();
+                generatePDF(allValues);
+              }}
+            >
+              Export PDF
+            </Button>
+          </div>
+        </Card>
+      </div>
     </div>
   );
 }
