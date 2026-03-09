@@ -30,8 +30,6 @@ let ResumeService = class ResumeService {
         }));
     }
     async upsertResume(userId, data) {
-        console.log('Upserting resume for user:', userId);
-        console.log('Received data:', JSON.stringify(data, null, 2));
         const { personal, education, experience, skills, projects, templateId } = data;
         const resume = await this.prisma.resume.upsert({
             where: { userId },
@@ -51,7 +49,6 @@ let ResumeService = class ResumeService {
                 summary: personal?.summary || null,
             },
         });
-        console.log('Resume created/updated:', resume.id);
         if (education) {
             await this.prisma.education.deleteMany({
                 where: { resumeId: resume.id },
