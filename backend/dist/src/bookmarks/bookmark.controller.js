@@ -31,6 +31,9 @@ let BookmarkController = class BookmarkController {
     async remove(req, id) {
         return await this.bookmarkService.remove(req.user.id, id);
     }
+    async update(req, id, data) {
+        return await this.bookmarkService.update(req.user.id, id, data);
+    }
     async bulkSync(req, bookmarks) {
         if (!Array.isArray(bookmarks))
             return [];
@@ -61,6 +64,15 @@ __decorate([
     __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], BookmarkController.prototype, "remove", null);
+__decorate([
+    (0, common_1.Patch)(':id'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id')),
+    __param(2, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, Object]),
+    __metadata("design:returntype", Promise)
+], BookmarkController.prototype, "update", null);
 __decorate([
     (0, common_1.Post)('sync'),
     __param(0, (0, common_1.Request)()),

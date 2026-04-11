@@ -101,7 +101,7 @@ export default function BookmarksPage() {
     queryKey: ["bookmarks"],
     queryFn: async () => {
       console.log("Fetching bookmarks from DB...");
-      const response = await api.get("/user-bookmarks");
+      const response = await api.get("/bookmarks");
       console.log("Fetched bookmarks:", response.data);
       return response.data;
     },
@@ -127,7 +127,7 @@ export default function BookmarksPage() {
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<Bookmark> }) =>
-      api.patch(`/user-bookmarks/${id}`, data),
+      api.patch(`/bookmarks/${id}`, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["bookmarks"] });
       message.success("Bookmark updated in cloud!");
@@ -136,7 +136,7 @@ export default function BookmarksPage() {
 
   const syncMutation = useMutation({
     mutationFn: (bookmarks: Bookmark[]) =>
-      api.post("/user-bookmarks/sync", bookmarks),
+      api.post("/bookmarks/sync", bookmarks),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["bookmarks"] });
       localStorage.removeItem("user_bookmarks");
@@ -191,12 +191,28 @@ export default function BookmarksPage() {
 
     if (isLoggedIn) {
       if (editingBookmark) {
-        await updateMutation.mutateAsync({
-          id: editingBookmark.id,
-          data: bookmarkData,
-        });
+        if (!editingBookmark.id) {
+          message.error("Cannot update: Missing bookmark ID");
+          return;
+        }
+        console.log("Updating bookmark:", editingBookmark.id, bookmarkData);
+        try {
+          await updateMutation.mutateAsync({
+            id: editingBookmark.id,
+            data: bookmarkData,
+          });
+        } catch (error) {
+          console.error("Update failed:", error);
+          message.error("Failed to update bookmark in cloud");
+        }
       } else {
-        await createMutation.mutateAsync(bookmarkData);
+        console.log("Creating bookmark:", bookmarkData);
+        try {
+          await createMutation.mutateAsync(bookmarkData);
+        } catch (error) {
+          console.error("Create failed:", error);
+          message.error("Failed to add bookmark to cloud");
+        }
       }
     } else {
       if (editingBookmark) {

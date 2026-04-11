@@ -8,5 +8,6 @@ export declare class BookmarkController {
     create(req: RequestWithUser, data: CreateBookmarkDto): Promise<Bookmark>;
     findAll(req: RequestWithUser): Promise<Bookmark[]>;
     remove(req: RequestWithUser, id: string): Promise<Bookmark>;
+    update(req: RequestWithUser, id: string, data: Partial<CreateBookmarkDto>): Promise<Bookmark>;
     bulkSync(req: RequestWithUser, bookmarks: CreateBookmarkDto[]): Promise<Bookmark[]>;
 }

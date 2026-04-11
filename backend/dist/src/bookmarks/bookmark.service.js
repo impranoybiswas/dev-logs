@@ -36,6 +36,12 @@ let BookmarkService = class BookmarkService {
             where: { id, userId },
         });
     }
+    async update(userId, id, data) {
+        return await this.prisma.bookmark.update({
+            where: { id, userId },
+            data,
+        });
+    }
     async bulkSync(userId, bookmarks) {
         const results = [];
         for (const b of bookmarks) {

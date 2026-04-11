@@ -15,7 +15,7 @@ import type { Bookmark } from '@prisma/client';
 import { CreateBookmarkDto } from './dto/bookmark.dto';
 import type { RequestWithUser } from '../auth/interfaces/request-with-user.interface';
 
-@Controller('user-bookmarks')
+@Controller('bookmarks')
 @UseGuards(JwtAuthGuard)
 export class BookmarkController {
   constructor(private readonly bookmarkService: BookmarkService) {}
