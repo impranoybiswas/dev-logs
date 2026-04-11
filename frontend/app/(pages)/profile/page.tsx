@@ -23,19 +23,19 @@ import { motion } from "framer-motion";
 import EditProfileModal from "@/components/EditProfileModal";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
+// FIX: STATUS_COLORS was defined but never consumed — the chart was using
+// the positional PIE_COLORS array instead, so each status got a random
+// colour rather than its semantic one (warning=Pending, primary=Interviewing,
+// success=Accepted, error=Rejected).
 const STATUS_COLORS: Record<string, string> = {
   Pending: "var(--color-warning)",
   Interviewing: "var(--color-primary)",
   Accepted: "var(--color-success)",
   Rejected: "var(--color-error)",
 };
-const PIE_COLORS = [
-  "var(--color-warning)",
-  "var(--color-primary)",
-  "var(--color-success)",
-  "var(--color-error)",
-  "var(--color-accent)",
-];
+
+// Fallback colour for any status not in the map above
+const FALLBACK_COLOR = "var(--color-accent)";
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 18 },
@@ -228,7 +228,6 @@ export default function ProfilePage() {
           {/* Profile card */}
           <motion.div {...fadeUp(0.3)} className="lg:col-span-3">
             <div className="glass premium-card h-full border-none shadow-2xl! shadow-black/5">
-              {/* Cover strip */}
               <div
                 className="h-32 rounded-t-3xl relative overflow-hidden"
                 style={{
@@ -240,7 +239,6 @@ export default function ProfilePage() {
               </div>
 
               <div className="px-8 pb-10">
-                {/* Avatar */}
                 <div className="flex items-end justify-between -mt-12 mb-8">
                   <div
                     className="rounded-full p-1 shadow-2xl shadow-black/20"
@@ -279,7 +277,6 @@ export default function ProfilePage() {
                       </p>
                     </div>
 
-                    {/* Details Grid */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="p-5 rounded-2xl bg-foreground/3 border border-foreground/5">
                         <InfoRow
@@ -303,7 +300,6 @@ export default function ProfilePage() {
                       </div>
                     </div>
 
-                    {/* Social links */}
                     <div className="pt-4">
                       <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 mb-6">
                         Professional Presence
@@ -360,10 +356,13 @@ export default function ProfilePage() {
                             animationDuration={1500}
                           >
                             {stats.jobApplications.map(
-                              (_: unknown, index: number) => (
+                              (entry: { status: string; count: number }, index: number) => (
                                 <Cell
                                   key={`cell-${index}`}
-                                  fill={PIE_COLORS[index % PIE_COLORS.length]}
+                                  // FIX: use STATUS_COLORS keyed by the actual
+                                  // status string so colours have semantic meaning.
+                                  // Falls back to FALLBACK_COLOR for unknown statuses.
+                                  fill={STATUS_COLORS[entry.status] ?? FALLBACK_COLOR}
                                   stroke="none"
                                 />
                               ),
@@ -414,13 +413,14 @@ export default function ProfilePage() {
                         ) => (
                           <div
                             key={i}
-                            className="flex items-center justify-between p-3 rounded-xl bg-foreground/[0.03] border border-foreground/[0.01]"
+                            className="flex items-center justify-between p-3 rounded-xl bg-foreground/3 border border-foreground/1"
                           >
                             <div className="flex items-center gap-2">
                               <div
                                 className="w-2 h-2 rounded-full"
                                 style={{
-                                  background: PIE_COLORS[i % PIE_COLORS.length],
+                                  // FIX: consistent with the pie chart above
+                                  background: STATUS_COLORS[entry.status] ?? FALLBACK_COLOR,
                                 }}
                               />
                               <span className="text-xs text-muted-foreground font-bold truncate max-w-[80px]">

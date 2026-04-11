@@ -4,20 +4,20 @@
   --background: #fafafa;
   --foreground: #09090b;
 
-  /* Primary - Sophisticated Indigo */
-  --primary: hsl(245, 82%, 67%);
+  /* Primary - Shield Slate (deep blue-gray from shield body) */
+  --primary: hsl(207, 24%, 31%);
   --primary-foreground: #ffffff;
-  --primary-hover: hsl(245, 82%, 60%);
+  --primary-hover: hsl(207, 24%, 24%);
 
-  /* Secondary - Fresh Emerald */
-  --secondary: hsl(162, 72%, 48%);
+  /* Secondary - Emerald Arrow (bright green from the upward arrow) */
+  --secondary: hsl(145, 63%, 49%);
   --secondary-foreground: #ffffff;
-  --secondary-hover: hsl(162, 72%, 40%);
+  --secondary-hover: hsl(145, 63%, 40%);
 
-  /* Accent - Vibrant Rose */
-  --accent: hsl(335, 91%, 65%);
+  /* Accent - Deep Teal (dark cyan from the chart/graph shape) */
+  --accent: hsl(188, 64%, 28%);
   --accent-foreground: #ffffff;
-  --accent-hover: hsl(335, 91%, 55%);
+  --accent-hover: hsl(188, 64%, 21%);
 
   --content-text: var(--foreground);
 
@@ -165,3 +165,4 @@
 .page-container section {
   @apply w-full max-w-7xl mx-auto border-x pt-24 pb-12 px-6;
 }
+

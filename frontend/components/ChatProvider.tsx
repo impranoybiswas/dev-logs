@@ -41,8 +41,15 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [typingUser, setTypingUser] = useState<string | null>(null);
     const pusherRef = useRef<Pusher | null>(null);
     const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    // FIX: use a ref to track activeFriend inside Pusher event handlers
+    // so we don't need activeFriend in the useEffect dependency array
+    const activeFriendRef = useRef<FriendshipRequest | null>(null);
 
-    // Get current User ID from token
+    // Keep ref in sync with state
+    useEffect(() => {
+        activeFriendRef.current = activeFriend;
+    }, [activeFriend]);
+
     const getUserId = useCallback(() => {
         const token = localStorage.getItem('token');
         if (!token) return null;
@@ -55,11 +62,12 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     }, []);
 
+    // FIX: removed activeFriend from dependency array — Pusher should only
+    // reconnect when the logged-in user changes, not on every chat open.
     useEffect(() => {
         const userId = getUserId();
         if (!userId) return;
 
-        // Initialize Pusher
         const pusherKey = process.env.NEXT_PUBLIC_PUSHER_KEY;
         const pusherCluster = process.env.NEXT_PUBLIC_PUSHER_CLUSTER;
 
@@ -83,16 +91,14 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setIsConnected(false);
         });
 
-        // Subscribe to user's channel
         const channel = pusher.subscribe(`user-${userId}`);
 
         channel.bind('newMessage', (msg: ChatMessage) => {
             setMessages(prev => {
-                // If the message is already in state (sent by this user), don't add it again
                 if (prev.find(m => m.id === msg.id)) return prev;
-
-                // Only add if it belongs to the active friend conversation
-                if (activeFriend && (msg.senderId === activeFriend.user.id || msg.receiverId === activeFriend.user.id)) {
+                // Use ref instead of stale closure over activeFriend
+                const currentFriend = activeFriendRef.current;
+                if (currentFriend && (msg.senderId === currentFriend.user.id || msg.receiverId === currentFriend.user.id)) {
                     return [...prev, msg];
                 }
                 return prev;
@@ -110,12 +116,10 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setIsTyping(true);
             setTypingUser(data.userName);
 
-            // Clear previous timeout
             if (typingTimeoutRef.current) {
                 clearTimeout(typingTimeoutRef.current);
             }
 
-            // Auto-hide typing indicator after 3 seconds
             typingTimeoutRef.current = setTimeout(() => {
                 setIsTyping(false);
                 setTypingUser(null);
@@ -134,12 +138,12 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
             pusher.disconnect();
             pusherRef.current = null;
         };
-    }, [getUserId, activeFriend]);
+    }, [getUserId]); // FIX: only getUserId here, not activeFriend
 
     const openChat = useCallback(async (friend: FriendshipRequest) => {
         setActiveFriend(friend);
         setIsOpen(true);
-        setMessages([]); // Clear previous messages immediately
+        setMessages([]);
         setLoadingMessages(true);
         try {
             const history = await getChatMessages(friend.user.id);
@@ -158,30 +162,26 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, []);
 
     const emitTyping = useCallback(() => {
-        if (!activeFriend || !pusherRef.current) return;
+        if (!activeFriendRef.current || !pusherRef.current) return;
 
         const userId = getUserId();
         if (!userId) return;
 
-        // Trigger typing event via backend API
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/chat/typing/${activeFriend.user.id}`, {
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/chat/typing/${activeFriendRef.current.user.id}`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`,
                 'Content-Type': 'application/json',
             },
         }).catch(err => console.error('Failed to emit typing event', err));
-    }, [activeFriend, getUserId]);
+    }, [getUserId]);
 
     const sendMessage = useCallback(async (content: string) => {
-        if (activeFriend && content.trim()) {
+        if (activeFriendRef.current && content.trim()) {
             try {
-                // Optimistically update UI or use the API response immediately
-                const sentMessage = await sendMessageApi(activeFriend.user.id, content);
+                const sentMessage = await sendMessageApi(activeFriendRef.current.user.id, content);
 
-                // Add the message to state immediately
                 setMessages(prev => {
-                    // Check if it's already there (unlikely, but good practice)
                     if (prev.find(m => m.id === sentMessage.id)) return prev;
                     return [...prev, sentMessage];
                 });
@@ -190,11 +190,11 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 console.error(err);
             }
         }
-    }, [activeFriend]);
+    }, []);
 
     return (
         <ChatContext.Provider value={{
-            socket: null, // No longer using direct socket.io
+            socket: null,
             messages,
             activeFriend,
             isOpen,

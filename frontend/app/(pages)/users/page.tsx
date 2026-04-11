@@ -44,6 +44,15 @@ export default function UsersPage() {
     enabled: isLoggedIn,
   });
 
+  // FIX: fetch friends list upfront and keep it in the query cache.
+  // Previously getFriends() was called inside the onMessage click handler
+  // on every click, hammering the API unnecessarily.
+  const { data: friends = [] } = useQuery({
+    queryKey: ["friendships", "accepted"],
+    queryFn: getFriends,
+    enabled: isLoggedIn,
+  });
+
   const handleAction = async (
     userId: string,
     action: string,
@@ -180,10 +189,15 @@ export default function UsersPage() {
                   loading={actionLoadingId === user.id}
                   onAction={handleAction}
                   onViewProfile={() => router.push(`/users/${user.id}`)}
-                  onMessage={async () => {
-                    const friends = await getFriends();
+                  onMessage={() => {
+                    // FIX: use the already-fetched friends cache instead of
+                    // calling getFriends() on every single click.
                     const friend = friends.find((f) => f.user.id === user.id);
-                    if (friend) openChat(friend);
+                    if (friend) {
+                      openChat(friend);
+                    } else {
+                      message.warning("You must be friends to start a chat.");
+                    }
                   }}
                 />
               ))}

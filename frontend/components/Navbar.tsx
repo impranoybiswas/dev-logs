@@ -46,6 +46,8 @@ export default function Navbar() {
       const response = await api.get("/users/profile");
       return response.data;
     },
+    // Only fetch if a token is present to avoid unnecessary 401 redirects/errors for public users
+    enabled: typeof window !== "undefined" && !!localStorage.getItem("token"),
     retry: false,
   });
 
@@ -54,8 +56,8 @@ export default function Navbar() {
   const { data: notifications = [] } = useQuery({
     queryKey: ["notifications"],
     queryFn: getNotifications,
-    refetchInterval: 30000, // Poll every 30 seconds
-    enabled: isLoggedIn, // Only fetch if logged in
+    refetchInterval: 30000,
+    enabled: isLoggedIn,
   });
 
   const unreadCount = notifications.filter((n) => !n.read).length;
@@ -95,12 +97,18 @@ export default function Navbar() {
     action: "ACCEPT" | "REJECT",
   ) => {
     try {
-      if (!notification.requesterId) return;
-      await respondToFriendRequest(notification.requesterId, action);
+      // FIX: use notification.id (the friendship record ID) instead of
+      // notification.requesterId (which is the sender's user ID).
+      // The API endpoint /users/friend-request/:friendshipId/respond
+      // expects the friendship record ID, not the user ID.
+      if (!notification.id) return;
+      await respondToFriendRequest(notification.id, action);
       message.success(
         `Friend request ${action === "ACCEPT" ? "accepted" : "rejected"}`,
       );
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      queryClient.invalidateQueries({ queryKey: ["friendships"] });
+      queryClient.invalidateQueries({ queryKey: ["users"] });
     } catch (error) {
       message.error(`Failed to ${action.toLowerCase()} request`);
       console.error(error);
@@ -241,7 +249,6 @@ export default function Navbar() {
             </Link>
           ))}
         </div>
-        {/* Authorize Logic */}
         {isLoggedIn ? (
           <>
             <span className="nav-link">
@@ -280,11 +287,9 @@ export default function Navbar() {
             <UserOutlined className="circle-button" />
           </Link>
         )}
-        {/* Theme Toggler */}
         <span className="nav-link">
           <ThemeToggler className="circle-button" />
         </span>
-        {/* Mobile Nav Button */}
         <div
           className="lg:hidden block h-full z-50"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -299,7 +304,6 @@ export default function Navbar() {
           )}
         </div>
 
-        {/* Mobile Menu Overflow */}
         {isMobileMenuOpen && (
           <div className="lg:hidden fixed inset-0 z-40 bg-background/95 backdrop-blur-xl animate-in fade-in duration-300">
             <div className="flex flex-col h-full pt-24 px-6 space-y-4">

@@ -63,30 +63,36 @@ const fadeUp = (delay = 0) => ({
 });
 
 export default function BookmarksPage() {
-  const [bookmarks, setBookmarks] = useState<Bookmark[]>(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("user_bookmarks");
-      if (saved) {
-        try {
-          return JSON.parse(saved);
-        } catch (e) {
-          console.error("Failed to parse bookmarks", e);
-          return DEFAULT_BOOKMARKS;
-        }
-      }
-    }
-    return DEFAULT_BOOKMARKS;
-  });
+  // FIX: seed with DEFAULT_BOOKMARKS on first render (SSR-safe).
+  // Never call localStorage inside useState initialiser — it doesn't exist
+  // on the server and will throw a ReferenceError during SSR.
+  const [bookmarks, setBookmarks] = useState<Bookmark[]>(DEFAULT_BOOKMARKS);
+  const [hydrated, setHydrated] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingBookmark, setEditingBookmark] = useState<Bookmark | null>(null);
   const [form] = Form.useForm();
 
-  // Save bookmarks to local storage
+  // FIX: load from localStorage only after client-side hydration
   useEffect(() => {
+    try {
+      const saved = localStorage.getItem("user_bookmarks");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        setBookmarks(parsed);
+      }
+    } catch (e) {
+      console.error("Failed to parse bookmarks from localStorage", e);
+    }
+    setHydrated(true);
+  }, []);
+
+  // Save bookmarks to localStorage whenever they change (after hydration)
+  useEffect(() => {
+    if (!hydrated) return;
     localStorage.setItem("user_bookmarks", JSON.stringify(bookmarks));
-  }, [bookmarks]);
+  }, [bookmarks, hydrated]);
 
   const filteredBookmarks = useMemo(() => {
     return bookmarks.filter((b) => {
@@ -148,7 +154,6 @@ export default function BookmarksPage() {
         {/* ── Header Section ── */}
         <div className="w-full flex flex-col items-center gap-8 mb-16">
           <motion.div {...fadeUp(0)}>
-            
             <h1 className="text-xl md:text-4xl font-black tracking-tighter text-foreground leading-tight">
               Curate Your
               <span className="bg-linear-to-r from-primary via-accent to-secondary bg-clip-text text-transparent italic inline-block ml-2">
@@ -214,7 +219,7 @@ export default function BookmarksPage() {
           </div>
         </motion.div>
 
-        {/* ── Stats / Quick Access (Leading element) ── */}
+        {/* ── Stats / Quick Access ── */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
           <motion.div
             {...fadeUp(0.3)}

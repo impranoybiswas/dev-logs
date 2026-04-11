@@ -207,13 +207,17 @@ export default function JobApplications() {
           placeholder="Search company..."
           allowClear
           className="flex-1 min-w-48 h-12 rounded-xl bg-transparent border-none! shadow-none!"
+          value={searchText}
           onChange={(e) => {
-            if (!e.target.value) setSearchText("");
+            // FIX: update searchText on every keystroke so the controlled
+            // value stays in sync with the input, including when the user
+            // types normally (not just on blur/enter).
+            setSearchText(e.target.value);
           }}
-          onPressEnter={(e) =>
-            setSearchText((e.target as HTMLInputElement).value)
-          }
-          onBlur={(e) => setSearchText(e.target.value)}
+          // FIX: Ant Design's allowClear fires onClear (not onChange) when
+          // the × button is clicked. Without this handler the query key
+          // never updates and stale results stay on screen.
+          onClear={() => setSearchText("")}
         />
 
         <div className="h-6 w-px bg-border hidden md:block" />
