@@ -29,6 +29,17 @@ export class BookmarkService {
     });
   }
 
+  async update(
+    userId: string,
+    id: string,
+    data: Partial<CreateBookmarkDto>,
+  ): Promise<Bookmark> {
+    return await this.prisma.bookmark.update({
+      where: { id, userId },
+      data,
+    });
+  }
+
   async bulkSync(
     userId: string,
     bookmarks: CreateBookmarkDto[],

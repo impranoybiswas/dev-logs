@@ -73,19 +73,39 @@ export default function BookmarksPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingBookmark, setEditingBookmark] = useState<Bookmark | null>(null);
   const [form] = Form.useForm();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("token") : null;
-  const isLoggedIn = !!token;
+  // Load from localStorage only after client-side hydration
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("user_bookmarks");
+      if (saved) {
+        setLocalBookmarks(JSON.parse(saved));
+      }
+
+      const token = localStorage.getItem("token");
+      setIsLoggedIn(!!token);
+    } catch (e) {
+      console.error("Failed to parse bookmarks or token", e);
+    }
+    setHydrated(true);
+  }, []);
 
   // DB Bookmarks Query
-  const { data: dbBookmarks = [] } = useQuery({
+  const {
+    data: dbBookmarks = [],
+    isLoading: isLoadingDb,
+    isError: isErrorDb,
+    error: dbError,
+  } = useQuery({
     queryKey: ["bookmarks"],
     queryFn: async () => {
-      const response = await api.get("/bookmarks");
+      console.log("Fetching bookmarks from DB...");
+      const response = await api.get("/user-bookmarks");
+      console.log("Fetched bookmarks:", response.data);
       return response.data;
     },
-    enabled: isLoggedIn,
+    enabled: isLoggedIn && hydrated,
   });
 
   // Mutations
@@ -105,9 +125,18 @@ export default function BookmarksPage() {
     },
   });
 
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Partial<Bookmark> }) =>
+      api.patch(`/user-bookmarks/${id}`, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["bookmarks"] });
+      message.success("Bookmark updated in cloud!");
+    },
+  });
+
   const syncMutation = useMutation({
     mutationFn: (bookmarks: Bookmark[]) =>
-      api.post("/bookmarks/sync", bookmarks),
+      api.post("/user-bookmarks/sync", bookmarks),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["bookmarks"] });
       localStorage.removeItem("user_bookmarks");
@@ -118,18 +147,7 @@ export default function BookmarksPage() {
 
   const bookmarks = isLoggedIn ? dbBookmarks : localBookmarks;
 
-  // Load from localStorage only after client-side hydration
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem("user_bookmarks");
-      if (saved) {
-        setLocalBookmarks(JSON.parse(saved));
-      }
-    } catch (e) {
-      console.error("Failed to parse bookmarks", e);
-    }
-    setHydrated(true);
-  }, []);
+  // Remove the old useEffect that handled hydration as it's now merged into the top one
 
   // Save local bookmarks to localStorage
   useEffect(() => {
@@ -173,9 +191,10 @@ export default function BookmarksPage() {
 
     if (isLoggedIn) {
       if (editingBookmark) {
-        // We don't have an update endpoint in the spec but we can add or just create new
-        // For now, let's just delete and re-add or ignore update if not implemented
-        await createMutation.mutateAsync(bookmarkData);
+        await updateMutation.mutateAsync({
+          id: editingBookmark.id,
+          data: bookmarkData,
+        });
       } else {
         await createMutation.mutateAsync(bookmarkData);
       }
@@ -347,37 +366,60 @@ export default function BookmarksPage() {
         </div>
 
         {/* ── Grid of Bookmarks ── */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          <AnimatePresence mode="popLayout">
-            {filteredBookmarks.length > 0 ? (
-              filteredBookmarks.map((bookmark: Bookmark, index: number) => (
-                <BookmarkCard
-                  key={bookmark.id}
-                  bookmark={bookmark}
-                  index={index}
-                  onDelete={handleDelete}
-                  onEdit={handleEdit}
-                />
-              ))
-            ) : (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="col-span-full py-24 text-center glass premium-card border-none"
-              >
-                <div className="w-20 h-20 rounded-3xl bg-foreground/5 text-muted-foreground/30 flex items-center justify-center text-4xl mx-auto mb-6">
-                  <GlobalOutlined />
-                </div>
-                <h3 className="text-2xl font-black text-foreground tracking-tighter">
-                  No bookmarks found
-                </h3>
-                <p className="text-muted-foreground mt-2 font-medium">
-                  Try a different search or add a new one.
-                </p>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+        {isLoadingDb && isLoggedIn ? (
+          <div className="flex justify-center py-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+          </div>
+        ) : isErrorDb && isLoggedIn ? (
+          <div className="text-center py-20 glass premium-card border-none">
+            <h3 className="text-xl font-bold text-error">
+              Failed to load bookmarks
+            </h3>
+            <p className="text-muted-foreground mt-2">
+              {(dbError as Error)?.message || "Unknown error"}
+            </p>
+            <Button
+              className="mt-4"
+              onClick={() =>
+                queryClient.invalidateQueries({ queryKey: ["bookmarks"] })
+              }
+            >
+              Try Again
+            </Button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <AnimatePresence mode="popLayout">
+              {filteredBookmarks.length > 0 ? (
+                filteredBookmarks.map((bookmark: Bookmark, index: number) => (
+                  <BookmarkCard
+                    key={bookmark.id}
+                    bookmark={bookmark}
+                    index={index}
+                    onDelete={handleDelete}
+                    onEdit={handleEdit}
+                  />
+                ))
+              ) : (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="col-span-full py-24 text-center glass premium-card border-none"
+                >
+                  <div className="w-20 h-20 rounded-3xl bg-foreground/5 text-muted-foreground/30 flex items-center justify-center text-4xl mx-auto mb-6">
+                    <GlobalOutlined />
+                  </div>
+                  <h3 className="text-2xl font-black text-foreground tracking-tighter">
+                    No bookmarks found
+                  </h3>
+                  <p className="text-muted-foreground mt-2 font-medium">
+                    Try a different search or add a new one.
+                  </p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        )}
       </section>
 
       {/* ── Bookmark Modal ── */}

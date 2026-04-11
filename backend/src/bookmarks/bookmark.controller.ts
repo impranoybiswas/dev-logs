@@ -5,6 +5,7 @@ import {
   Body,
   Delete,
   Param,
+  Patch,
   UseGuards,
   Request,
 } from '@nestjs/common';
@@ -14,7 +15,7 @@ import type { Bookmark } from '@prisma/client';
 import { CreateBookmarkDto } from './dto/bookmark.dto';
 import type { RequestWithUser } from '../auth/interfaces/request-with-user.interface';
 
-@Controller('bookmarks')
+@Controller('user-bookmarks')
 @UseGuards(JwtAuthGuard)
 export class BookmarkController {
   constructor(private readonly bookmarkService: BookmarkService) {}
@@ -38,6 +39,15 @@ export class BookmarkController {
     @Param('id') id: string,
   ): Promise<Bookmark> {
     return await this.bookmarkService.remove(req.user.id, id);
+  }
+
+  @Patch(':id')
+  async update(
+    @Request() req: RequestWithUser,
+    @Param('id') id: string,
+    @Body() data: Partial<CreateBookmarkDto>,
+  ): Promise<Bookmark> {
+    return await this.bookmarkService.update(req.user.id, id, data);
   }
 
   @Post('sync')
