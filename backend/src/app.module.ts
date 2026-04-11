@@ -11,6 +11,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { ChatModule } from './chat/chat.module';
 import { ImageKitModule } from './image-kit/image-kit.module';
 import { ResumeModule } from './resume/resume.module';
+import { BookmarkModule } from './bookmarks/bookmark.module';
 
 import { RedisModule } from './redis/redis.module';
 
@@ -27,6 +28,7 @@ import { RedisModule } from './redis/redis.module';
     ChatModule,
     ImageKitModule,
     ResumeModule,
+    BookmarkModule,
   ],
   controllers: [AppController],
   providers: [AppService],

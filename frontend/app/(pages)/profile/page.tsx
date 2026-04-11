@@ -356,13 +356,19 @@ export default function ProfilePage() {
                             animationDuration={1500}
                           >
                             {stats.jobApplications.map(
-                              (entry: { status: string; count: number }, index: number) => (
+                              (
+                                entry: { status: string; count: number },
+                                index: number,
+                              ) => (
                                 <Cell
                                   key={`cell-${index}`}
                                   // FIX: use STATUS_COLORS keyed by the actual
                                   // status string so colours have semantic meaning.
                                   // Falls back to FALLBACK_COLOR for unknown statuses.
-                                  fill={STATUS_COLORS[entry.status] ?? FALLBACK_COLOR}
+                                  fill={
+                                    STATUS_COLORS[entry.status] ??
+                                    FALLBACK_COLOR
+                                  }
                                   stroke="none"
                                 />
                               ),
@@ -420,7 +426,9 @@ export default function ProfilePage() {
                                 className="w-2 h-2 rounded-full"
                                 style={{
                                   // FIX: consistent with the pie chart above
-                                  background: STATUS_COLORS[entry.status] ?? FALLBACK_COLOR,
+                                  background:
+                                    STATUS_COLORS[entry.status] ??
+                                    FALLBACK_COLOR,
                                 }}
                               />
                               <span className="text-xs text-muted-foreground font-bold truncate max-w-[80px]">

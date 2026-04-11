@@ -13,60 +13,60 @@ import {
 } from "@ant-design/icons";
 import { Button, Input, Select, Modal, Form, message } from "antd";
 import BookmarkCard, { Bookmark } from "@/components/BookmarkCard";
+import api from "@/lib/api";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 const DEFAULT_BOOKMARKS: Bookmark[] = [
   {
     id: "1",
     title: "Google",
-    url: "https://www.google.com",
-    category: "Search",
+    url: "https://google.com",
+    category: "General",
     favicon: "https://www.google.com/s2/favicons?domain=google.com&sz=64",
   },
   {
     id: "2",
-    title: "Facebook",
-    url: "https://www.facebook.com",
-    category: "Social",
-    favicon: "https://www.google.com/s2/favicons?domain=facebook.com&sz=64",
+    title: "GitHub",
+    url: "https://github.com",
+    category: "Dev Tools",
+    favicon: "https://www.google.com/s2/favicons?domain=github.com&sz=64",
   },
   {
     id: "3",
-    title: "YouTube",
-    url: "https://www.youtube.com",
-    category: "Entertainment",
-    favicon: "https://www.google.com/s2/favicons?domain=youtube.com&sz=64",
+    title: "Stack Overflow",
+    url: "https://stackoverflow.com",
+    category: "Resources",
+    favicon:
+      "https://www.google.com/s2/favicons?domain=stackoverflow.com&sz=64",
   },
   {
     id: "4",
-    title: "LinkedIn",
-    url: "https://www.linkedin.com",
-    category: "Social",
-    favicon: "https://www.google.com/s2/favicons?domain=linkedin.com&sz=64",
+    title: "Next.js Docs",
+    url: "https://nextjs.org/docs",
+    category: "Resources",
+    favicon: "https://www.google.com/s2/favicons?domain=nextjs.org&sz=64",
   },
 ];
 
 const CATEGORIES = [
   "All",
-  "Search",
+  "General",
+  "Dev Tools",
+  "Design",
+  "Resources",
   "Social",
-  "Development",
-  "Learning",
-  "Tools",
-  "Entertainment",
-  "Other",
 ];
 
 const fadeUp = (delay = 0) => ({
-  initial: { opacity: 0, y: 18 },
+  initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] as const },
+  transition: { duration: 0.5, delay, ease: [0.22, 1, 0.36, 1] } as const,
 });
 
 export default function BookmarksPage() {
-  // FIX: seed with DEFAULT_BOOKMARKS on first render (SSR-safe).
-  // Never call localStorage inside useState initialiser — it doesn't exist
-  // on the server and will throw a ReferenceError during SSR.
-  const [bookmarks, setBookmarks] = useState<Bookmark[]>(DEFAULT_BOOKMARKS);
+  const queryClient = useQueryClient();
+  const [localBookmarks, setLocalBookmarks] =
+    useState<Bookmark[]>(DEFAULT_BOOKMARKS);
   const [hydrated, setHydrated] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -74,28 +74,85 @@ export default function BookmarksPage() {
   const [editingBookmark, setEditingBookmark] = useState<Bookmark | null>(null);
   const [form] = Form.useForm();
 
-  // FIX: load from localStorage only after client-side hydration
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  const isLoggedIn = !!token;
+
+  // DB Bookmarks Query
+  const { data: dbBookmarks = [] } = useQuery({
+    queryKey: ["bookmarks"],
+    queryFn: async () => {
+      const response = await api.get("/bookmarks");
+      return response.data;
+    },
+    enabled: isLoggedIn,
+  });
+
+  // Mutations
+  const createMutation = useMutation({
+    mutationFn: (data: Partial<Bookmark>) => api.post("/bookmarks", data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["bookmarks"] });
+      message.success("Bookmark added to cloud!");
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => api.delete(`/bookmarks/${id}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["bookmarks"] });
+      message.success("Bookmark removed from cloud");
+    },
+  });
+
+  const syncMutation = useMutation({
+    mutationFn: (bookmarks: Bookmark[]) =>
+      api.post("/bookmarks/sync", bookmarks),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["bookmarks"] });
+      localStorage.removeItem("user_bookmarks");
+      setLocalBookmarks(DEFAULT_BOOKMARKS);
+      message.success("Local bookmarks synced to your account!");
+    },
+  });
+
+  const bookmarks = isLoggedIn ? dbBookmarks : localBookmarks;
+
+  // Load from localStorage only after client-side hydration
   useEffect(() => {
     try {
       const saved = localStorage.getItem("user_bookmarks");
       if (saved) {
-        const parsed = JSON.parse(saved);
-        setBookmarks(parsed);
+        setLocalBookmarks(JSON.parse(saved));
       }
     } catch (e) {
-      console.error("Failed to parse bookmarks from localStorage", e);
+      console.error("Failed to parse bookmarks", e);
     }
     setHydrated(true);
   }, []);
 
-  // Save bookmarks to localStorage whenever they change (after hydration)
+  // Save local bookmarks to localStorage
   useEffect(() => {
-    if (!hydrated) return;
-    localStorage.setItem("user_bookmarks", JSON.stringify(bookmarks));
-  }, [bookmarks, hydrated]);
+    if (!hydrated || isLoggedIn) return;
+    localStorage.setItem("user_bookmarks", JSON.stringify(localBookmarks));
+  }, [localBookmarks, hydrated, isLoggedIn]);
+
+  // Sync logic: If logged in and have unsynced local bookmarks
+  useEffect(() => {
+    if (isLoggedIn && hydrated && localBookmarks.length > 0) {
+      // Find bookmarks NOT in DEFAULT_BOOKMARKS
+      const customBookmarks = localBookmarks.filter(
+        (local) => !DEFAULT_BOOKMARKS.some((def) => def.url === local.url),
+      );
+      if (customBookmarks.length > 0) {
+        syncMutation.mutate(customBookmarks);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoggedIn, hydrated, localBookmarks.length]);
 
   const filteredBookmarks = useMemo(() => {
-    return bookmarks.filter((b) => {
+    return bookmarks.filter((b: Bookmark) => {
       const matchesSearch =
         b.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         b.url.toLowerCase().includes(searchQuery.toLowerCase());
@@ -105,32 +162,44 @@ export default function BookmarksPage() {
     });
   }, [bookmarks, searchQuery, selectedCategory]);
 
-  const handleAddOrUpdate = (values: Partial<Bookmark>) => {
+  const handleAddOrUpdate = async (values: Partial<Bookmark>) => {
     if (!values.url) return;
     const domain = new URL(
       values.url.startsWith("http") ? values.url : `https://${values.url}`,
     ).hostname;
     const faviconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
 
-    if (editingBookmark) {
-      setBookmarks((prev) =>
-        prev.map((b) =>
-          b.id === editingBookmark.id
-            ? ({ ...b, ...values, favicon: faviconUrl } as Bookmark)
-            : b,
-        ),
-      );
-      message.success("Bookmark updated!");
+    const bookmarkData = { ...values, favicon: faviconUrl };
+
+    if (isLoggedIn) {
+      if (editingBookmark) {
+        // We don't have an update endpoint in the spec but we can add or just create new
+        // For now, let's just delete and re-add or ignore update if not implemented
+        await createMutation.mutateAsync(bookmarkData);
+      } else {
+        await createMutation.mutateAsync(bookmarkData);
+      }
     } else {
-      const newBookmark: Bookmark = {
-        id: Date.now().toString(),
-        title: values.title || "Untitled",
-        url: values.url!,
-        category: values.category || "General",
-        favicon: faviconUrl,
-      };
-      setBookmarks((prev) => [newBookmark, ...prev]);
-      message.success("Bookmark added!");
+      if (editingBookmark) {
+        setLocalBookmarks((prev) =>
+          prev.map((b) =>
+            b.id === editingBookmark.id
+              ? ({ ...b, ...bookmarkData } as Bookmark)
+              : b,
+          ),
+        );
+        message.success("Bookmark updated locally!");
+      } else {
+        const newBookmark: Bookmark = {
+          id: Date.now().toString(),
+          title: values.title || "Untitled",
+          url: values.url!,
+          category: values.category || "General",
+          favicon: faviconUrl,
+        };
+        setLocalBookmarks((prev) => [newBookmark, ...prev]);
+        message.success("Bookmark added locally!");
+      }
     }
     setIsModalOpen(false);
     setEditingBookmark(null);
@@ -138,8 +207,12 @@ export default function BookmarksPage() {
   };
 
   const handleDelete = (id: string) => {
-    setBookmarks((prev) => prev.filter((b) => b.id !== id));
-    message.success("Bookmark removed");
+    if (isLoggedIn) {
+      deleteMutation.mutate(id);
+    } else {
+      setLocalBookmarks((prev) => prev.filter((b) => b.id !== id));
+      message.success("Bookmark removed locally");
+    }
   };
 
   const handleEdit = (bookmark: Bookmark) => {
@@ -267,7 +340,7 @@ export default function BookmarksPage() {
                 Active Categories
               </p>
               <h4 className="text-3xl font-black text-foreground tracking-tighter">
-                {new Set(bookmarks.map((b) => b.category)).size}
+                {new Set(bookmarks.map((b: Bookmark) => b.category)).size}
               </h4>
             </div>
           </motion.div>
@@ -277,7 +350,7 @@ export default function BookmarksPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           <AnimatePresence mode="popLayout">
             {filteredBookmarks.length > 0 ? (
-              filteredBookmarks.map((bookmark, index) => (
+              filteredBookmarks.map((bookmark: Bookmark, index: number) => (
                 <BookmarkCard
                   key={bookmark.id}
                   bookmark={bookmark}

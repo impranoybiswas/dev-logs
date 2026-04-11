@@ -115,128 +115,131 @@ export default function UsersPage() {
   };
 
   return (
-    <div
-      className="page-container pt-15 md:pt-20 pb-10 min-h-dvh"
-      style={containerStyle}
-    >
-      {/* Header Section */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="max-w-7xl mx-auto mb-16 mt-12"
+    <div className="page-container selection:bg-primary/20 bg-background min-h-screen">
+      <section
+        className={`py-20 px-6 md:px-10 max-w-7xl mx-auto ${containerStyle}`}
       >
-        <div className="flex flex-col items-center justify-center px-5 gap-8">
-          <div className="space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-bold border border-primary/20">
-              <GlobalOutlined />
-              <span>Global Network</span>
+        {/* Header Section */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="max-w-7xl mx-auto mb-16 mt-12"
+        >
+          <div className="flex flex-col items-center justify-center px-5 gap-8">
+            <div className="space-y-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-bold border border-primary/20">
+                <GlobalOutlined />
+                <span>Global Network</span>
+              </div>
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-black tracking-tight text-foreground leading-tight">
+                Discover{" "}
+                <span className="bg-linear-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
+                  Developers
+                </span>
+              </h1>
+              <p className="text-muted-foreground text-xl max-w-2xl font-medium">
+                Explore and connect with talented developers from around the
+                world. Build your network and collaborate on amazing projects.
+              </p>
             </div>
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-black tracking-tight text-foreground leading-tight">
-              Discover{" "}
-              <span className="bg-linear-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
-                Developers
-              </span>
-            </h1>
-            <p className="text-muted-foreground text-xl max-w-2xl font-medium">
-              Explore and connect with talented developers from around the
-              world. Build your network and collaborate on amazing projects.
-            </p>
-          </div>
 
-          <div className="relative w-full md:max-w-md">
-            <Input
-              placeholder="Search by name or email..."
-              prefix={<SearchOutlined className="text-muted-foreground mr-2" />}
-              size="large"
-              className="h-14 md:h-16"
-              style={{
-                borderRadius: "1.25rem",
-                border: "1px solid var(--border)",
-                backgroundColor: "var(--color-card)",
-                backdropFilter: "blur(24px)",
-                transition: "all 0.3s ease",
-              }}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+            <div className="relative w-full md:max-w-md">
+              <Input
+                placeholder="Search by name or email..."
+                prefix={
+                  <SearchOutlined className="text-muted-foreground mr-2" />
+                }
+                size="large"
+                className="h-14 md:h-16"
+                style={{
+                  borderRadius: "1.25rem",
+                  border: "1px solid var(--border)",
+                  backgroundColor: "var(--color-card)",
+                  backdropFilter: "blur(24px)",
+                  transition: "all 0.3s ease",
+                }}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
           </div>
+        </motion.div>
+
+        {/* Users Grid */}
+        <div className="max-w-7xl mx-auto px-5 w-full">
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-32 space-y-6">
+              <div className="relative">
+                <div className="absolute inset-0 bg-primary/20 rounded-full blur-2xl animate-pulse scale-150" />
+                <LoadingOutlined className="text-6xl text-primary animate-spin relative" />
+              </div>
+              <p className="text-muted-foreground animate-pulse font-bold text-lg">
+                Summoning developers...
+              </p>
+            </div>
+          ) : filteredUsers.length > 0 ? (
+            <motion.div
+              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"
+              layout
+            >
+              <AnimatePresence mode="popLayout">
+                {filteredUsers.map((user) => (
+                  <UserCard
+                    key={user.id}
+                    user={user}
+                    type="global"
+                    isLoggedIn={isLoggedIn}
+                    loading={actionLoadingId === user.id}
+                    onAction={handleAction}
+                    onViewProfile={() => router.push(`/users/${user.id}`)}
+                    onMessage={() => {
+                      // FIX: use the already-fetched friends cache instead of
+                      // calling getFriends() on every single click.
+                      const friend = friends.find((f) => f.user.id === user.id);
+                      if (friend) {
+                        openChat(friend);
+                      } else {
+                        message.warning("You must be friends to start a chat.");
+                      }
+                    }}
+                  />
+                ))}
+              </AnimatePresence>
+            </motion.div>
+          ) : (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="py-32"
+            >
+              <Empty
+                description={
+                  <div className="space-y-4">
+                    <p className="text-muted-foreground text-2xl font-bold">
+                      No developers found
+                    </p>
+                    <p className="text-muted-foreground/60">
+                      Try searching for a different name or email
+                    </p>
+                  </div>
+                }
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+              />
+            </motion.div>
+          )}
         </div>
-      </motion.div>
 
-      {/* Users Grid */}
-      <div className="max-w-7xl mx-auto px-5 w-full">
-        {loading ? (
-          <div className="flex flex-col items-center justify-center py-32 space-y-6">
-            <div className="relative">
-              <div className="absolute inset-0 bg-primary/20 rounded-full blur-2xl animate-pulse scale-150" />
-              <LoadingOutlined className="text-6xl text-primary animate-spin relative" />
-            </div>
-            <p className="text-muted-foreground animate-pulse font-bold text-lg">
-              Summoning developers...
-            </p>
-          </div>
-        ) : filteredUsers.length > 0 ? (
-          <motion.div
-            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"
-            layout
-          >
-            <AnimatePresence mode="popLayout">
-              {filteredUsers.map((user) => (
-                <UserCard
-                  key={user.id}
-                  user={user}
-                  type="global"
-                  isLoggedIn={isLoggedIn}
-                  loading={actionLoadingId === user.id}
-                  onAction={handleAction}
-                  onViewProfile={() => router.push(`/users/${user.id}`)}
-                  onMessage={() => {
-                    // FIX: use the already-fetched friends cache instead of
-                    // calling getFriends() on every single click.
-                    const friend = friends.find((f) => f.user.id === user.id);
-                    if (friend) {
-                      openChat(friend);
-                    } else {
-                      message.warning("You must be friends to start a chat.");
-                    }
-                  }}
-                />
-              ))}
-            </AnimatePresence>
-          </motion.div>
-        ) : (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="py-32"
-          >
-            <Empty
-              description={
-                <div className="space-y-4">
-                  <p className="text-muted-foreground text-2xl font-bold">
-                    No developers found
-                  </p>
-                  <p className="text-muted-foreground/60">
-                    Try searching for a different name or email
-                  </p>
-                </div>
-              }
-              image={Empty.PRESENTED_IMAGE_SIMPLE}
-            />
-          </motion.div>
-        )}
-      </div>
-
-      <style jsx global>{`
-        .ant-input-affix-wrapper-lg {
-          padding: 0 1.5rem !important;
-        }
-        .ant-btn {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          letter-spacing: 0.025em;
-        }
-      `}</style>
+        <style jsx global>{`
+          .ant-input-affix-wrapper-lg {
+            padding: 0 1.5rem !important;
+          }
+          .ant-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            letter-spacing: 0.025em;
+          }
+        `}</style>
+      </section>
     </div>
   );
 }

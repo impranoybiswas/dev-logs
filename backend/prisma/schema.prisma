@@ -32,6 +32,7 @@ model User {
   receivedMessages ChatMessage[] @relation("ReceivedMessages")
 
   resume           Resume?
+  bookmarks        Bookmark[]
 
   createdAt DateTime @default(now())
 }
@@ -155,4 +156,16 @@ model Project {
   techStack String?
   
   resume    Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+}
+
+model Bookmark {
+  id        String   @id @default(uuid())
+  title     String
+  url       String
+  category  String
+  favicon   String?
+  createdAt DateTime @default(now())
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

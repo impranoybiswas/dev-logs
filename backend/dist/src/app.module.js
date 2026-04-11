@@ -20,6 +20,7 @@ const notifications_module_1 = require("./notifications/notifications.module");
 const chat_module_1 = require("./chat/chat.module");
 const image_kit_module_1 = require("./image-kit/image-kit.module");
 const resume_module_1 = require("./resume/resume.module");
+const bookmark_module_1 = require("./bookmarks/bookmark.module");
 const redis_module_1 = require("./redis/redis.module");
 let AppModule = class AppModule {
 };
@@ -38,6 +39,7 @@ exports.AppModule = AppModule = __decorate([
             chat_module_1.ChatModule,
             image_kit_module_1.ImageKitModule,
             resume_module_1.ResumeModule,
+            bookmark_module_1.BookmarkModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],
