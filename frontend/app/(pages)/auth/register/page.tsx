@@ -19,6 +19,7 @@ import api from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { AxiosError } from "axios";
 import { ImageUpload } from "@/components/ImageUpload";
+import { motion } from "framer-motion";
 
 interface User {
   name: string;
@@ -75,93 +76,157 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="page-container py-20 flex justify-center">
-      <Card className="w-full max-w-3xl shadow-lg my-8">
-        <div className="text-center mb-8">
-          <Title level={2}>Create Account</Title>
-          <Text type="secondary">Join Dev Logs today</Text>
-        </div>
-
-        <Form
-          form={form}
-          name="register"
-          onFinish={onFinish}
-          layout="vertical"
-          size="large"
+    <div className="page-container">
+      <section className="px-5 flex flex-col items-center justify-center p-6 selection:bg-primary/20 h-dvh">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          className="w-full max-w-4xl"
         >
-          <Row gutter={24} align="middle">
-            <Col xs={24} md={12}>
-              <Form.Item
-                name="name"
-                rules={[{ required: true, message: "Please input your Name!" }]}
+          <Card className="glass premium-card p-4 md:p-8 border-none shadow-2xl! shadow-primary/10">
+            <div className="text-center mb-12">
+              <Title
+                level={2}
+                className="m-0! text-4xl! font-black tracking-tighter text-foreground"
               >
-                <Input prefix={<UserOutlined />} placeholder="Full Name" />
-              </Form.Item>
+                Create Account
+              </Title>
+              <Text className="text-muted-foreground font-medium text-lg">
+                Join the elite developer community
+              </Text>
+            </div>
 
-              <Form.Item
-                name="email"
-                rules={[
-                  { required: true, message: "Please input your Email!" },
-                  { type: "email", message: "Please enter a valid email!" },
-                ]}
-              >
-                <Input prefix={<MailOutlined />} placeholder="Email" />
-              </Form.Item>
-
-              <Form.Item
-                name="password"
-                rules={[
-                  { required: true, message: "Please input your Password!" },
-                  {
-                    min: 6,
-                    message: "Password must be at least 6 characters!",
-                  },
-                ]}
-              >
-                <Input.Password
-                  prefix={<LockOutlined />}
-                  placeholder="Password"
-                />
-              </Form.Item>
-
-              <Form.Item name="gender">
-                <Select placeholder="Select your gender">
-                  <Option value="male">Male</Option>
-                  <Option value="female">Female</Option>
-                  <Option value="other">Other</Option>
-                </Select>
-              </Form.Item>
-
-              <Form.Item name="birthDate">
-                <DatePicker className="w-full" placeholder="Birth Date" />
-              </Form.Item>
-            </Col>
-
-            <Col xs={24} md={12} className="flex">
-              <Form.Item name="profilePhoto" className="w-full text-center">
-                <div className="flex flex-col items-center">
-                  <ImageUpload />
-                </div>
-              </Form.Item>
-            </Col>
-          </Row>
-
-          <Form.Item>
-            <Button
-              type="primary"
-              htmlType="submit"
-              className="w-full mt-4"
-              loading={registerMutation.isPending}
+            <Form
+              form={form}
+              name="register"
+              onFinish={onFinish}
+              layout="vertical"
+              size="large"
+              className="space-y-2"
             >
-              Register
-            </Button>
-          </Form.Item>
+              <Row gutter={32}>
+                <Col xs={24} md={14}>
+                  <Form.Item
+                    name="name"
+                    rules={[
+                      { required: true, message: "Please input your Name!" },
+                    ]}
+                    className="mb-4"
+                  >
+                    <Input
+                      prefix={
+                        <UserOutlined className="text-muted-foreground mr-2" />
+                      }
+                      placeholder="Full Name"
+                      className="h-14! rounded-2xl! border-foreground/5! hover:border-primary! bg-foreground/5!"
+                    />
+                  </Form.Item>
 
-          <div className="text-center">
-            Already have an account? <a href="/auth/login">Log in</a>
-          </div>
-        </Form>
-      </Card>
+                  <Form.Item
+                    name="email"
+                    rules={[
+                      { required: true, message: "Please input your Email!" },
+                      { type: "email", message: "Please enter a valid email!" },
+                    ]}
+                    className="mb-4"
+                  >
+                    <Input
+                      prefix={
+                        <MailOutlined className="text-muted-foreground mr-2" />
+                      }
+                      placeholder="Email Address"
+                      className="h-14! rounded-2xl! border-foreground/5! hover:border-primary! bg-foreground/5!"
+                    />
+                  </Form.Item>
+
+                  <Form.Item
+                    name="password"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please input your Password!",
+                      },
+                      {
+                        min: 6,
+                        message: "Password must be at least 6 characters!",
+                      },
+                    ]}
+                    className="mb-4"
+                  >
+                    <Input.Password
+                      prefix={
+                        <LockOutlined className="text-muted-foreground mr-2" />
+                      }
+                      placeholder="Password"
+                      className="h-14! rounded-2xl! border-foreground/5! hover:border-primary! bg-foreground/5!"
+                    />
+                  </Form.Item>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <Form.Item name="gender" className="mb-4">
+                      <Select
+                        placeholder="Gender"
+                        className="h-14! rounded-2xl! border-foreground/5! hover:border-primary! bg-foreground/5!"
+                      >
+                        <Option value="male">Male</Option>
+                        <Option value="female">Female</Option>
+                        <Option value="other">Other</Option>
+                      </Select>
+                    </Form.Item>
+
+                    <Form.Item name="birthDate" className="mb-4">
+                      <DatePicker
+                        className="w-full h-14! rounded-2xl! border-foreground/5! hover:border-primary! bg-foreground/5!"
+                        placeholder="Birth Date"
+                      />
+                    </Form.Item>
+                  </div>
+                </Col>
+
+                <Col
+                  xs={24}
+                  md={10}
+                  className="flex flex-col justify-center items-center"
+                >
+                  <Form.Item
+                    name="profilePhoto"
+                    className="w-full text-center mb-0"
+                  >
+                    <div className="flex flex-col items-center">
+                      <Text className="mb-4 block text-muted-foreground font-bold uppercase tracking-widest text-xs">
+                        Profile Image
+                      </Text>
+                      <ImageUpload />
+                    </div>
+                  </Form.Item>
+                </Col>
+              </Row>
+
+              <Form.Item className="mt-8 mb-6">
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  className="w-full h-14! rounded-2xl! bg-primary! hover:bg-primary-hover! border-none font-bold! text-lg! tracking-tight! shadow-xl! shadow-primary/20"
+                  loading={registerMutation.isPending}
+                >
+                  Create Account
+                </Button>
+              </Form.Item>
+
+              <div className="text-center text-muted-foreground font-medium">
+                Already have an account?{" "}
+                <a
+                  href="/auth/login"
+                  className="text-primary hover:text-primary-hover transition-colors font-bold ml-1"
+                >
+                  Sign in instead
+                </a>
+              </div>
+            </Form>
+          </Card>
+        </motion.div>
+      </section>
     </div>
   );
 }

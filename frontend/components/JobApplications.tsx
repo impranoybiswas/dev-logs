@@ -26,6 +26,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import api from "@/lib/api";
 import dayjs from "dayjs";
+import { motion } from "framer-motion";
 
 const { TextArea } = Input;
 
@@ -39,10 +40,10 @@ interface JobApplication {
 }
 
 const statusColors: Record<string, string> = {
-  Pending: "gold",
-  Interviewing: "blue",
-  Accepted: "green",
-  Rejected: "red",
+  Pending: "var(--color-warning)",
+  Interviewing: "var(--color-primary)",
+  Accepted: "var(--color-success)",
+  Rejected: "var(--color-error)",
 };
 
 const STATUS_OPTIONS = [
@@ -118,21 +119,11 @@ export default function JobApplications() {
 
   const columns = [
     {
-      title: "#",
-      key: "serial",
-      width: 52,
-      render: (_: unknown, __: JobApplication, index: number) => (
-        <span className="text-muted-foreground text-xs font-bold">
-          {index + 1}
-        </span>
-      ),
-    },
-    {
       title: "Company",
       dataIndex: "company",
       key: "company",
       render: (text: string) => (
-        <span className="font-bold whitespace-nowrap">{text}</span>
+        <span className="font-bold text-foreground tracking-tight">{text}</span>
       ),
     },
     {
@@ -140,7 +131,7 @@ export default function JobApplications() {
       dataIndex: "role",
       key: "role",
       render: (text: string) => (
-        <span className="whitespace-nowrap">{text}</span>
+        <span className="font-medium text-muted-foreground">{text}</span>
       ),
     },
     {
@@ -149,45 +140,54 @@ export default function JobApplications() {
       key: "status",
       render: (status: string) => (
         <Tag
-          color={statusColors[status] || "default"}
-          className="font-semibold uppercase text-xs tracking-wide"
+          bordered={false}
+          style={{
+            background: `${statusColors[status]}20`,
+            color: statusColors[status],
+          }}
+          className="font-bold uppercase text-[10px] tracking-widest px-2.5 py-0.5 rounded-full"
         >
           {status}
         </Tag>
       ),
     },
     {
-      title: "Applied Date",
+      title: "Date",
       dataIndex: "appliedAt",
       key: "appliedAt",
       render: (date: string) => (
-        <span className="whitespace-nowrap text-muted-foreground">
-          {dayjs(date).format("MMM D, YYYY")}
+        <span className="text-xs font-semibold text-muted-foreground/80">
+          {dayjs(date).format("MMM DD, YYYY")}
         </span>
       ),
     },
     {
-      title: "Actions",
+      title: "",
       key: "actions",
       fixed: "right" as const,
-      width: 90,
+      width: 100,
       render: (_: unknown, record: JobApplication) => (
-        <Space size="small">
+        <Space size="middle">
           <Button
             icon={<EditOutlined />}
             onClick={() => handleEdit(record)}
             type="text"
-            size="small"
+            className="hover:text-primary transition-colors flex items-center justify-center"
           />
           <Popconfirm
-            title="Delete this application?"
-            description="This action cannot be undone."
+            title="Delete application?"
             onConfirm={() => deleteMutation.mutate(record.id)}
             okText="Delete"
             cancelText="Cancel"
-            okButtonProps={{ danger: true }}
+            okButtonProps={{ danger: true, className: "rounded-lg" }}
+            cancelButtonProps={{ className: "rounded-lg" }}
           >
-            <Button icon={<DeleteOutlined />} danger type="text" size="small" />
+            <Button
+              icon={<DeleteOutlined />}
+              danger
+              type="text"
+              className="flex items-center justify-center"
+            />
           </Popconfirm>
         </Space>
       ),
@@ -195,14 +195,18 @@ export default function JobApplications() {
   ];
 
   return (
-    <div className="flex flex-col gap-4 w-full">
+    <div className="flex flex-col gap-6 w-full">
       {/* ── Toolbar: Search + Filter + Add ── */}
-      <div className="flex flex-wrap items-center gap-3">
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex flex-wrap items-center gap-4 bg-card/40 p-1 rounded-2xl border"
+      >
         <Input
-          prefix={<SearchOutlined className="text-muted-foreground" />}
-          placeholder="Search company or role..."
+          prefix={<SearchOutlined className="text-muted-foreground ml-1" />}
+          placeholder="Search company..."
           allowClear
-          className="flex-1 min-w-48 max-w-xs"
+          className="flex-1 min-w-48 h-12 rounded-xl bg-transparent border-none! shadow-none!"
           onChange={(e) => {
             if (!e.target.value) setSearchText("");
           }}
@@ -212,11 +216,14 @@ export default function JobApplications() {
           onBlur={(e) => setSearchText(e.target.value)}
         />
 
+        <div className="h-6 w-px bg-border hidden md:block" />
+
         <Select
           prefix={<FilterOutlined className="text-muted-foreground" />}
-          placeholder="Filter by status"
+          placeholder="Status"
           allowClear
-          style={{ minWidth: 160 }}
+          variant="borderless"
+          className="min-w-32 h-12 flex items-center"
           onChange={setStatusFilter}
           options={STATUS_OPTIONS}
         />
@@ -225,103 +232,161 @@ export default function JobApplications() {
           type="primary"
           icon={<PlusOutlined />}
           onClick={handleAdd}
-          className="ml-auto"
+          className="h-12! px-6! rounded-xl! bg-primary! hover:bg-primary-hover! border-none shadow-lg! shadow-primary/20 font-bold! tracking-tight!"
         >
-          Add Job
+          Add New Job
         </Button>
-      </div>
+      </motion.div>
 
       {/* ── Table ── */}
-      <div className="w-full overflow-x-auto rounded-lg border border-border">
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="w-full overflow-hidden rounded-3xl border border-border glass shadow-2xl! shadow-black/5"
+      >
         <Table
           columns={columns}
           dataSource={jobs}
           rowKey="id"
           loading={isLoading}
-          pagination={{ pageSize: 10, showSizeChanger: false }}
-          locale={{ emptyText: "No job applications yet. Add one above!" }}
+          pagination={{
+            pageSize: 8,
+            showSizeChanger: false,
+            className: "px-6!",
+          }}
+          locale={{ emptyText: "No applications found. Time to apply!" }}
           scroll={{ x: "max-content" }}
-          size="middle"
-          style={{ margin: 0 }}
-          className="jobs-table"
+          className="premium-table"
           expandable={{
             expandedRowRender: (record) => (
-              <p className="m-0 text-sm text-muted-foreground">
-                <InfoCircleOutlined className="mr-2 text-primary" />
-                <strong className="text-foreground">Notes: </strong>
-                {record.notes || "No notes provided."}
-              </p>
+              <div className="px-6 py-4 bg-primary/5 rounded-2xl mx-6 mb-4">
+                <span className="text-xs font-bold uppercase tracking-widest text-primary block mb-2">
+                  Notes
+                </span>
+                <p className="m-0 text-sm text-foreground/80 leading-relaxed">
+                  {record.notes ||
+                    "No detailed notes provided for this application."}
+                </p>
+              </div>
             ),
             rowExpandable: (record) => !!record.notes,
+            expandIcon: ({ expanded, onExpand, record }) =>
+              record.notes ? (
+                <InfoCircleOutlined
+                  className={`cursor-pointer transition-colors ${expanded ? "text-primary" : "text-muted-foreground hover:text-primary"}`}
+                  onClick={(e) => onExpand(record, e)}
+                />
+              ) : null,
           }}
         />
-      </div>
+      </motion.div>
 
       {/* ── Add / Edit Modal ── */}
       <Modal
-        title={editingJob ? "Edit Job Application" : "Add Job Application"}
+        title={
+          <span className="text-xl font-black tracking-tighter">
+            {editingJob ? "Update Application" : "New Application"}
+          </span>
+        }
         open={isModalOpen}
         onCancel={() => setIsModalOpen(false)}
         footer={null}
         destroyOnHidden
+        centered
+        className="premium-modal"
+        rootClassName="backdrop-blur-sm"
       >
         <Form
           form={form}
           layout="vertical"
           onFinish={(values) => mutation.mutate(values)}
           initialValues={{ status: "Pending", appliedAt: dayjs() }}
-          className="pt-2"
+          className="pt-4 space-y-4"
+          size="large"
         >
-          <Form.Item
-            name="company"
-            label="Company"
-            rules={[
-              { required: true, message: "Please enter the company name" },
-            ]}
-          >
-            <Input placeholder="e.g. Google, Meta" />
-          </Form.Item>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Form.Item
+              name="company"
+              label={
+                <span className="font-bold text-xs uppercase tracking-widest">
+                  Company
+                </span>
+              }
+              rules={[{ required: true, message: "Enter company name" }]}
+            >
+              <Input placeholder="e.g. Google" className="rounded-xl!" />
+            </Form.Item>
+
+            <Form.Item
+              name="role"
+              label={
+                <span className="font-bold text-xs uppercase tracking-widest">
+                  Role
+                </span>
+              }
+              rules={[{ required: true, message: "Enter role" }]}
+            >
+              <Input placeholder="e.g. Frontend Dev" className="rounded-xl!" />
+            </Form.Item>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Form.Item
+              name="status"
+              label={
+                <span className="font-bold text-xs uppercase tracking-widest">
+                  Status
+                </span>
+              }
+              rules={[{ required: true, message: "Select status" }]}
+            >
+              <Select options={STATUS_OPTIONS} className="rounded-xl!" />
+            </Form.Item>
+
+            <Form.Item
+              name="appliedAt"
+              label={
+                <span className="font-bold text-xs uppercase tracking-widest">
+                  Applied Date
+                </span>
+              }
+              rules={[{ required: true, message: "Select date" }]}
+            >
+              <DatePicker className="w-full rounded-xl!" />
+            </Form.Item>
+          </div>
 
           <Form.Item
-            name="role"
-            label="Role"
-            rules={[{ required: true, message: "Please enter the role" }]}
+            name="notes"
+            label={
+              <span className="font-bold text-xs uppercase tracking-widest">
+                Notes
+              </span>
+            }
           >
-            <Input placeholder="e.g. Frontend Developer" />
-          </Form.Item>
-
-          <Form.Item
-            name="status"
-            label="Status"
-            rules={[{ required: true, message: "Please select a status" }]}
-          >
-            <Select options={STATUS_OPTIONS} />
-          </Form.Item>
-
-          <Form.Item
-            name="appliedAt"
-            label="Applied Date"
-            rules={[{ required: true, message: "Please select the date" }]}
-          >
-            <DatePicker className="w-full" />
-          </Form.Item>
-
-          <Form.Item name="notes" label="Notes (Optional)">
             <TextArea
               rows={3}
-              placeholder="Add any details about the application process"
+              placeholder="Application details, contact person, etc."
+              className="rounded-xl!"
             />
           </Form.Item>
 
-          <Form.Item className="mb-0 flex justify-end">
-            <Space>
-              <Button onClick={() => setIsModalOpen(false)}>Cancel</Button>
+          <Form.Item className="mb-0 pt-4 flex justify-end">
+            <Space size="middle">
+              <Button
+                onClick={() => setIsModalOpen(false)}
+                className="h-12! px-8! rounded-xl! font-bold!"
+              >
+                Cancel
+              </Button>
               <Button
                 type="primary"
                 htmlType="submit"
                 loading={mutation.isPending}
+                className="h-12! px-10! rounded-xl! bg-primary! border-none! font-bold! shadow-lg! shadow-primary/20"
               >
-                {editingJob ? "Update" : "Add"}
+                {editingJob ? "Update Job" : "Save Job"}
               </Button>
             </Space>
           </Form.Item>
@@ -329,34 +394,44 @@ export default function JobApplications() {
       </Modal>
 
       <style jsx global>{`
-        .jobs-table .ant-table {
-          margin: 0 !important;
+        .premium-table .ant-table {
+          background: transparent !important;
         }
-        .jobs-table .ant-table-wrapper {
-          border-radius: 0 !important;
-        }
-        .jobs-table .ant-table-container {
-          border-radius: 0 !important;
-        }
-        .jobs-table .ant-table-thead > tr > th {
-          font-weight: 700;
-          font-size: 0.75rem;
-          text-transform: uppercase;
-          letter-spacing: 0.05em;
+        .premium-table .ant-table-thead > tr > th {
           background: var(--color-muted) !important;
           color: var(--color-muted-foreground) !important;
+          font-weight: 800;
+          font-size: 0.7rem;
+          text-transform: uppercase;
+          letter-spacing: 0.1em;
           border-bottom: 1px solid var(--border) !important;
-          padding: 10px !important;
+          padding: 16px 24px !important;
         }
-        .jobs-table .ant-table-tbody > tr > td {
-          padding: 10px !important;
-          border-bottom: 1px solid var(--border) !important;
+        .premium-table .ant-table-tbody > tr > td {
+          padding: 16px 24px !important;
+          border-bottom: 1px solid
+            var(--border-rgb, rgba(var(--border-rgb), 0.1)) !important;
+          transition: background 0.3s ease;
         }
-        .jobs-table .ant-table-tbody > tr:first-child > td {
+        .premium-table .ant-table-tbody > tr:hover > td {
+          background: var(
+            --color-primary-rgb,
+            rgba(99, 102, 241, 0.03)
+          ) !important;
+        }
+        .premium-table .ant-pagination {
+          margin: 16px 0 !important;
+        }
+        .premium-modal .ant-modal-content {
+          border-radius: 24px !important;
+          padding: 24px !important;
+          border: 1px solid var(--border);
+          background: var(--background);
+        }
+        .premium-modal .ant-modal-header {
+          background: transparent !important;
           border-bottom: none !important;
-        }
-        .jobs-table .ant-table-tbody > tr:hover > td {
-          background: var(--color-muted) !important;
+          margin-bottom: 0 !important;
         }
       `}</style>
     </div>

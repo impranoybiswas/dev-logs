@@ -1,12 +1,11 @@
 "use client";
 
 import { useState, useLayoutEffect } from "react";
-import { Avatar, Button, Skeleton, Result, Progress, Tag } from "antd";
+import dayjs from "dayjs";
+import { Avatar, Button, Skeleton, Result, Progress } from "antd";
 import {
   UserOutlined,
   CalendarOutlined,
-  ManOutlined,
-  WomanOutlined,
   FileTextOutlined,
   TeamOutlined,
   BellOutlined,
@@ -22,33 +21,32 @@ import { AxiosError } from "axios";
 import SocialLinks from "@/components/SocialLinks";
 import { motion } from "framer-motion";
 import EditProfileModal from "@/components/EditProfileModal";
-import {
-  PieChart,
-  Pie,
-  Cell,
-  ResponsiveContainer,
-  Tooltip,
-  Legend,
-} from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
 const STATUS_COLORS: Record<string, string> = {
-  Pending: "#f59e0b",
-  Interviewing: "#6366f1",
-  Accepted: "#10b981",
-  Rejected: "#ef4444",
+  Pending: "var(--color-warning)",
+  Interviewing: "var(--color-primary)",
+  Accepted: "var(--color-success)",
+  Rejected: "var(--color-error)",
 };
-const PIE_COLORS = ["#f59e0b", "#6366f1", "#10b981", "#ef4444", "#8b5cf6"];
+const PIE_COLORS = [
+  "var(--color-warning)",
+  "var(--color-primary)",
+  "var(--color-success)",
+  "var(--color-error)",
+  "var(--color-accent)",
+];
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 18 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.45, delay, ease: [0.22, 1, 0.36, 1] as const },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true },
+  transition: { duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] as const },
 });
 
 export default function ProfilePage() {
   const router = useRouter();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  // Lazy initializer: reads localStorage once at mount — no state update needed
   const [isChecking] = useState(() =>
     typeof window !== "undefined" ? !localStorage.getItem("token") : true,
   );
@@ -111,20 +109,20 @@ export default function ProfilePage() {
       value: stats?.totalFriends ?? 0,
       icon: <TeamOutlined />,
       color: "var(--primary)",
-      bg: "rgba(99,102,241,0.08)",
+      bg: "rgba(var(--primary-rgb, 99,102,241),0.08)",
     },
     {
-      label: "Pending Requests",
+      label: "Pending",
       value: stats?.pendingFriends ?? 0,
       icon: <BellOutlined />,
-      color: "#f59e0b",
+      color: "var(--color-warning)",
       bg: "rgba(245,158,11,0.08)",
     },
     {
-      label: "Notifications",
+      label: "Alerts",
       value: stats?.unreadNotifications ?? 0,
-      icon: <BellOutlined />,
-      color: "#ef4444",
+      icon: <RocketOutlined />,
+      color: "var(--color-accent)",
       bg: "rgba(239,68,68,0.08)",
     },
     {
@@ -132,46 +130,49 @@ export default function ProfilePage() {
       value: null,
       percent: stats?.resumeCompleteness ?? 0,
       icon: <TrophyOutlined />,
-      color: "#10b981",
+      color: "var(--color-success)",
       bg: "rgba(16,185,129,0.08)",
     },
   ];
 
   return (
-    <div className="page-container">
-      <motion.section
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.4 }}
-        className="text-left"
-      >
+    <div className="page-container selection:bg-primary/20">
+      <section className="text-left py-24 px-6 md:px-10">
         {/* ── Page header ── */}
         <motion.div
           {...fadeUp(0)}
-          className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8"
+          className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-12"
         >
           <div>
-            <h1 className="text-2xl md:text-3xl lg:text-4xl font-black tracking-tight text-foreground leading-tight">
+            <h1 className="text-3xl md:text-5xl font-black tracking-tighter text-foreground leading-tight">
               My{" "}
-              <span className="bg-linear-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-primary via-accent to-secondary bg-clip-text text-transparent italic">
                 Dashboard
               </span>
             </h1>
-            <p className="text-muted-foreground text-sm md:text-base mt-1">
-              Welcome back, {user?.name?.split(" ")[0] || "Developer"}!
+            <p className="text-muted-foreground text-base md:text-lg mt-2 font-medium">
+              Welcome back,{" "}
+              <span className="text-foreground font-bold">
+                {user?.name?.split(" ")[0] || "Developer"}
+              </span>
+              !
             </p>
           </div>
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex gap-4 flex-wrap">
             <Button
+              size="large"
               icon={<FileTextOutlined />}
               onClick={() => router.push("/resume-builder")}
+              className="h-12! px-6! rounded-xl! border-border! hover:border-primary! font-bold! tracking-tight!"
             >
               Resume Builder
             </Button>
             <Button
               type="primary"
+              size="large"
               icon={<EditOutlined />}
               onClick={() => setIsEditModalOpen(true)}
+              className="h-12! px-6! rounded-xl! bg-primary! border-none! font-bold! tracking-tight! shadow-lg! shadow-primary/20"
             >
               Edit Profile
             </Button>
@@ -179,204 +180,152 @@ export default function ProfilePage() {
         </motion.div>
 
         {/* ── Stat Cards ── */}
-        <motion.div
-          {...fadeUp(0.05)}
-          className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8"
-        >
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           {statCards.map((s, i) => (
-            <div
+            <motion.div
               key={i}
-              className="rounded-xl border border-border p-4 flex flex-col gap-3 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
-              style={{ background: "var(--card)" }}
+              {...fadeUp(0.1 + i * 0.05)}
+              className="glass premium-card p-6 flex flex-col gap-4 border-none shadow-2xl! shadow-black/5"
             >
               <div
-                className="w-9 h-9 rounded-lg flex items-center justify-center text-base"
+                className="w-10 h-10 rounded-xl flex items-center justify-center text-lg shadow-inner"
                 style={{ background: s.bg, color: s.color }}
               >
                 {s.icon}
               </div>
               <div>
-                <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-1">
+                <p className="text-[10px] text-muted-foreground font-black uppercase tracking-[0.15em] mb-1">
                   {s.label}
                 </p>
                 {isLoading ? (
-                  <Skeleton.Input size="small" active />
+                  <Skeleton.Input size="small" active className="h-8!" />
                 ) : s.percent !== undefined ? (
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-3">
+                    <span className="text-3xl font-black text-foreground tracking-tighter">
+                      {s.percent}%
+                    </span>
                     <Progress
                       type="circle"
                       percent={s.percent}
-                      size={32}
+                      size={28}
                       strokeColor={s.color}
-                      trailColor="var(--muted)"
-                      format={(p) => (
-                        <span style={{ fontSize: 9, color: s.color }}>
-                          {p}%
-                        </span>
-                      )}
+                      trailColor="rgba(var(--foreground-rgb), 0.05)"
+                      format={() => null}
                     />
-                    <span className="text-xl font-black text-foreground">
-                      {s.percent}%
-                    </span>
                   </div>
                 ) : (
-                  <span className="text-2xl font-black text-foreground">
+                  <span className="text-3xl font-black text-foreground tracking-tighter">
                     {s.value}
                   </span>
                 )}
               </div>
-            </div>
+            </motion.div>
           ))}
-        </motion.div>
+        </div>
 
         {/* ── Main content: Profile + Chart ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
           {/* Profile card */}
-          <motion.div {...fadeUp(0.1)} className="lg:col-span-3">
-            <div
-              className="rounded-2xl border border-border h-full"
-              style={{ background: "var(--card)" }}
-            >
+          <motion.div {...fadeUp(0.3)} className="lg:col-span-3">
+            <div className="glass premium-card h-full border-none shadow-2xl! shadow-black/5">
               {/* Cover strip */}
               <div
-                className="h-24 rounded-t-2xl relative overflow-hidden"
+                className="h-32 rounded-t-3xl relative overflow-hidden"
                 style={{
                   background:
                     "linear-gradient(135deg, var(--primary) 0%, var(--accent) 60%, var(--secondary) 100%)",
                 }}
               >
-                <div
-                  className="absolute inset-0 opacity-20"
-                  style={{
-                    backgroundImage:
-                      "radial-gradient(circle at 20% 50%, white 1px, transparent 1px)",
-                    backgroundSize: "24px 24px",
-                  }}
-                />
+                <div className="absolute inset-0 opacity-10 blur-3xl animate-pulse bg-white/20" />
               </div>
 
-              <div className="px-5 pb-6">
+              <div className="px-8 pb-10">
                 {/* Avatar */}
-                <div className="flex items-end justify-between -mt-10 mb-5">
+                <div className="flex items-end justify-between -mt-12 mb-8">
                   <div
-                    className="rounded-full p-0.5"
+                    className="rounded-full p-1 shadow-2xl shadow-black/20"
                     style={{
                       background:
                         "linear-gradient(135deg, var(--primary), var(--accent))",
                     }}
                   >
                     <Avatar
-                      size={80}
+                      size={100}
                       icon={<UserOutlined />}
                       src={user?.profilePhoto}
-                      style={{
-                        border: "3px solid var(--card)",
-                        display: "block",
-                      }}
+                      className="border-4 border-card!"
                     />
                   </div>
                   <Button
                     size="small"
                     icon={<EditOutlined />}
                     onClick={() => setIsEditModalOpen(true)}
-                    style={{ borderRadius: "999px" }}
+                    className="rounded-full! px-4! h-8! font-bold! text-xs! tracking-wide! border-border!"
                   >
-                    Edit
+                    Update
                   </Button>
                 </div>
 
                 {isLoading ? (
-                  <Skeleton active avatar={false} paragraph={{ rows: 5 }} />
+                  <Skeleton active avatar={false} paragraph={{ rows: 6 }} />
                 ) : (
-                  <>
-                    <div className="mb-5">
-                      <h2 className="text-xl font-black text-foreground tracking-tight">
+                  <div className="space-y-8">
+                    <div>
+                      <h2 className="text-3xl font-black text-foreground tracking-tighter">
                         {user?.name}
                       </h2>
-                      <p className="text-sm text-muted-foreground mt-0.5">
+                      <p className="text-lg text-muted-foreground font-medium truncate">
                         {user?.email}
                       </p>
                     </div>
 
-                    {/* Details */}
-                    <div
-                      className="rounded-xl p-4 space-y-3 mb-6"
-                      style={{ background: "var(--muted)" }}
-                    >
-                      <InfoRow
-                        icon={
-                          user?.gender === "male" ? (
-                            <ManOutlined className="text-primary" />
-                          ) : user?.gender === "female" ? (
-                            <WomanOutlined style={{ color: "#ec4899" }} />
-                          ) : (
-                            <UserOutlined className="text-muted-foreground" />
-                          )
-                        }
-                        label="Gender"
-                        value={
-                          user?.gender ? capitalize(user.gender) : "Not set"
-                        }
-                      />
-                      <InfoRow
-                        icon={<CalendarOutlined className="text-primary" />}
-                        label="Birth Date"
-                        value={
-                          user?.birthDate
-                            ? new Date(user.birthDate).toLocaleDateString(
-                                undefined,
-                                {
-                                  year: "numeric",
-                                  month: "long",
-                                  day: "numeric",
-                                },
-                              )
-                            : "Not provided"
-                        }
-                      />
-                      <InfoRow
-                        icon={<TrophyOutlined style={{ color: "#f59e0b" }} />}
-                        label="Member Since"
-                        value={
-                          user?.createdAt
-                            ? new Date(user.createdAt).toLocaleDateString(
-                                undefined,
-                                { year: "numeric", month: "long" },
-                              )
-                            : "—"
-                        }
-                      />
+                    {/* Details Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="p-5 rounded-2xl bg-foreground/3 border border-foreground/5">
+                        <InfoRow
+                          icon={<UserOutlined className="text-primary" />}
+                          label="Gender"
+                          value={
+                            user?.gender ? capitalize(user.gender) : "Not set"
+                          }
+                        />
+                      </div>
+                      <div className="p-5 rounded-2xl bg-foreground/3 border border-foreground/5">
+                        <InfoRow
+                          icon={<CalendarOutlined className="text-accent" />}
+                          label="Birth Date"
+                          value={
+                            user?.birthDate
+                              ? dayjs(user.birthDate).format("MMMM DD, YYYY")
+                              : "Not set"
+                          }
+                        />
+                      </div>
                     </div>
 
                     {/* Social links */}
-                    <div>
-                      <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3">
-                        Social Presence
+                    <div className="pt-4">
+                      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 mb-6">
+                        Professional Presence
                       </p>
                       <SocialLinks />
                     </div>
-                  </>
+                  </div>
                 )}
               </div>
             </div>
           </motion.div>
 
           {/* Job Applications chart */}
-          <motion.div {...fadeUp(0.15)} className="lg:col-span-2">
-            <div
-              className="rounded-2xl border border-border h-full flex flex-col"
-              style={{ background: "var(--card)" }}
-            >
-              <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-border">
-                <div className="flex items-center gap-2">
-                  <div
-                    className="w-8 h-8 rounded-lg flex items-center justify-center text-primary"
-                    style={{ background: "rgba(99,102,241,0.08)" }}
-                  >
+          <motion.div {...fadeUp(0.4)} className="lg:col-span-2">
+            <div className="glass premium-card h-full flex flex-col border-none shadow-2xl! shadow-black/5">
+              <div className="flex items-center justify-between px-8 pt-8 pb-6 border-b border-border/10">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-primary/10 text-primary shadow-inner">
                     <RocketOutlined />
                   </div>
-                  <span className="font-bold text-foreground">
-                    Job Applications
+                  <span className="font-bold text-lg tracking-tight text-foreground">
+                    Job Hunt Stats
                   </span>
                 </div>
                 <Button
@@ -384,29 +333,31 @@ export default function ProfilePage() {
                   size="small"
                   icon={<ArrowRightOutlined />}
                   onClick={() => router.push("/jobs")}
-                  className="text-primary!"
+                  className="text-primary! font-bold! tracking-tight!"
                 >
-                  View All
+                  View Desk
                 </Button>
               </div>
 
-              <div className="flex-1 px-5 py-4">
+              <div className="flex-1 px-8 py-8">
                 {isLoading ? (
-                  <Skeleton active paragraph={{ rows: 7 }} />
+                  <Skeleton active paragraph={{ rows: 10 }} />
                 ) : hasJobs ? (
-                  <>
-                    <div className="h-52 w-full">
+                  <div className="space-y-8">
+                    <div className="h-64 w-full">
                       <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
                           <Pie
                             data={stats.jobApplications}
                             cx="50%"
                             cy="50%"
-                            innerRadius={52}
-                            outerRadius={72}
-                            paddingAngle={4}
+                            innerRadius={65}
+                            outerRadius={85}
+                            paddingAngle={6}
                             dataKey="count"
                             nameKey="status"
+                            animationBegin={200}
+                            animationDuration={1500}
                           >
                             {stats.jobApplications.map(
                               (_: unknown, index: number) => (
@@ -420,14 +371,10 @@ export default function ProfilePage() {
                           </Pie>
                           <text
                             x="50%"
-                            y="43%"
+                            y="45%"
                             textAnchor="middle"
                             dominantBaseline="middle"
-                            style={{
-                              fontSize: "1.5rem",
-                              fontWeight: 900,
-                              fill: "var(--foreground)",
-                            }}
+                            className="fill-foreground font-black text-3xl tracking-tighter"
                           >
                             {stats.jobApplications.reduce(
                               (s: number, e: { count: number }) => s + e.count,
@@ -436,47 +383,30 @@ export default function ProfilePage() {
                           </text>
                           <text
                             x="50%"
-                            y="57%"
+                            y="58%"
                             textAnchor="middle"
                             dominantBaseline="middle"
-                            style={{
-                              fontSize: "0.65rem",
-                              fill: "var(--muted-foreground)",
-                              fontWeight: 600,
-                            }}
+                            className="fill-muted-foreground font-black uppercase tracking-[0.2em] text-[10px]"
                           >
-                            Total
+                            Jobs
                           </text>
                           <Tooltip
                             contentStyle={{
-                              background: "var(--card)",
+                              background:
+                                "rgba(var(--background-rgb, 10, 10, 10), 0.8)",
+                              backdropFilter: "blur(12px)",
                               border: "1px solid var(--border)",
-                              borderRadius: "0.75rem",
+                              borderRadius: "16px",
                               color: "var(--foreground)",
-                              fontSize: "0.8rem",
+                              boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.2)",
                             }}
-                          />
-                          <Legend
-                            verticalAlign="bottom"
-                            height={28}
-                            formatter={(value) => (
-                              <span
-                                style={{
-                                  color: "var(--muted-foreground)",
-                                  fontSize: "0.75rem",
-                                  fontWeight: 600,
-                                }}
-                              >
-                                {value}
-                              </span>
-                            )}
                           />
                         </PieChart>
                       </ResponsiveContainer>
                     </div>
 
                     {/* Status breakdown */}
-                    <div className="mt-4 space-y-2">
+                    <div className="grid grid-cols-2 gap-3">
                       {stats.jobApplications.map(
                         (
                           entry: { status: string; count: number },
@@ -484,51 +414,47 @@ export default function ProfilePage() {
                         ) => (
                           <div
                             key={i}
-                            className="flex items-center justify-between"
+                            className="flex items-center justify-between p-3 rounded-xl bg-foreground/[0.03] border border-foreground/[0.01]"
                           >
                             <div className="flex items-center gap-2">
                               <div
-                                className="w-2.5 h-2.5 rounded-full"
+                                className="w-2 h-2 rounded-full"
                                 style={{
                                   background: PIE_COLORS[i % PIE_COLORS.length],
                                 }}
                               />
-                              <span className="text-xs text-muted-foreground font-medium">
+                              <span className="text-xs text-muted-foreground font-bold truncate max-w-[80px]">
                                 {entry.status}
                               </span>
                             </div>
-                            <Tag
-                              color={STATUS_COLORS[entry.status] || "default"}
-                              className="text-xs font-bold m-0"
-                            >
+                            <span className="text-xs font-black text-foreground">
                               {entry.count}
-                            </Tag>
+                            </span>
                           </div>
                         ),
                       )}
                     </div>
-                  </>
+                  </div>
                 ) : (
-                  <div className="flex flex-col items-center justify-center h-full py-12 gap-4">
-                    <div
-                      className="w-16 h-16 rounded-2xl flex items-center justify-center text-2xl"
-                      style={{
-                        background: "var(--muted)",
-                        color: "var(--muted-foreground)",
-                      }}
-                    >
+                  <div className="flex flex-col items-center justify-center h-full py-16 gap-6">
+                    <div className="w-20 h-20 rounded-3xl flex items-center justify-center text-4xl bg-muted/30 text-muted-foreground shadow-inner">
                       <RocketOutlined />
                     </div>
                     <div className="text-center">
-                      <p className="font-bold text-foreground">
-                        No applications yet
+                      <p className="font-black text-xl text-foreground tracking-tight">
+                        No actions yet
                       </p>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        Start tracking your job hunt
+                      <p className="text-sm text-muted-foreground mt-2 font-medium">
+                        Ready to start your next chapter?
                       </p>
                     </div>
-                    <Button type="primary" onClick={() => router.push("/jobs")}>
-                      Start Tracking
+                    <Button
+                      type="primary"
+                      size="large"
+                      onClick={() => router.push("/jobs")}
+                      className="h-12! px-8! rounded-xl! bg-primary! border-none! font-bold!"
+                    >
+                      Launch Mission
                     </Button>
                   </div>
                 )}
@@ -536,7 +462,7 @@ export default function ProfilePage() {
             </div>
           </motion.div>
         </div>
-      </motion.section>
+      </section>
 
       {user && (
         <EditProfileModal
@@ -559,13 +485,13 @@ function InfoRow({
   value: string;
 }) {
   return (
-    <div className="flex items-center gap-3">
-      <span className="text-base shrink-0">{icon}</span>
-      <div className="min-w-0 flex-1 flex items-center justify-between gap-2">
-        <span className="text-xs text-muted-foreground font-semibold uppercase tracking-wide shrink-0">
+    <div className="flex items-center gap-4">
+      <div className="text-xl shrink-0 opacity-80">{icon}</div>
+      <div className="min-w-0 flex-1 flex flex-col">
+        <span className="text-[10px] text-muted-foreground font-black uppercase tracking-[0.15em]">
           {label}
         </span>
-        <span className="text-sm font-semibold text-foreground truncate text-right">
+        <span className="text-base font-bold text-foreground truncate mt-0.5">
           {value}
         </span>
       </div>

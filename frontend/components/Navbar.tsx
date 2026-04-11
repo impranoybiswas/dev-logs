@@ -65,6 +65,7 @@ export default function Navbar() {
     { href: "/users", label: "Users" },
     { href: "/jobs", label: "My Jobs", protected: true },
     { href: "/friends", label: "Friends", protected: true },
+    { href: "/bookmarks", label: "Bookmarks", protected: false },
     { href: "/profile", label: "Profile", protected: true },
   ];
 
@@ -228,10 +229,10 @@ export default function Navbar() {
 
   return (
     <nav
-      className={`fixed left-0 right-0 z-50 w-full h-14 transition-all duration-500 ease-in-out border-b bg-background px-0 lg:px-5 ${isScrolled ? "shadow-sm" : "shadow-xs"}`}
+      className={`fixed top-0 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-7xl h-16 transition-all duration-500 ease-in-out rounded-2xl border ${isScrolled ? "glass shadow-2xl! shadow-primary/10" : "bg-transparent border-transparent"}`}
     >
       {/* Large Device */}
-      <div className="max-w-7xl mx-auto flex items-center h-full border-x">
+      <div className="max-w-7xl mx-auto flex items-center h-full border-b">
         <SiteTitle />
         <div className="hidden lg:flex items-center h-full">
           {navLinks.map((link) => (
